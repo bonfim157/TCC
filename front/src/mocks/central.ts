@@ -5,7 +5,7 @@ import type {
   PedidoRegistroRede, PedidoTriagem, PessoaDaEquipe,
 } from '../api/contract';
 import {
-  casoParaAgir, conduz, conduzCasos, contexto, erro, hojeISO, json, novoEvento, paraQuemConsulta, persistir, podeAbrir, resumo,
+  auditar, casoParaAgir, conduz, recarregar, conduzCasos, contexto, erro, hojeISO, json, novoEvento, paraQuemConsulta, persistir, podeAbrir, resumo,
 } from './base';
 import { gerarProvidencias, modelos } from './protocolo';
 import { categorias, escolas, ocorrencias, redes, usuarios } from './seed';
@@ -42,6 +42,7 @@ function itemDaFila(o: Ocorrencia): ItemDaFila {
 
 const salvar = (o: Ocorrencia, ctx: Parameters<typeof paraQuemConsulta>[0], status = 200) => {
   persistir();
+  auditar(ctx, 'alteracao', `caso ${o.protocolo}`, 'permitido', o.eventos.at(-1)?.tipo);
   return json(paraQuemConsulta(ctx, o), status);
 };
 
@@ -276,6 +277,7 @@ export const handlersCentral = [
   /* ---------- Ciência da família: rota pública, só com o link ---------- */
   http.get('/api/ciencia/:token', async ({ params }) => {
     await delay(300);
+    recarregar();
     const achado = ocorrencias.flatMap((o) => o.comunicacoes.map((c) => ({ o, c }))).find(({ c }) => c.linkCiencia === `/ciencia/${params.token}`);
     if (!achado) return erro(404, 'nao_encontrado', 'Este link não é válido ou já expirou. Procure a secretaria da escola.');
     const { o, c } = achado;
@@ -293,6 +295,7 @@ export const handlersCentral = [
 
   http.post('/api/ciencia/:token', async ({ request, params }) => {
     await delay(400);
+    recarregar();
     const achado = ocorrencias.flatMap((o) => o.comunicacoes.map((c) => ({ o, c }))).find(({ c }) => c.linkCiencia === `/ciencia/${params.token}`);
     if (!achado) return erro(404, 'nao_encontrado', 'Este link não é válido ou já expirou.');
     const { nome } = (await request.json()) as { nome: string };

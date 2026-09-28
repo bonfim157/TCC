@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  rotas, type Canal, type Categoria, type Encaminhamento, type ModeloDeComunicacao, type Ocorrencia, type Orgao,
+  rotas, type Canal, type Categoria, type ContatosLocais, type Encaminhamento, type ModeloDeComunicacao, type Ocorrencia, type Orgao,
   type PessoaDaEquipe, type Prioridade, type Providencia, type TipoComunicacao,
 } from '../../api/contract';
 import { LinhaDoTempo, situacaoPlano } from '../../components/caso';
@@ -170,6 +170,11 @@ export function CasoNaCentral({ id, aoMudar }: { id: string; aoMudar: () => void
   const categorias = useApi<Categoria[]>(rotas.categorias, [s.rede?.id]);
   const equipe = useApi<PessoaDaEquipe[]>(rotas.equipe, [s.escola?.id]);
   const modelos = useApi<ModeloDeComunicacao[]>(rotas.modelos, [s.rede?.id]);
+  const contatosCarga = useApi<ContatosLocais>(rotas.admin.contatos, [s.escola?.id]);
+  const contatos = contatosCarga.estado.tipo === 'ok' ? contatosCarga.estado.dados : null;
+  // Nome da unidade local para cada órgão, vindo dos contatos da escola (Administração).
+  const unidadeLocal = (o: Orgao) =>
+    ({ conselho_tutelar: contatos?.conselhoTutelar, cras: contatos?.cras, creas: contatos?.creas, policia: contatos?.delegacia, saude: contatos?.saude, samu: 'SAMU 192', outro: '' } as Record<Orgao, string | undefined>)[o] || nomeOrgao[o];
   const [o, setO] = useState<Ocorrencia | null>(null);
   const [dialogo, setDialogo] = useState<Dialogo>(null);
   const [form, setForm] = useState<Record<string, string>>({});
@@ -195,7 +200,7 @@ export function CasoNaCentral({ id, aoMudar }: { id: string; aoMudar: () => void
     acao.limparErro();
     if (!o || !d) return setDialogo(d);
     if (d.tipo === 'triagem') setForm({ categoriaId: o.categoriaId, prioridade: o.prioridade, responsavelId: o.responsavelId ?? '', observacao: '' });
-    else if (d.tipo === 'encaminhar') setForm({ orgao: 'conselho_tutelar', orgaoNome: 'Conselho Tutelar de Limeira', canal: 'oficio', protocoloExterno: '', devolutivaAte: emDias(10) });
+    else if (d.tipo === 'encaminhar') setForm({ orgao: 'conselho_tutelar', orgaoNome: unidadeLocal('conselho_tutelar'), canal: 'oficio', protocoloExterno: '', devolutivaAte: emDias(10) });
     else if (d.tipo === 'registro') setForm({ tipo: 'escuta', texto: '' });
     else if (d.tipo === 'plano') setForm({ descricao: '', responsavel: '', prazo: emDias(7) });
     else if (d.tipo === 'encerrar') setForm({ justificativa: '', reavaliarEm: '' });
@@ -204,7 +209,7 @@ export function CasoNaCentral({ id, aoMudar }: { id: string; aoMudar: () => void
       const primeiro = o.envolvidos.find((e) => e.tipo === 'estudante' && !e.restrito);
       setComunicacao({
         estudanteId: primeiro?.pessoaId ?? '',
-        destinatario: d.para === 'familia' ? `Família de ${primeiro?.nome ?? ''}` : 'Conselho Tutelar de Limeira',
+        destinatario: d.para === 'familia' ? `Família de ${primeiro?.nome ?? ''}` : unidadeLocal('conselho_tutelar'),
         resumo: '',
         texto: '',
       });
@@ -513,7 +518,7 @@ export function CasoNaCentral({ id, aoMudar }: { id: string; aoMudar: () => void
               <CampoSelecao
                 rotulo="Para qual órgão"
                 value={campo('orgao')}
-                onChange={(e) => setForm((f) => ({ ...f, orgao: e.target.value, orgaoNome: e.target.value === 'conselho_tutelar' ? 'Conselho Tutelar de Limeira' : nomeOrgao[e.target.value as Orgao] }))}
+                onChange={(e) => setForm((f) => ({ ...f, orgao: e.target.value, orgaoNome: unidadeLocal(e.target.value as Orgao) }))}
               >
                 {(Object.keys(nomeOrgao) as Orgao[]).map((k) => <option key={k} value={k}>{nomeOrgao[k]}</option>)}
               </CampoSelecao>

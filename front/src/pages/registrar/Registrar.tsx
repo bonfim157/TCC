@@ -4,10 +4,10 @@ import { api, ErroDaApi, FalhaDeRede } from '../../api/client';
 import { rotas, type Categoria, type NovaOcorrencia, type Ocorrencia } from '../../api/contract';
 import { Botao } from '../../components/controles';
 import { DialogoConfirmacao, Etapas } from '../../components/estrutura';
-import { Aviso, EstadoDaCarga } from '../../components/feedback';
+import { Aviso, Esqueleto, EstadoDaCarga } from '../../components/feedback';
 import { useConexao } from '../../layout/useConexao';
 import {
-  apagarRascunho, novoIdRascunho, obterRascunho, salvarRascunho, type RascunhoRegistro,
+  apagarRascunho, novoIdRascunho, obterRascunho, salvarRascunho, type Dono, type RascunhoRegistro,
 } from '../../state/rascunhosLocais';
 import { useDono } from '../../state/useDono';
 import { useSessao } from '../../state/sessao';
@@ -43,14 +43,29 @@ const temConteudo = (r: RascunhoRegistro) =>
  * aparelho; o envio só acontece na revisão, com confirmação explícita.
  */
 export function Registrar() {
+  const dono = useDono();
+  const { carregandoEscolas } = useSessao();
+  // O rascunho é guardado por pessoa, rede e escola: só dá para abri-lo quando a escola já carregou.
+  if (!dono) {
+    return (
+      <div className="pagina pagina-estreita">
+        {carregandoEscolas ? <Esqueleto rotulo="Preparando o formulário" /> : (
+          <Aviso tipo="atencao" titulo="Escolha uma escola">Para registrar, selecione a escola no alto da página.</Aviso>
+        )}
+      </div>
+    );
+  }
+  return <FormularioDeRegistro key={`${dono.redeId}-${dono.escolaId}`} dono={dono} />;
+}
+
+function FormularioDeRegistro({ dono }: { dono: Dono }) {
   const { rascunhoId } = useParams();
   const navegar = useNavigate();
-  const dono = useDono();
   const s = useSessao();
   const online = useConexao();
   const categorias = useApi<Categoria[]>(rotas.categorias, [s.rede?.id]);
 
-  const [r, setR] = useState<RascunhoRegistro>(() => (dono && rascunhoId && obterRascunho(dono, rascunhoId)) || novoRascunho());
+  const [r, setR] = useState<RascunhoRegistro>(() => (rascunhoId && obterRascunho(dono, rascunhoId)) || novoRascunho());
   const [salvoEm, setSalvoEm] = useState<Date | null>(null);
   const [falhaAoSalvar, setFalhaAoSalvar] = useState(false);
   const [erros, setErros] = useState<Erros>({});
@@ -65,7 +80,7 @@ export function Registrar() {
 
   // Salva a cada alteração, e fixa o id do rascunho no endereço para sobreviver a um recarregamento.
   useEffect(() => {
-    if (!dono || enviado || !temConteudo(r)) return;
+    if (enviado || !temConteudo(r)) return;
     const ok = salvarRascunho(dono, r);
     setFalhaAoSalvar(!ok);
     if (ok) setSalvoEm(new Date());
@@ -80,14 +95,6 @@ export function Registrar() {
     }
     titulo.current?.focus();
   }, [r.passo]);
-
-  if (!dono) {
-    return (
-      <div className="pagina pagina-estreita">
-        <Aviso tipo="atencao" titulo="Escolha uma escola">Para registrar, selecione a escola no alto da página.</Aviso>
-      </div>
-    );
-  }
 
   if (enviado) {
     return (
@@ -129,14 +136,14 @@ export function Registrar() {
     setEnviando(true);
     setErroEnvio(null);
     const corpo: NovaOcorrencia = {
-      escolaId: dono!.escolaId,
+      escolaId: dono.escolaId,
       fato: { ...r.fato, riscoImediato: r.risco === 'sim' },
       envolvidos: r.envolvidos,
       anexos: r.anexos,
     };
     try {
       const criada = await api<Ocorrencia>(rotas.ocorrencias, { method: 'POST', body: JSON.stringify(corpo) });
-      apagarRascunho(dono!, r.id);
+      apagarRascunho(dono, r.id);
       setEnviado(criada);
     } catch (e) {
       setErroEnvio(

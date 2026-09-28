@@ -68,3 +68,31 @@ O que foi construído em cada fase e como foi verificado. As verificações fora
 - Professora recebe "sem permissão" na Central; sem rolagem lateral em 360px
 
 **Corrigido durante a verificação**: agenda mostrava ações do plano de casos encerrados.
+
+## F4 · Gestão e administração (28/09/2026)
+
+**Construído**
+
+- Busca (`/buscar`) com filtros por período, tipo, situação, prioridade e texto; a regional vê o resumo sem abrir casos
+- Relatórios (`/relatorios`) por tipo, mês e situação, com grupos de menos de 3 casos suprimidos; atalho para o relatório bimestral de bullying (Lei 13.185); exportação de planilha só com motivo
+- Administração (`/administracao`) em abas: protocolo da rede, tipos de ocorrência e modelos (secretaria); contatos locais e pessoas (direção); usuários; matriz de permissões (consulta); auditoria
+- Auditoria no servidor simulado: entradas, consultas, criações, alterações, buscas, exportações e acessos negados
+- Contatos da escola usados automaticamente nos encaminhamentos e ofícios da Central
+- Histórico fictício de 64 casos encerrados (fevereiro a agosto de 2026) para dar volume aos relatórios
+- Dados da demonstração guardados no navegador e compartilhados entre abas (o link da família aberto em outra aba funciona); botão "Restaurar dados de demonstração" no Guia
+- Abas passam a carregar só quando abertas
+
+**Verificado** (`scripts/verificacao/f4-gestao.mjs`)
+
+- Coordenação encontra 68 casos; filtro por bullying traz 10
+- Regional vê 68 resultados sem nenhum link para abrir caso; relatório da Unidade Regional com 5 grupos suprimidos
+- Exportação sem motivo é recusada; com motivo, gera o CSV e aparece na auditoria da secretaria
+- Secretaria altera uma providência do protocolo; direção vê o protocolo só para leitura, salva contatos e cadastra pessoa
+- Encaminhamento na Central usa o contato salvo pela direção
+- Professora recebe "sem permissão" na busca; sem rolagem lateral em 360px nas três telas
+
+**Corrigido durante a verificação**: legenda oculta de tabelas escapava do quadro de rolagem e criava rolagem lateral no celular; contorno de foco aparecia em volta do conteúdo principal; rascunho não era restaurado ao recarregar quando a lista de escolas demorava (o formulário agora espera a escola).
+
+## Situação da última rodada de verificação
+
+Depois das últimas mudanças (dados compartilhados entre abas e espera da escola no registro), F1 e F2 foram verificadas de novo e passaram. F3 e F4 passaram antes dessas mudanças; a nova rodada completa (`npm run verificar`) ficou pendente porque a sessão foi encerrada. Ver Pendências.

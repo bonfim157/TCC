@@ -91,7 +91,8 @@ export function Abas({ rotulo, abas }: { rotulo: string; abas: { id: string; tit
           hidden={ativa !== a.id}
           tabIndex={0}
         >
-          {a.conteudo}
+          {/* Só a aba aberta é montada: cada uma carrega seus dados quando é aberta. */}
+          {ativa === a.id && a.conteudo}
         </div>
       ))}
     </div>

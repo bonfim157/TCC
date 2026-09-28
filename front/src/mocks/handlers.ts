@@ -1,10 +1,11 @@
 import { delay, http } from 'msw';
 import type { NovaOcorrencia, NovaSessao, NovoAdendo, Ocorrencia, OcorrenciaSemelhante, PrazoProximo, Sessao } from '../api/contract';
 import {
-  contexto, erro, escolasDoVinculo, json, novoEvento, paraQuemConsulta, persistir, podeAbrir, resumo,
+  auditar, contexto, erro, escolasDoVinculo, json, novoEvento, paraQuemConsulta, persistir, podeAbrir, resumo,
   semAcento, sessoes, soProprios,
 } from './base';
 import { handlersCentral } from './central';
+import { handlersGestao } from './gestao';
 import { gerarProvidencias } from './protocolo';
 import { categorias, categoriasSensiveis, ocorrencias, pessoas, redes, usuarios } from './seed';
 
@@ -40,6 +41,7 @@ export const handlers = [
     }
     const token = `demo-${usuario.id}-${Math.random().toString(36).slice(2, 10)}`;
     sessoes.set(token, usuario.id);
+    auditar({ usuario, vinculo: usuario.vinculos.find((v) => v.redeId === corpo.redeId)! }, 'login', 'sessão');
     return json({ token, usuario } satisfies Sessao);
   }),
 
@@ -137,6 +139,7 @@ export const handlers = [
     };
     ocorrencias.push(nova);
     persistir();
+    auditar(ctx, 'criacao', `caso ${nova.protocolo}`);
     return json(paraQuemConsulta(ctx, nova), 201);
   }),
 
@@ -147,8 +150,15 @@ export const handlers = [
     const item = ocorrencias.find((o) => o.id === params.id);
     if (!item) return erro(404, 'nao_encontrado', 'Não encontramos este registro.');
     // Mesmo que o id exista, um registro de outra rede nunca é entregue.
-    if (item.redeId !== ctx.vinculo.redeId) return erro(403, 'rede_divergente', 'Este registro pertence a outra rede.');
-    if (!podeAbrir(ctx, item)) return erro(403, 'sem_permissao', 'Seu perfil não tem acesso a este registro.');
+    if (item.redeId !== ctx.vinculo.redeId) {
+      auditar(ctx, 'negado', 'caso de outra rede', 'negado', 'rede divergente');
+      return erro(403, 'rede_divergente', 'Este registro pertence a outra rede.');
+    }
+    if (!podeAbrir(ctx, item)) {
+      auditar(ctx, 'negado', `caso ${item.protocolo}`, 'negado', 'perfil sem acesso');
+      return erro(403, 'sem_permissao', 'Seu perfil não tem acesso a este registro.');
+    }
+    auditar(ctx, 'consulta', `caso ${item.protocolo}`);
     return json(paraQuemConsulta(ctx, item));
   }),
 
@@ -163,6 +173,7 @@ export const handlers = [
     if (!texto?.trim() || texto.trim().length < 10) return erro(422, 'validacao', 'O adendo precisa ter pelo menos 10 caracteres.');
     item.eventos.push(novoEvento(ctx, 'adendo', texto.trim()));
     persistir();
+    auditar(ctx, 'alteracao', `caso ${item.protocolo}`, 'permitido', 'adendo');
     return json(paraQuemConsulta(ctx, item), 201);
   }),
 
@@ -178,6 +189,7 @@ export const handlers = [
   }),
 
   ...handlersCentral,
+  ...handlersGestao,
 
   http.get('/api/diagnostico/falha', async () => {
     await delay(300);

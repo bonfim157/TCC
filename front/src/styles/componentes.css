@@ -118,7 +118,7 @@ select.entrada {
 .painel-cabeca h3 { font-size: var(--t-destaque); }
 
 /* ---------- Tabela ---------- */
-.tabela-rolagem { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r-superficie); background: var(--surface); }
+.tabela-rolagem { position: relative; overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r-superficie); background: var(--surface); }
 .tabela { width: 100%; border-collapse: collapse; font-size: var(--t-corpo); }
 .tabela caption { text-align: left; padding: var(--e4) var(--e4) 0; font-weight: 700; }
 .tabela th, .tabela td { padding: var(--e3) var(--e4); text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
@@ -128,7 +128,7 @@ select.entrada {
 
 /* ---------- Abas ---------- */
 .abas { min-width: 0; }
-.abas-lista { display: flex; gap: var(--e1); border-bottom: 2px solid var(--line); overflow-x: auto; }
+.abas-lista { position: relative; display: flex; gap: var(--e1); border-bottom: 2px solid var(--line); overflow-x: auto; }
 .aba {
   min-height: var(--alvo); padding: 0 var(--e4); font: inherit; font-weight: 600; color: var(--inkSoft);
   background: none; border: 0; border-bottom: 3px solid transparent; margin-bottom: -2px; cursor: pointer; white-space: nowrap;

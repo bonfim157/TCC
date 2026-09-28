@@ -1,6 +1,9 @@
 import { HttpResponse } from 'msw';
-import type { ApiErro, Envolvimento, Evento, Ocorrencia, OcorrenciaResumo, Perfil, Usuario, Vinculo } from '../api/contract';
-import { escolas, ocorrencias, usuarios } from './seed';
+import type {
+  AcaoAuditada, ApiErro, Envolvimento, Evento, Ocorrencia, OcorrenciaResumo, Perfil, RegistroDeAuditoria, Usuario, Vinculo,
+} from '../api/contract';
+import { modelos, regras } from './protocolo';
+import { categorias, contatos, escolas, ocorrencias, pessoas, usuarios } from './seed';
 
 /*
  * Regras comuns da API simulada. O acesso é decidido aqui, como o backend
@@ -9,25 +12,70 @@ import { escolas, ocorrencias, usuarios } from './seed';
 
 export const sessoes = new Map<string, string>(); // token -> usuarioId
 
+export const auditoria: RegistroDeAuditoria[] = [];
+
 /*
- * O "banco" da demonstração vive na memória da página. Para um teste de
- * usabilidade não perder o que foi enviado ao recarregar, ele é copiado
- * para a sessão do navegador a cada escrita. A chave tem versão: dados de
- * uma versão anterior do formato são ignorados.
+ * O "banco" da demonstração: coleções que a API simulada altera. Ficam no
+ * armazenamento local do navegador, compartilhado entre abas, para que uma
+ * demonstração com várias pessoas (ou o link da família aberto em outra aba)
+ * veja os mesmos dados. A chave tem versão: formatos antigos são ignorados.
+ * "Restaurar dados de demonstração", no Guia da interface, apaga esta chave.
  */
-const CHAVE_BANCO = 'demo.banco.ocorrencias.v3';
-try {
-  const salvo = sessionStorage.getItem(CHAVE_BANCO);
-  if (salvo) ocorrencias.splice(0, ocorrencias.length, ...(JSON.parse(salvo) as Ocorrencia[]));
-} catch {
-  /* sem armazenamento: começa do zero */
+export const CHAVE_BANCO = 'demo.banco.v6';
+const colecoes: Record<string, unknown[]> = { ocorrencias, auditoria, regras, modelos, categorias, contatos, pessoas };
+let ultimoSalvo: string | null = null;
+
+/** Traz para a memória o que outra aba gravou. Chamado a cada requisição. */
+export function recarregar() {
+  let bruto: string | null = null;
+  try {
+    bruto = localStorage.getItem(CHAVE_BANCO);
+  } catch {
+    return;
+  }
+  if (!bruto || bruto === ultimoSalvo) return;
+  try {
+    const dados = JSON.parse(bruto) as Record<string, unknown[]>;
+    for (const [nome, lista] of Object.entries(colecoes)) {
+      if (Array.isArray(dados[nome])) lista.splice(0, lista.length, ...dados[nome]);
+    }
+    ultimoSalvo = bruto;
+  } catch {
+    /* dado corrompido: segue com a memória */
+  }
 }
+
 export function persistir() {
   try {
-    sessionStorage.setItem(CHAVE_BANCO, JSON.stringify(ocorrencias));
+    ultimoSalvo = JSON.stringify(colecoes);
+    localStorage.setItem(CHAVE_BANCO, ultimoSalvo);
   } catch {
     /* ignora: a demonstração continua em memória */
   }
+}
+
+recarregar();
+
+/* ---------- Auditoria: toda ação relevante e toda negação ficam registradas ---------- */
+
+export function auditar(
+  ctx: { usuario: Usuario; vinculo: Vinculo } | null,
+  acao: AcaoAuditada,
+  recurso: string,
+  resultado: RegistroDeAuditoria['resultado'] = 'permitido',
+  detalhe?: string,
+  redeId?: string,
+) {
+  auditoria.unshift({
+    id: `au-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    em: new Date().toISOString(),
+    ator: ctx?.usuario.nome ?? 'Família (link de ciência)',
+    perfil: ctx?.vinculo.perfil ?? null,
+    redeId: ctx?.vinculo.redeId ?? redeId ?? '',
+    acao, recurso, resultado, detalhe,
+  });
+  if (auditoria.length > 500) auditoria.length = 500;
+  persistir();
 }
 
 export const json = (dados: unknown, status = 200) => HttpResponse.json(dados as object, { status }) as Response;
@@ -37,6 +85,7 @@ export type Contexto = { usuario: Usuario; vinculo: Vinculo; escolaId: string | 
 
 /** Valida token, rede e escola do cabeçalho. Devolve o contexto ou uma resposta de erro. */
 export function contexto(request: Request): Contexto | Response {
+  recarregar();
   const token = request.headers.get('Authorization')?.replace('Bearer ', '');
   // Tokens de demonstração carregam o id da pessoa, para a sessão sobreviver
   // a um recarregamento da página (a API simulada perde a memória ao recarregar).
@@ -128,7 +177,10 @@ export function casoParaAgir(request: Request, id: string): { ctx: Contexto; o: 
   if (ctx instanceof Response) return ctx;
   const o = ocorrencias.find((x) => x.id === id);
   if (!o || o.redeId !== ctx.vinculo.redeId) return erro(404, 'nao_encontrado', 'Não encontramos este caso.');
-  if (!conduz(ctx) || !podeAbrir(ctx, o)) return erro(403, 'sem_permissao', 'Seu perfil não conduz casos nesta escola.');
+  if (!conduz(ctx) || !podeAbrir(ctx, o)) {
+    auditar(ctx, 'negado', `caso ${o.protocolo}`, 'negado', 'tentativa de alterar sem permissão');
+    return erro(403, 'sem_permissao', 'Seu perfil não conduz casos nesta escola.');
+  }
   if (o.status === 'encerrado') return erro(409, 'conflito', 'Este caso está encerrado. Para retomar, registre uma reavaliação com a direção.');
   return { ctx, o };
 }

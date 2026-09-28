@@ -3,14 +3,17 @@ import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { Esqueleto } from './components/feedback';
 import { Estrutura } from './layout/Estrutura';
 import { Entrar } from './pages/Entrar';
-import { EmConstrucao, ErroGeral, NaoEncontrada, SemPermissao } from './pages/Estados';
+import { ErroGeral, NaoEncontrada, SemPermissao } from './pages/Estados';
 import { Guia } from './pages/Guia';
+import { Administracao } from './pages/Administracao';
+import { Buscar } from './pages/Buscar';
 import { Caso } from './pages/Caso';
 import { Central } from './pages/central/Central';
 import { Ciencia } from './pages/Ciencia';
 import { Inicio } from './pages/Inicio';
 import { MeusRegistros } from './pages/MeusRegistros';
 import { Registrar } from './pages/registrar/Registrar';
+import { Relatorios } from './pages/Relatorios';
 import { podeAcessar, type Area } from './state/perfis';
 import { useSessao } from './state/sessao';
 
@@ -41,9 +44,9 @@ export function App() {
         <Route path="meus-registros" element={<Area_ area="meus-registros"><MeusRegistros /></Area_>} />
         <Route path="casos/:id" element={<Caso />} />
         <Route path="central/:id?" element={<Area_ area="central"><Central /></Area_>} />
-        <Route path="buscar" element={<Area_ area="buscar"><EmConstrucao area="buscar" /></Area_>} />
-        <Route path="relatorios" element={<Area_ area="relatorios"><EmConstrucao area="relatorios" /></Area_>} />
-        <Route path="administracao" element={<Area_ area="administracao"><EmConstrucao area="administracao" /></Area_>} />
+        <Route path="buscar" element={<Area_ area="buscar"><Buscar /></Area_>} />
+        <Route path="relatorios" element={<Area_ area="relatorios"><Relatorios /></Area_>} />
+        <Route path="administracao" element={<Area_ area="administracao"><Administracao /></Area_>} />
         <Route path="guia" element={<Guia />} />
         <Route path="sem-permissao" element={<SemPermissao />} />
         <Route path="erro" element={<ErroGeral />} />

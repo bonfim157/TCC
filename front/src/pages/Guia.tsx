@@ -375,6 +375,7 @@ function Estados() {
   const [simulando, setSimulando] = useState(semConexaoSimuladaAtiva());
   const [pedirFalha, setPedirFalha] = useState(0);
   const [quebrar, setQuebrar] = useState(false);
+  const [restaurar, setRestaurar] = useState(false);
   const falha = useApi<unknown>(pedirFalha ? rotas.falhaSimulada : null, [pedirFalha]);
 
   return (
@@ -403,6 +404,32 @@ function Estados() {
           <div className="pilha">
             <Botao variante="secundario" onClick={() => setQuebrar(true)}>Quebrar este quadro</Botao>
             <LimiteDeErro>{quebrar ? <Quebra /> : <p className="guia-nota">O erro fica contido e a tela oferece saída.</p>}</LimiteDeErro>
+          </div>
+        </Painel>
+        <Painel titulo="Dados de demonstração">
+          <div className="pilha">
+            <p className="guia-nota">
+              O que foi registrado nas demonstrações fica guardado neste navegador, compartilhado entre abas. Restaurar
+              volta aos dados fictícios iniciais.
+            </p>
+            <div><Botao variante="secundario" onClick={() => setRestaurar(true)}>Restaurar dados de demonstração</Botao></div>
+            <DialogoConfirmacao
+              aberto={restaurar}
+              titulo="Restaurar os dados de demonstração?"
+              confirmar="Restaurar"
+              perigoso
+              aoCancelar={() => setRestaurar(false)}
+              aoConfirmar={() => {
+                try {
+                  localStorage.removeItem('demo.banco.v6'); // mesma chave de src/mocks/base.ts
+                } catch {
+                  /* sem armazenamento: nada a apagar */
+                }
+                location.reload();
+              }}
+            >
+              Casos, comunicações, auditoria e configurações criados nas demonstrações serão apagados deste navegador.
+            </DialogoConfirmacao>
           </div>
         </Painel>
         <Painel titulo="Páginas de estado">

@@ -1,6 +1,6 @@
 # Plano de escopo do front-end: sistema de ocorrências escolares
 
-Atualizado em 28/09/2026. Este arquivo é a fonte oficial do plano; a cópia no Claude Docs é só para leitura.
+Atualizado em 28/09/2026 (F1 a F4 construídas). Este arquivo é a fonte oficial do plano; a cópia no Claude Docs é só para leitura.
 
 Propomos construir o front-end completo do sistema em 5 fases, com dados simulados, antes de qualquer integração com backend. O protótipo HTML (`prototipo-ocorrencias.html`) serve como referência de linguagem visual, não como base de código.
 
@@ -18,7 +18,7 @@ Documentos relacionados:
 | F1 Fundação e multi-rede | Construída | Guia da interface com 20 componentes, contraste AA verificado por script, duas redes isoladas, perfis de demonstração, estados do sistema |
 | F2 Registrar e acompanhar | Construída | Início, registro em 3 passos com rascunho no aparelho, meus registros, detalhe do caso com linha do tempo e adendos |
 | F3 Central de Gestão | Construída | Fila por risco, caso com providências por tipo, encaminhamentos com devolutiva, plano de apoio, comunicação à família com ciência, ofício ao Conselho Tutelar, encerramento com justificativa, agenda |
-| F4 Gestão e administração | Em construção | Busca, relatórios, administração em dois níveis, permissões, auditoria |
+| F4 Gestão e administração | Construída | Busca por perfil, relatório agregado com supressão de grupos pequenos e exportação com motivo, administração em dois níveis (rede e escola), matriz de permissões (consulta), auditoria |
 | F5 Validação e entrega | Adiada | Testes de usabilidade e de acessibilidade com pessoas, depois do front completo |
 
 Os testes com usuários ficaram para depois de o front estar completo (decisão de 28/09/2026). Estão em [Pendências](pendencias.md).
@@ -151,11 +151,11 @@ Uma fase só é concluída quando todos os itens forem verificados em demonstra�
 
 **F4 · Gestão e administração**
 
-- [ ] Relatório agregado oculta grupos abaixo do limite mínimo definido
-- [ ] Exportação exige motivo antes de liberar o arquivo
-- [ ] Busca retorna apenas casos permitidos ao perfil ativo
-- [ ] Protocolo configurado pela secretaria vale para todas as escolas da rede; a escola altera apenas o que é dela
-- [ ] Visão da regional agrega várias escolas da mesma rede e nunca de outra rede
+- [x] Relatório agregado oculta grupos abaixo do limite mínimo definido (3 casos)
+- [x] Exportação exige motivo antes de liberar o arquivo, e o motivo vai para a auditoria
+- [x] Busca retorna apenas casos permitidos ao perfil ativo
+- [x] Protocolo configurado pela secretaria vale para todas as escolas da rede; a escola altera apenas o que é dela (contatos, pessoas)
+- [ ] Visão da regional agrega várias escolas da mesma rede e nunca de outra rede (funciona, mas a regional de demonstração só tem a IMSIL; testar com mais escolas)
 
 **F5 · Validação e entrega**
 

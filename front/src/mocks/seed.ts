@@ -295,3 +295,44 @@ const marcar = (id: string, provs: string[], por: string, em: string, obs = '') 
     },
   ];
 }
+
+/*
+ * Histórico fictício de 2026 (casos já encerrados), para que busca e
+ * relatórios tenham volume. Gerado de forma determinística: o mesmo em
+ * qualquer máquina.
+ */
+{
+  let semente = 20260101;
+  const aleatorio = () => ((semente = (semente * 1103515245 + 12345) % 2147483648) / 2147483648);
+  const pesos = [18, 7, 6, 2, 5, 9, 8, 2, 3]; // convivência é o mais comum; proteção e discriminação são raros
+  const sorteiaCategoria = () => {
+    let r = aleatorio() * pesos.reduce((a, b) => a + b, 0);
+    for (let i = 0; i < pesos.length; i++) if ((r -= pesos[i]) < 0) return i + 1;
+    return 1;
+  };
+  const locais = ['Pátio', 'Sala de aula', 'Quadra', 'Corredor', 'Entrada ou saída da escola', 'Refeitório', 'Redes sociais ou mensagens'];
+  for (let n = 1; n <= 64; n++) {
+    const mes = 2 + Math.floor(((n - 1) / 64) * 7); // fevereiro a agosto
+    const dia = 1 + Math.floor(aleatorio() * 27);
+    const data = `2026-${String(mes).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+    const cat = sorteiaCategoria();
+    const local = locais[Math.floor(aleatorio() * locais.length)];
+    const o = completar({
+      id: `oc-sp-h${n}`, redeId: 'rede-sp', escolaId: 'esc-imsil', protocolo: `2026-${String(400 + n).padStart(6, '0')}`,
+      categoriaId: `sp-cat-${cat}`, status: 'encerrado', prioridade: cat === 8 ? 'alta' : 'media',
+      abertaEm: `${data}T10:00:00-03:00`, local, criadoPorId: 'u-historico', criadoPorNome: 'Registro histórico', registroNaRede: `Conviva ${50000 + n}`,
+      fato: { categoriaId: `sp-cat-${cat}`, data, hora: '10:00', local, riscoImediato: false, relato: 'Registro histórico fictício, usado para compor relatórios.', providenciaImediata: '' },
+      envolvidos: [], anexos: [], plano: [],
+      eventos: [ev('registro', 'Registro histórico', 'coordenacao', `${data}T10:00:00-03:00`, 'Registro histórico fictício.')],
+    });
+    o.providencias = o.providencias.map((p) => ({ ...p, situacao: 'feita', registradaPor: 'Registro histórico' }));
+    o.encerramento = { em: `${data}T18:00:00-03:00`, por: 'Carlos Mendes', justificativa: 'Caso histórico fictício encerrado.', reavaliarEm: null };
+    ocorrencias.push(o);
+  }
+}
+
+/** Contatos locais da rede de proteção (fictícios até a escola confirmar; ver Pendências). */
+export const contatos: import('../api/contract').ContatosLocais[] = [
+  { escolaId: 'esc-imsil', conselhoTutelar: 'Conselho Tutelar de Limeira', cras: 'CRAS de referência do Jardim Ouro Verde', creas: 'CREAS de Limeira', delegacia: 'Delegacia de Polícia de Limeira', saude: 'UBS de referência do Jardim Ouro Verde' },
+  { escolaId: 'esc-teste', conselhoTutelar: 'Conselho Tutelar Fictício', cras: 'CRAS Fictício', creas: 'CREAS Fictício', delegacia: 'Delegacia Fictícia', saude: 'UBS Fictícia' },
+];

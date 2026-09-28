@@ -1,6 +1,6 @@
 # Cuidar e Registrar: front-end
 
-Interface do sistema de ocorrências escolares. Fases F1 a F3 construídas; F4 em construção. Plano e pendências em [`../docs/`](../docs/plano-de-escopo.md).
+Interface do sistema de ocorrências escolares. Fases F1 a F4 construídas; F5 (testes com pessoas) adiada. Plano e pendências em [`../docs/`](../docs/plano-de-escopo.md).
 
 ## Como rodar
 
@@ -11,7 +11,7 @@ npm run build      # checagem de tipos + build de produção
 npm run contrast   # confere o contraste WCAG AA das cores de todas as redes
 ```
 
-Não há backend. Uma API simulada (MSW) responde no próprio navegador. O que é enviado fica guardado na sessão do navegador (some ao fechar a aba).
+Não há backend. Uma API simulada (MSW) responde no próprio navegador. O que é enviado fica guardado neste navegador, compartilhado entre abas; o Guia da interface tem um botão para restaurar os dados iniciais.
 Para abrir já com uma rede escolhida, use `?rede=sp` (IMSIL, rede estadual SP) ou `?rede=teste` (rede fictícia, só para testar o isolamento).
 
 ### Pessoas de demonstração (rede SP, IMSIL)

@@ -13,6 +13,7 @@ import './styles/layout.css';
 import './styles/paginas.css';
 import './styles/registro.css';
 import './styles/central.css';
+import './styles/gestao.css';
 
 import { App } from './App';
 import { NotificacoesProvider } from './components/feedback';

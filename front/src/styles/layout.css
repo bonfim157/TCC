@@ -118,3 +118,5 @@ main { padding: var(--e6) var(--e6) var(--e8); outline: none; min-width: 0; }
 .tela-avulsa { min-height: 100dvh; display: flex; flex-direction: column; }
 .tela-avulsa main { flex: 1; display: flex; justify-content: center; padding: var(--e7) var(--e4); }
 .tela-avulsa .pagina { width: 100%; max-width: 640px; }
+.pagina > * { min-width: 0; }
+main:focus, main:focus-visible { outline: none; }

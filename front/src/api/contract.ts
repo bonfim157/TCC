@@ -304,6 +304,65 @@ export type CienciaPublica = {
   ciencia: { em: string; nome: string } | null;
 };
 
+/* ---------- Gestão e administração (F4) ---------- */
+
+export type FiltrosDeBusca = {
+  de: string;                // AAAA-MM-DD, opcional ('' = sem limite)
+  ate: string;
+  categoriaId: string;
+  status: string;
+  prioridade: string;
+  texto: string;             // protocolo ou local
+};
+
+/** Resultado de busca: só o resumo; abrir o caso segue as regras de acesso. */
+export type ResultadoDeBusca = OcorrenciaResumo & { podeAbrir: boolean; escolaNome: string };
+
+/** Contagem que pode vir suprimida (null) quando o grupo é pequeno demais. */
+export type Contagem = { chave: string; rotulo: string; total: number | null };
+
+export type Relatorio = {
+  limiteMinimo: number;      // grupos com menos casos que isso aparecem como null
+  periodo: { de: string; ate: string };
+  escopo: string;            // "E.E. ..." ou "Unidade Regional de Ensino de Limeira"
+  total: number;
+  porCategoria: Contagem[];
+  porMes: Contagem[];
+  porSituacao: Contagem[];
+};
+
+export type PedidoExportacao = { motivo: string; de: string; ate: string; escolaId: string; somenteCategoriaId: string };
+export type Exportacao = { nomeArquivo: string; conteudoCsv: string };
+
+export type AcaoAuditada = 'login' | 'consulta' | 'criacao' | 'alteracao' | 'busca' | 'exportacao' | 'administracao' | 'negado';
+
+/** Trilha de auditoria: quem fez o quê, quando, em qual recurso. Sem conteúdo sensível. */
+export type RegistroDeAuditoria = {
+  id: string;
+  em: string;
+  ator: string;
+  perfil: Perfil | null;
+  redeId: RedeId;
+  acao: AcaoAuditada;
+  recurso: string;           // ex.: "caso 2026-000482", "relatório agregado"
+  resultado: 'permitido' | 'negado';
+  detalhe?: string;          // motivo da exportação, código do erro
+};
+
+/** Contatos locais da rede de proteção, por escola. */
+export type ContatosLocais = {
+  escolaId: EscolaId;
+  conselhoTutelar: string;
+  cras: string;
+  creas: string;
+  delegacia: string;
+  saude: string;
+};
+
+export type UsuarioDaRede = { id: string; nome: string; perfil: Perfil; escolas: string[] };
+
+export type PedidoNovaPessoa = Pick<Pessoa, 'nome' | 'tipo' | 'turma'>;
+
 export type NovoAdendo = { texto: string };
 
 /** Ação de plano de apoio com prazo, dos casos que a pessoa pode abrir. */
@@ -336,5 +395,18 @@ export const rotas = {
   modelos: '/api/modelos',
   acao: (id: string, acao: string) => `/api/ocorrencias/${id}/${acao}`,
   ciencia: (token: string) => `/api/ciencia/${token}`,
+  busca: (f: FiltrosDeBusca) => `/api/busca?${new URLSearchParams(f).toString()}`,
+  relatorio: (q: { de: string; ate: string; escolaId: string; categoriaId: string }) => `/api/relatorios?${new URLSearchParams(q).toString()}`,
+  exportacoes: '/api/exportacoes',
+  auditoria: '/api/auditoria',
+  admin: {
+    regras: '/api/admin/regras',
+    regra: (id: string) => `/api/admin/regras/${id}`,
+    categoria: (id: string) => `/api/admin/categorias/${id}`,
+    modelo: (id: string) => `/api/admin/modelos/${id}`,
+    contatos: '/api/admin/contatos',
+    pessoas: '/api/admin/pessoas',
+    usuarios: '/api/admin/usuarios',
+  },
   falhaSimulada: '/api/diagnostico/falha',
 } as const;
