@@ -20,7 +20,7 @@ Protótipo acadêmico, sem vínculo oficial com a Secretaria da Educação. Pess
 ## Rodar o front
 
 ```bash
-cd front
+cd "C:/Users/Rafael/Desktop/dev/tcc/front"
 npm install
 npm run dev        # http://localhost:5173/?rede=sp
 ```
