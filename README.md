@@ -26,3 +26,8 @@ npm run dev        # http://localhost:5173/?rede=sp
 ```
 
 Detalhes, verificação e estrutura em [`front/README.md`](front/README.md).
+
+## Acesse:
+
+## https://claude.ai/code/artifact/419a1396-84bd-4ee3-8340-e1d20e260b8d#391a3e9b-a973.mkg7bf73qee.5200
+## https://claude.ai/artifact/96r5ojTWWnHQBnAZmcTqek#391a3e9b-a973
