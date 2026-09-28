@@ -1,0 +1,62 @@
+/* Utilitários de composição e estilos específicos de páginas. */
+
+.pilha { display: grid; gap: var(--e4); }
+.acoes-linha { display: flex; flex-wrap: wrap; gap: var(--e3); align-items: center; }
+code { font-size: .92em; background: var(--neutralSoft); padding: 1px 6px; border-radius: 4px; }
+
+/* ---------- Início ---------- */
+.lista-areas { list-style: none; margin: 0; padding: 0; display: grid; }
+.lista-areas li { display: grid; gap: 2px; padding: var(--e3) 0; border-top: 1px solid var(--line); }
+.lista-areas li:first-child { border-top: 0; padding-top: 0; }
+.lista-areas a { font-weight: 700; font-size: var(--t-destaque); }
+.lista-areas span { color: var(--inkSoft); }
+.nota-fase { color: var(--inkSoft); font-size: var(--t-pequeno); }
+
+/* ---------- Entrar ---------- */
+.entrar { gap: var(--e5); }
+
+/* ---------- Guia ---------- */
+.guia { gap: var(--e7); }
+.guia-indice ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--e2) var(--e4); }
+.guia-indice a { display: inline-flex; min-height: 44px; align-items: center; font-weight: 600; }
+.guia-secao { display: grid; gap: var(--e5); scroll-margin-top: var(--e5); }
+.guia-secao > .pagina-cabeca { padding-bottom: var(--e3); border-bottom: 1px solid var(--line); }
+.guia-colunas { display: grid; gap: var(--e4); grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+.guia-grade { display: grid; gap: var(--e5); grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); }
+.guia-nota { color: var(--inkSoft); font-size: var(--t-pequeno); }
+
+.guia-exemplo {
+  display: grid; grid-template-columns: minmax(180px, 240px) minmax(0, 1fr); gap: var(--e5);
+  padding: var(--e5) 0; border-top: 1px solid var(--line);
+}
+.guia-exemplo:first-of-type { border-top: 0; }
+.guia-exemplo-nome { display: grid; gap: var(--e2); align-content: start; }
+.guia-exemplo-nome h3 { font-size: var(--t-destaque); }
+.guia-exemplo-nome p { color: var(--inkSoft); font-size: var(--t-pequeno); }
+.guia-exemplo-palco { display: grid; gap: var(--e4); min-width: 0; }
+@media (max-width: 720px) { .guia-exemplo { grid-template-columns: 1fr; gap: var(--e3); } }
+
+.amostras { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--e4); }
+.amostra { display: grid; grid-template-columns: 56px 1fr; gap: var(--e3); align-items: center; }
+.amostra-cor { width: 56px; height: 56px; border-radius: var(--r-controle); border: 1px solid var(--lineStrong); }
+.amostra-texto { display: grid; line-height: 1.35; }
+.amostra-texto span { font-size: var(--t-pequeno); color: var(--inkSoft); }
+.amostra-dados { font-variant-numeric: tabular-nums; }
+
+.escala { margin: 0; display: grid; gap: var(--e4); }
+.escala div { display: grid; gap: 2px; padding-bottom: var(--e4); border-bottom: 1px solid var(--line); }
+.escala div:last-child { border-bottom: 0; padding-bottom: 0; }
+.escala dt { font-size: var(--t-pequeno); color: var(--inkSoft); }
+.escala dd { margin: 0; }
+
+.reguas, .formas { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--e3); }
+.reguas li { display: grid; grid-template-columns: 72px auto; align-items: center; gap: var(--e3); font-size: var(--t-pequeno); }
+.reguas span { height: 12px; background: var(--accent); border-radius: 2px; }
+.formas li { display: flex; align-items: center; gap: var(--e3); }
+.formas span { width: 64px; height: 40px; border: 2px solid var(--lineStrong); background: var(--surface); }
+
+.lista-links { margin: 0; padding-left: 1.2em; display: grid; gap: var(--e2); }
+.lista-links a { display: inline-flex; min-height: 44px; align-items: center; }
+.lista-registros { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--e3); }
+.lista-registros li { display: flex; flex-wrap: wrap; gap: var(--e2) var(--e3); align-items: center; }
+.lista-registros span:not(.etiqueta) { color: var(--inkSoft); }

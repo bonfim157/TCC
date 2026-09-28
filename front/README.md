@@ -1,0 +1,60 @@
+# Cuidar e Registrar: front-end
+
+Interface do sistema de ocorrências escolares. Fases F1 a F3 construídas; F4 em construção. Plano e pendências em [`../docs/`](../docs/plano-de-escopo.md).
+
+## Como rodar
+
+```bash
+npm install
+npm run dev        # http://localhost:5173
+npm run build      # checagem de tipos + build de produção
+npm run contrast   # confere o contraste WCAG AA das cores de todas as redes
+```
+
+Não há backend. Uma API simulada (MSW) responde no próprio navegador. O que é enviado fica guardado na sessão do navegador (some ao fechar a aba).
+Para abrir já com uma rede escolhida, use `?rede=sp` (IMSIL, rede estadual SP) ou `?rede=teste` (rede fictícia, só para testar o isolamento).
+
+### Pessoas de demonstração (rede SP, IMSIL)
+
+| Pessoa | Perfil | Para ver |
+| --- | --- | --- |
+| Ana Ribeiro | Professora (também na rede de testes) | Registrar, meus registros, troca de rede |
+| Carlos Mendes | Coordenação | Central de gestão |
+| Beatriz Nunes | Direção | Central, encerramento, nomes restritos |
+| Joana Prado | Referente de proteção | Central |
+| Roberto Lima | Apoio | Registro com acesso limitado |
+| Marta Siqueira | Unidade Regional | Visão agregada |
+| Paulo Arantes | Secretaria | Relatórios e administração da rede |
+
+## Verificação no navegador
+
+Com `npm run dev` rodando em outro terminal:
+
+```bash
+npx playwright install chromium   # uma vez por máquina
+npm run verificar                 # roda os três roteiros
+```
+
+Os roteiros ficam em `scripts/verificacao/` e as capturas de tela em `output/verificacao/` (fora do Git).
+
+## Estrutura
+
+| Pasta | Conteúdo |
+| --- | --- |
+| `src/api/contract.ts` | Contrato de dados com o backend: tipos, rotas e cabeçalhos obrigatórios |
+| `src/mocks/` | API simulada: regras de acesso (`base.ts`), registro (`handlers.ts`), Central (`central.ts`), protocolo de providências e modelos (`protocolo.ts`), dados fictícios (`seed.ts`) |
+| `src/design/themes.ts` | Cores da base e de cada rede; fonte verificada por `npm run contrast` |
+| `src/components/` | Componentes do design system |
+| `src/layout/` | Timbre, barra de contexto (rede, escola, perfil), navegação, aparência |
+| `src/state/` | Sessão, perfis e matriz de acesso, preferências, rascunhos |
+| `src/pages/` | Telas: entrar, início, registrar, meus registros, caso, central, ciência, guia, estados |
+| `scripts/` | Verificação de contraste e roteiros de verificação no navegador |
+
+## Decisões
+
+- **Multi-rede:** a rede é o inquilino. Toda chamada envia `X-Rede-Id`; a API recusa com 403 qualquer registro de outra rede.
+- **Acento por rede:** cada rede tem sua cor, com par de texto verificado nos modos claro e escuro.
+- **Fontes locais:** Source Serif 4 e Source Sans 3 servidas pelo próprio app, sem chamadas a terceiros.
+- **Permissões na tela não são segurança:** a matriz em `src/state/perfis.ts` só decide o que mostrar; o backend precisa aplicar as regras de `src/mocks/base.ts`.
+
+O **Guia da interface** (`/guia`) reúne cores, tipografia, componentes, estados do sistema e a prova de isolamento entre redes.

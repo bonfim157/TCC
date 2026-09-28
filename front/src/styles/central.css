@@ -1,0 +1,107 @@
+/* Central de Gestão (F3) e ciência da família. */
+
+.central { display: grid; gap: var(--e5); max-width: 1500px; }
+.central-cabeca p { font-size: var(--t-corpo); }
+
+/* Indicadores que também filtram a fila */
+.indicadores { display: grid; gap: var(--e3); grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+.indicador {
+  display: grid; justify-items: start; gap: 2px; min-height: var(--alvo); padding: var(--e3) var(--e4);
+  font: inherit; text-align: left; color: var(--inkSoft); cursor: pointer;
+  background: var(--surface); border: 2px solid var(--line); border-radius: var(--r-superficie);
+}
+.indicador strong { font-family: var(--serif); font-size: var(--t-h2); line-height: 1.1; color: var(--ink); }
+.indicador span { font-size: var(--t-pequeno); font-weight: 600; }
+.indicador:hover { border-color: var(--lineStrong); }
+.indicador-alerta { border-color: var(--urgent); background: var(--urgentSoft); }
+.indicador-alerta strong { color: var(--urgent); }
+.indicador[aria-pressed='true'] { border-color: var(--accent); box-shadow: inset 0 0 0 2px var(--accent); }
+
+.central-corpo { display: grid; gap: var(--e5); grid-template-columns: minmax(280px, 340px) minmax(0, 1fr); align-items: start; }
+
+/* Fila */
+.central-fila { display: grid; gap: var(--e3); min-width: 0; }
+.central-fila-cabeca { display: grid; gap: var(--e2); }
+.central-fila-cabeca h2 { font-size: var(--t-h3); }
+.central-fila-cabeca .marcar { padding-top: 0; }
+.fila { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--e2); max-height: 72vh; overflow-y: auto; padding-right: 2px; }
+.fila-item {
+  display: grid; gap: var(--e1); padding: var(--e3) var(--e4); color: var(--ink); text-decoration: none;
+  background: var(--surface); border: 1px solid var(--line); border-left: 4px solid transparent; border-radius: var(--r-controle);
+}
+.fila-item:hover { border-color: var(--lineStrong); border-left-color: var(--lineStrong); }
+.fila-item[aria-current='true'] { border-color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); }
+.fila-linha { display: flex; justify-content: space-between; align-items: center; gap: var(--e2); flex-wrap: wrap; }
+.fila-linha strong { font-family: var(--serif); font-size: var(--t-destaque); }
+.fila-tipo { font-weight: 600; }
+.fila-meta { font-size: var(--t-pequeno); color: var(--inkSoft); }
+.fila-sinais { display: flex; flex-wrap: wrap; gap: var(--e1) var(--e2); margin-top: var(--e1); }
+
+.central-detalhe { min-width: 0; }
+
+/* Caso dentro da Central */
+.caso-central { display: grid; gap: var(--e5); }
+.caso-central-cabeca { display: grid; gap: var(--e3); padding-bottom: var(--e4); border-bottom: 2px solid var(--line); }
+.caso-central-titulo { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--e3); flex-wrap: wrap; }
+.caso-central-titulo h2 { font-size: var(--t-h2); }
+.central-voltar { display: none; }
+.barra-acoes { display: flex; flex-wrap: wrap; gap: var(--e2); }
+.caso-central-grade { display: grid; gap: var(--e5); grid-template-columns: minmax(0, 1fr) minmax(280px, 360px); align-items: start; }
+.caso-central-principal { min-width: 0; }
+.caso-central-lado { display: grid; gap: var(--e4); }
+
+/* Providências */
+.providencias .painel-cabeca { margin-bottom: var(--e2); }
+.lista-providencias { list-style: none; margin: var(--e3) 0 0; padding: 0; display: grid; }
+.providencia { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: var(--e3); padding: var(--e3) 0; border-top: 1px solid var(--line); }
+.providencia:first-child { border-top: 0; }
+.providencia-marca { width: 20px; height: 20px; margin-top: 2px; border: 2px solid var(--lineStrong); border-radius: 4px; background: var(--surface); }
+.providencia-feita .providencia-marca { background: var(--ok); border-color: var(--ok); box-shadow: inset 0 0 0 3px var(--surface); }
+.providencia-dispensada .providencia-marca { border-style: dashed; background: linear-gradient(135deg, transparent 45%, var(--lineStrong) 45% 55%, transparent 55%); }
+.providencia-texto { display: grid; gap: 2px; min-width: 0; }
+.providencia-base, .providencia-registro { font-size: var(--t-pequeno); color: var(--inkSoft); }
+.providencia-pendente .providencia-texto > p:first-child strong { color: var(--ink); }
+.providencia-feita .providencia-texto > p:first-child strong, .providencia-dispensada .providencia-texto > p:first-child strong { font-weight: 600; color: var(--inkSoft); }
+.providencia .acoes-linha { margin-top: var(--e1); gap: var(--e1) var(--e2); }
+.providencia .btn { min-height: 44px; padding: 0 var(--e3); font-size: var(--t-pequeno); }
+
+/* Encaminhamentos, comunicações e plano */
+.lista-encaminhamentos { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--e3); }
+.lista-encaminhamentos .painel { display: grid; gap: var(--e3); padding: var(--e4) var(--e5); }
+.lista-encaminhamentos details summary { cursor: pointer; font-weight: 600; color: var(--accent-ink); min-height: 44px; display: flex; align-items: center; }
+.lista-plano { list-style: none; margin: 0; padding: 0; display: grid; }
+.lista-plano li { display: flex; justify-content: space-between; align-items: center; gap: var(--e3); flex-wrap: wrap; padding: var(--e3) 0; border-top: 1px solid var(--line); }
+.lista-plano li:first-child { border-top: 0; }
+.lista-plano li > div:first-child { display: grid; gap: 2px; }
+.lista-plano span { font-size: var(--t-pequeno); color: var(--inkSoft); }
+
+/* Agenda */
+.lista-agenda { list-style: none; margin: 0; padding: 0; display: grid; }
+.lista-agenda li { display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: var(--e3); padding: var(--e3) 0; border-top: 1px solid var(--line); }
+.lista-agenda li:first-child { border-top: 0; }
+.lista-agenda li > span:last-child { display: grid; gap: 2px; }
+.lista-agenda li > span:last-child > span { font-size: var(--t-pequeno); color: var(--inkSoft); }
+.agenda-data { font-weight: 700; }
+.agenda-atrasada .agenda-data { color: var(--urgent); }
+
+dialog.dialogo-largo { width: min(760px, calc(100vw - 32px)); }
+.dialogo form { display: contents; }
+.dialogo-corpo { max-height: calc(100dvh - 180px); overflow-y: auto; }
+
+/* Telas menores: fila e caso se alternam */
+@media (max-width: 1400px) {
+  .caso-central-grade { grid-template-columns: minmax(0, 1fr); }
+  .caso-central-lado { order: -1; }
+}
+@media (max-width: 1000px) {
+  .central-corpo { grid-template-columns: minmax(0, 1fr); }
+  .central-com-caso .central-fila, .central-com-caso .indicadores { display: none; }
+  .central:not(.central-com-caso) .central-detalhe { display: none; }
+  .central-voltar { display: block; }
+  .fila { max-height: none; }
+}
+@media (max-width: 560px) { .lista-agenda li { grid-template-columns: 1fr; gap: 0; } }
+
+/* Ciência da família */
+.ciencia { max-width: 680px; }
+.carta { display: grid; gap: var(--e3); border-top: 6px solid var(--accent); }

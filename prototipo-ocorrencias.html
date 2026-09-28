@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sistema de Ocorrências Escolares — Protótipo</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F5F6; --surface:#FFFFFF; --ink:#14181C; --ink-soft:#45505A;
+  --line:#C7CDD3; --accent:#1B4B73; --accent-soft:#E4ECF3; --accent-ink:#0F3355;
+  --warn:#9A3412; --warn-soft:#F5E4DC; --neutral:#5B6470; --neutral-soft:#E7E9EC;
+  --serif:'Source Serif 4', Georgia, 'Times New Roman', serif;
+  --sans:'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#12161A; --surface:#1B2126; --ink:#F2F4F5; --ink-soft:#C3CBD1;
+    --line:#3C454E; --accent:#8FBEE4; --accent-soft:#20313F; --accent-ink:#CFE3F4;
+    --warn:#E8996F; --warn-soft:#3A2419; --neutral:#AAB2B9; --neutral-soft:#232A30;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#12161A; --surface:#1B2126; --ink:#F2F4F5; --ink-soft:#C3CBD1;
+  --line:#3C454E; --accent:#8FBEE4; --accent-soft:#20313F; --accent-ink:#CFE3F4;
+  --warn:#E8996F; --warn-soft:#3A2419; --neutral:#AAB2B9; --neutral-soft:#232A30;
+}
+*{box-sizing:border-box;}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.6;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px;}
+
+.topbar{position:sticky;top:0;padding:16px 20px calc(16px + env(safe-area-inset-top,0px));background:var(--surface);border-bottom:2px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;z-index:10;}
+.brand h1{font-family:var(--serif);font-size:21px;font-weight:700;margin:0;color:var(--ink);}
+.brand span{font-size:14px;color:var(--ink-soft);}
+.tabs{display:flex;gap:4px;background:var(--bg);border:2px solid var(--line);border-radius:8px;padding:4px;}
+.tab{border:0;background:transparent;padding:11px 18px;border-radius:6px;font:inherit;font-size:16px;font-weight:600;color:var(--ink-soft);cursor:pointer;min-height:44px;}
+.tab.active{background:var(--accent);color:#fff;}
+main{max-width:780px;margin:0 auto;padding:36px 20px 72px;}
+.screen{display:none;}
+.screen.active{display:block;}
+
+/* Wizard */
+.steps{display:flex;align-items:center;margin-bottom:36px;}
+.step{display:flex;align-items:center;gap:10px;color:var(--ink-soft);font-size:15px;font-weight:600;}
+.step .dot{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:16px;font-weight:700;flex-shrink:0;background:var(--surface);}
+.step.done .dot{background:var(--accent);border-color:var(--accent);color:#fff;}
+.step.current .dot{border-color:var(--accent);color:var(--accent-ink);}
+.step.current{color:var(--ink);}
+.connector{flex:1;height:2px;background:var(--line);margin:0 12px;}
+
+h2.title{font-family:var(--serif);font-size:28px;font-weight:700;margin:0 0 8px;line-height:1.3;}
+p.sub{color:var(--ink-soft);margin:0 0 30px;font-size:16px;max-width:60ch;}
+
+.field{margin-bottom:24px;}
+label{display:block;font-size:16px;font-weight:600;margin-bottom:8px;color:var(--ink);}
+.hint{font-size:14px;color:var(--ink-soft);margin-top:6px;}
+input[type=text],input[type=date],input[type=time],textarea,select{
+  width:100%;padding:13px 14px;border:2px solid var(--line);border-radius:6px;
+  background:var(--surface);color:var(--ink);font:inherit;font-size:16px;min-height:48px;
+}
+textarea{resize:vertical;min-height:110px;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.chips{display:flex;flex-wrap:wrap;gap:10px;}
+.chip{border:2px solid var(--line);background:var(--surface);padding:11px 18px;border-radius:8px;font-size:15px;font-weight:500;cursor:pointer;color:var(--ink);min-height:44px;display:flex;align-items:center;gap:6px;}
+.chip .check{display:none;}
+.chip.selected{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-ink);font-weight:700;}
+.chip.selected .check{display:inline;}
+
+.urgency{border:2px solid var(--line);border-radius:8px;background:var(--surface);padding:16px;}
+.urgency>strong{display:block;font-size:16px;margin-bottom:4px;}
+.segmented{display:flex;gap:10px;margin-top:12px;}
+.seg-btn{flex:1;border:2px solid var(--line);background:var(--surface);color:var(--ink);padding:12px;border-radius:6px;font:inherit;font-size:15px;font-weight:600;cursor:pointer;min-height:46px;}
+.seg-btn.selected{background:var(--warn);border-color:var(--warn);color:#fff;}
+.seg-btn.selected.no-variant{background:var(--neutral);border-color:var(--neutral);}
+
+.involved-list{border:2px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:16px;}
+.involved-row{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;font-size:16px;}
+.involved-row + .involved-row{border-top:1px solid var(--line);}
+.tag{font-size:13px;font-weight:600;color:var(--ink-soft);background:var(--neutral-soft);padding:5px 11px;border-radius:12px;}
+.add-link{background:var(--surface);border:2px dashed var(--line);color:var(--accent-ink);font:inherit;font-size:16px;font-weight:600;padding:13px;border-radius:8px;width:100%;cursor:pointer;min-height:48px;}
+
+.confidential{display:flex;gap:12px;padding:16px;border:2px solid var(--accent);background:var(--accent-soft);border-radius:8px;font-size:15px;margin-bottom:24px;color:var(--ink);}
+
+.summary{border:2px solid var(--line);border-radius:8px;padding:18px 20px;background:var(--surface);margin-bottom:24px;}
+.summary dt{font-size:13px;font-weight:700;color:var(--ink-soft);margin-top:14px;letter-spacing:.02em;}
+.summary dt:first-child{margin-top:0;}
+.summary dd{margin:3px 0 0;font-size:16px;}
+
+.actions{display:flex;justify-content:space-between;margin-top:36px;padding-top:24px;border-top:2px solid var(--line);}
+button.primary{background:var(--accent);color:#fff;border:0;padding:14px 26px;border-radius:6px;font:inherit;font-size:16px;font-weight:700;cursor:pointer;min-height:48px;}
+button.ghost{background:var(--surface);border:2px solid var(--line);color:var(--ink);padding:14px 24px;border-radius:6px;font:inherit;font-size:16px;font-weight:600;cursor:pointer;min-height:48px;}
+button:disabled{opacity:.45;cursor:not-allowed;}
+
+.protocol-card{text-align:center;padding:44px 20px;border:2px solid var(--accent);background:var(--accent-soft);border-radius:10px;}
+.protocol-card .num{font-family:var(--serif);font-size:32px;font-weight:700;color:var(--accent-ink);margin:10px 0;}
+
+/* Timeline screen */
+.case-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:8px;}
+.case-head h2{font-family:var(--serif);font-size:26px;font-weight:700;margin:0 0 6px;}
+.case-meta{color:var(--ink-soft);font-size:15px;}
+.badge{font-size:14px;font-weight:700;padding:7px 15px;border-radius:20px;white-space:nowrap;border:2px solid transparent;}
+.badge.acomp{background:var(--accent-soft);color:var(--accent-ink);border-color:var(--accent);}
+.badge.triagem{background:var(--warn-soft);color:var(--warn);border-color:var(--warn);}
+.badge.encerrado{background:var(--neutral-soft);color:var(--neutral);border-color:var(--neutral);}
+.case-tags{display:flex;gap:10px;margin:16px 0 30px;flex-wrap:wrap;}
+
+.plan-box{border:2px solid var(--line);border-radius:8px;padding:18px 20px;margin-bottom:34px;background:var(--surface);}
+.plan-box h3{font-size:15px;margin:0 0 14px;color:var(--ink-soft);font-weight:700;}
+.plan-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+.plan-grid div span{display:block;font-size:13px;color:var(--ink-soft);margin-bottom:4px;font-weight:600;}
+.plan-grid div strong{font-size:16px;font-weight:600;}
+
+.timeline{position:relative;padding-left:30px;}
+.timeline::before{content:'';position:absolute;left:7px;top:8px;bottom:8px;width:2px;background:var(--line);}
+.tl-item{position:relative;padding-bottom:32px;}
+.tl-item:last-child{padding-bottom:0;}
+.tl-item::before{content:'';position:absolute;left:-30px;top:4px;width:15px;height:15px;border-radius:50%;background:var(--accent);border:3px solid var(--bg);box-shadow:0 0 0 2px var(--accent);}
+.tl-item h4{margin:0 0 4px;font-size:17px;font-weight:700;}
+.tl-item .who{font-size:14px;color:var(--ink-soft);margin-bottom:7px;font-weight:600;}
+.tl-item p{margin:0;font-size:16px;color:var(--ink);}
+
+footer.note{max-width:780px;margin:0 auto;padding:0 20px 44px;font-size:13px;color:var(--ink-soft);}
+@media (max-width:560px){.row2,.plan-grid{grid-template-columns:1fr 1fr;}}
+@media (max-width:420px){.row2,.plan-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><h1>Cuidar &amp; Registrar</h1><span>protótipo de interface</span></div>
+  <div class="tabs">
+    <button class="tab active" data-screen="wizard">Registrar</button>
+    <button class="tab" data-screen="timeline">Acompanhar caso</button>
+  </div>
+</div>
+
+<main>
+  <!-- SCREEN 1: WIZARD -->
+  <section class="screen active" id="wizard">
+
+    <div class="steps" id="stepIndicator">
+      <div class="step current" data-step="1"><div class="dot">1</div><span>O fato</span></div>
+      <div class="connector"></div>
+      <div class="step" data-step="2"><div class="dot">2</div><span>Envolvidos</span></div>
+      <div class="connector"></div>
+      <div class="step" data-step="3"><div class="dot">3</div><span>Revisão</span></div>
+    </div>
+
+    <!-- Step 1 -->
+    <div class="step-panel" data-panel="1">
+      <h2 class="title">O que aconteceu?</h2>
+      <p class="sub">Descreva o fato de forma objetiva. Você pode salvar como rascunho a qualquer momento.</p>
+
+      <div class="field">
+        <label>Categoria</label>
+        <div class="chips">
+          <div class="chip selected"><span class="check">✓</span>Convivência/conflito</div>
+          <div class="chip">Bullying/cyberbullying</div>
+          <div class="chip">Dano ao patrimônio</div>
+          <div class="chip">Saúde/primeiros cuidados</div>
+          <div class="chip">Outro</div>
+        </div>
+      </div>
+
+      <div class="row2">
+        <div class="field"><label for="f-data">Data</label><input id="f-data" type="date" value="2026-09-25"></div>
+        <div class="field"><label for="f-hora">Horário</label><input id="f-hora" type="time" value="09:40"></div>
+      </div>
+
+      <div class="field"><label for="f-local">Local</label><input id="f-local" type="text" placeholder="Ex.: pátio, sala 12..."></div>
+
+      <div class="field">
+        <label for="f-relato">Relato factual</label>
+        <textarea id="f-relato" placeholder="O que foi observado, sem juízo de valor.">Durante o intervalo, houve discussão entre dois estudantes no pátio; ambos foram separados e acolhidos.</textarea>
+        <div class="hint">Descreva o fato, não a pessoa. Evite rótulos.</div>
+      </div>
+
+      <div class="field">
+        <div class="urgency">
+          <strong>Precisa de atenção imediata?</strong>
+          <div class="hint" style="margin:2px 0 0;">Se marcar "Sim", o protocolo local é acionado e o responsável é notificado agora.</div>
+          <div class="segmented" role="group" aria-label="Precisa de atenção imediata">
+            <button type="button" class="seg-btn" data-urgency="sim">Sim</button>
+            <button type="button" class="seg-btn no-variant selected" data-urgency="nao">Não</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step-panel" data-panel="2" style="display:none;">
+      <h2 class="title">Quem esteve envolvido?</h2>
+      <p class="sub">Inclua apenas quem é necessário. Cada pessoa tem um nível de visibilidade próprio.</p>
+
+      <div class="involved-list">
+        <div class="involved-row"><span>Estudante A</span><span class="tag">envolvido direto</span></div>
+        <div class="involved-row"><span>Estudante B</span><span class="tag">envolvido direto</span></div>
+        <div class="involved-row"><span>Professor(a) responsável pelo intervalo</span><span class="tag">testemunha</span></div>
+      </div>
+      <button class="add-link" type="button">+ Adicionar pessoa envolvida</button>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step-panel" data-panel="3" style="display:none;">
+      <h2 class="title">Revisar e enviar</h2>
+      <p class="sub">Confira antes de enviar para triagem. Depois do envio, correções viram um adendo identificado.</p>
+
+      <div class="summary">
+        <dt>Categoria</dt><dd>Convivência/conflito</dd>
+        <dt>Data e local</dt><dd>25/09/2026, 09:40 — Pátio</dd>
+        <dt>Relato</dt><dd>Durante o intervalo, houve discussão entre dois estudantes no pátio; ambos foram separados e acolhidos.</dd>
+        <dt>Envolvidos</dt><dd>3 pessoas · visibilidade restrita à coordenação</dd>
+      </div>
+
+      <div class="confidential">🔒 Este registro será visível apenas para coordenação e direção, conforme a matriz de acesso da unidade.</div>
+
+      <div class="protocol-card" id="protocolCard" style="display:none;">
+        <div style="font-size:15px;color:var(--ink-soft);font-weight:600;">Registro enviado para triagem</div>
+        <div class="num">#2026-000482</div>
+        <div class="hint">Guarde este número para acompanhar o caso.</div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="ghost" id="btnBack" type="button" disabled>Voltar</button>
+      <button class="primary" id="btnNext" type="button">Continuar</button>
+    </div>
+  </section>
+
+  <!-- SCREEN 2: TIMELINE -->
+  <section class="screen" id="timeline">
+    <div class="case-head">
+      <div>
+        <h2>Caso #2026-000482</h2>
+        <div class="case-meta">Aberto em 25 de setembro de 2026 · Unidade EMEF Jardim das Acácias</div>
+      </div>
+      <span class="badge acomp">Em acompanhamento</span>
+    </div>
+    <div class="case-tags">
+      <span class="tag">Convivência/conflito</span>
+      <span class="tag">Prioridade média</span>
+    </div>
+
+    <div class="plan-box">
+      <h3>Plano de apoio</h3>
+      <div class="plan-grid">
+        <div><span>Ação</span><strong>Mediação de conflito</strong></div>
+        <div><span>Responsável</span><strong>Coordenação pedagógica</strong></div>
+        <div><span>Prazo</span><strong>02/10/2026</strong></div>
+        <div><span>Situação</span><strong style="color:var(--accent-ink);">No prazo</strong></div>
+      </div>
+    </div>
+
+    <div class="timeline">
+      <div class="tl-item">
+        <h4>Registro criado</h4>
+        <div class="who">Professor(a) · 25 set, 09:52</div>
+        <p>Relato factual do ocorrido no pátio durante o intervalo.</p>
+      </div>
+      <div class="tl-item">
+        <h4>Triagem concluída</h4>
+        <div class="who">Coordenação · 25 set, 11:15</div>
+        <p>Classificado como conflito entre pares, sem risco imediato. Prioridade média.</p>
+      </div>
+      <div class="tl-item">
+        <h4>Escuta realizada com os envolvidos</h4>
+        <div class="who">Coordenação · 26 set, 08:30</div>
+        <p>Conversa individual com os dois estudantes; combinado plano de mediação.</p>
+      </div>
+      <div class="tl-item">
+        <h4>Responsáveis comunicados</h4>
+        <div class="who">Coordenação · 26 set, 14:00</div>
+        <p>Envio de modelo aprovado de comunicação; ciência confirmada por ambas as famílias.</p>
+      </div>
+      <div class="tl-item">
+        <h4>Aguardando reavaliação</h4>
+        <div class="who">Sistema · previsto para 02 out</div>
+        <p>Encontro de acompanhamento agendado para verificar resultado da mediação.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="note">Protótipo com dados fictícios, feito para o TCC — foco em fluxo e interface, não em dados reais.</footer>
+
+<script>
+(function(){
+  var tabs = document.querySelectorAll('.tab');
+  var screens = document.querySelectorAll('.screen');
+  tabs.forEach(function(t){
+    t.addEventListener('click', function(){
+      tabs.forEach(function(x){x.classList.remove('active');});
+      t.classList.add('active');
+      screens.forEach(function(s){s.classList.toggle('active', s.id === t.dataset.screen);});
+    });
+  });
+
+  var chips = document.querySelectorAll('#wizard .chips .chip');
+  chips.forEach(function(c){
+    c.addEventListener('click', function(){
+      chips.forEach(function(x){x.classList.remove('selected'); x.querySelector('.check') && x.querySelector('.check').remove();});
+      c.classList.add('selected');
+      if(!c.querySelector('.check')){
+        var s=document.createElement('span'); s.className='check'; s.textContent='✓ '; c.prepend(s);
+      }
+    });
+  });
+
+  var segBtns = document.querySelectorAll('.seg-btn');
+  segBtns.forEach(function(b){
+    b.addEventListener('click', function(){
+      segBtns.forEach(function(x){x.classList.remove('selected');});
+      b.classList.add('selected');
+    });
+  });
+
+  var current = 1;
+  var panels = document.querySelectorAll('.step-panel');
+  var steps = document.querySelectorAll('#stepIndicator .step');
+  var btnNext = document.getElementById('btnNext');
+  var btnBack = document.getElementById('btnBack');
+  var protocolCard = document.getElementById('protocolCard');
+
+  function render(){
+    panels.forEach(function(p){ p.style.display = (+p.dataset.panel === current) ? 'block' : 'none'; });
+    steps.forEach(function(s){
+      var n = +s.dataset.step;
+      s.classList.remove('current','done');
+      if(n < current) s.classList.add('done');
+      if(n === current) s.classList.add('current');
+    });
+    btnBack.disabled = current === 1;
+    btnNext.textContent = current === 3 ? 'Enviar para triagem' : 'Continuar';
+    if(current !== 3) protocolCard.style.display = 'none';
+  }
+
+  btnNext.addEventListener('click', function(){
+    if(current < 3){ current++; render(); }
+    else {
+      protocolCard.style.display = 'block';
+      btnNext.disabled = true;
+      btnNext.textContent = 'Enviado ✓';
+    }
+  });
+  btnBack.addEventListener('click', function(){ if(current > 1){ current--; render(); } });
+  render();
+})();
+</script>
+</body>
+</html>

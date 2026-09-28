@@ -1,0 +1,120 @@
+/* Estrutura da aplicação: timbre, barra de contexto, navegação e conteúdo. */
+
+.app { min-height: 100dvh; display: flex; flex-direction: column; }
+
+/* ---------- Timbre ----------
+ * O único gesto forte da interface: o cabeçalho lê como o timbre de um
+ * ofício da secretaria, com o fio duplo na cor da rede. */
+.timbre {
+  background: var(--surface);
+  padding: var(--e4) var(--e5) 0;
+  padding-top: calc(var(--e4) + env(safe-area-inset-top, 0px));
+}
+.timbre-linha {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--e4); flex-wrap: wrap;
+  padding-bottom: var(--e4);
+  border-bottom: 4px solid var(--accent);
+  box-shadow: 0 5px 0 var(--surface), 0 6px 0 var(--accent);
+  margin-bottom: 6px;
+}
+.timbre-identidade { display: flex; align-items: center; gap: var(--e3); min-width: 0; }
+.timbre-secretaria { font-size: var(--t-pequeno); color: var(--inkSoft); line-height: 1.3; }
+.timbre-rede { font-family: var(--serif); font-weight: 700; font-size: var(--t-destaque); line-height: 1.25; }
+.timbre-usuario { display: flex; align-items: center; gap: var(--e3); flex-wrap: wrap; }
+.timbre-usuario p { display: grid; line-height: 1.25; text-align: right; }
+.timbre-usuario p span { font-size: var(--t-pequeno); color: var(--inkSoft); }
+
+/* ---------- Aparência ---------- */
+.aparencia { position: relative; }
+.aparencia-painel {
+  position: absolute; right: 0; top: calc(100% + var(--e2)); z-index: 30; width: min(340px, calc(100vw - 32px));
+  display: grid; gap: var(--e4); padding: var(--e4);
+  background: var(--surface); border: 1px solid var(--lineStrong); border-radius: var(--r-superficie);
+  box-shadow: 0 12px 32px rgb(0 0 0 / .18);
+}
+.aparencia-painel .opcao span { padding: 0 var(--e3); }
+
+/* ---------- Barra de contexto ---------- */
+.contexto {
+  display: flex; flex-wrap: wrap; align-items: end; gap: var(--e3) var(--e5);
+  padding: var(--e3) var(--e5) var(--e4);
+  background: var(--surface); border-bottom: 1px solid var(--line);
+}
+.contexto-item { display: grid; gap: 2px; min-width: 0; }
+.contexto-item label { font-size: var(--t-pequeno); font-weight: 700; color: var(--inkSoft); }
+.contexto-item .entrada { min-height: 44px; padding-top: 6px; padding-bottom: 6px; font-weight: 600; max-width: 100%; }
+.contexto-escola .entrada { min-width: 260px; }
+.contexto-fixo { display: flex; align-items: center; min-height: 44px; font-weight: 700; }
+.contexto-demo { margin-left: auto; }
+.contexto-demo .entrada { background-color: var(--warnSoft); border-color: var(--warn); border-style: dashed; }
+
+/* ---------- Sem conexão ---------- */
+.faixa-offline {
+  display: flex; gap: var(--e3); align-items: center;
+  padding: var(--e3) var(--e5); background: var(--warnSoft); color: var(--ink); border-bottom: 2px solid var(--warn);
+}
+.faixa-offline svg { color: var(--warn); flex: none; }
+
+/* ---------- Corpo ---------- */
+.app-corpo { flex: 1; display: grid; grid-template-columns: 232px minmax(0, 1fr); }
+main { padding: var(--e6) var(--e6) var(--e8); outline: none; min-width: 0; }
+.pagina { max-width: 1100px; display: grid; gap: var(--e6); }
+.pagina-estreita { max-width: 760px; }
+.pagina-cabeca { display: grid; gap: var(--e2); }
+.pagina-cabeca p { color: var(--inkSoft); font-size: var(--t-destaque); }
+
+/* ---------- Navegação ---------- */
+.navegacao { border-right: 1px solid var(--line); padding: var(--e5) 0; display: flex; flex-direction: column; justify-content: space-between; }
+.navegacao ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.navegacao a {
+  display: flex; align-items: center; min-height: var(--alvo); padding: 0 var(--e5);
+  color: var(--ink); text-decoration: none; font-weight: 600; border-left: 4px solid transparent;
+}
+.navegacao a:hover { background: var(--surface); }
+.navegacao a[aria-current='page'] { border-left-color: var(--accent); background: var(--surface); color: var(--accent-ink); font-weight: 700; }
+.navegacao-rodape { padding: var(--e5) 0 0; }
+.navegacao-rodape a { font-weight: 400; font-size: var(--t-pequeno); color: var(--inkSoft); }
+
+.rodape { padding: var(--e4) var(--e5); font-size: var(--t-pequeno); color: var(--inkSoft); border-top: 1px solid var(--line); }
+
+/* ---------- Menu do celular ---------- */
+.nav-movel { display: none; background: var(--surface); border-bottom: 1px solid var(--line); }
+.nav-movel summary {
+  display: flex; align-items: center; gap: var(--e3); min-height: var(--alvo); padding: 0 var(--e4);
+  font-weight: 700; cursor: pointer; list-style: none;
+}
+.nav-movel summary::-webkit-details-marker { display: none; }
+.nav-movel summary::before {
+  content: ''; width: 18px; height: 12px; flex: none;
+  border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink);
+  background: linear-gradient(var(--ink), var(--ink)) center / 100% 2px no-repeat;
+}
+.nav-movel details[open] summary::before { height: 2px; border: 0; }
+.nav-movel-atual { font-weight: 400; color: var(--inkSoft); }
+.nav-movel ul { list-style: none; margin: 0; padding: 0 0 var(--e3); }
+.nav-movel a {
+  display: flex; align-items: center; min-height: var(--alvo); padding: 0 var(--e4);
+  color: var(--ink); text-decoration: none; font-weight: 600; border-left: 4px solid transparent;
+}
+.nav-movel a[aria-current='page'] { border-left-color: var(--accent); color: var(--accent-ink); font-weight: 700; background: var(--paper); }
+
+/* ---------- Celular ---------- */
+@media (max-width: 900px) {
+  .timbre { padding-left: var(--e4); padding-right: var(--e4); }
+  .timbre-linha > :last-child { margin-left: auto; }
+  .timbre-usuario { width: 100%; justify-content: flex-end; flex-wrap: nowrap; gap: var(--e2); }
+  .timbre-usuario p { margin-right: auto; text-align: left; min-width: 0; }
+  .timbre-linha .btn { min-height: 44px; padding: 0 var(--e3); }
+  .contexto { padding-left: var(--e4); padding-right: var(--e4); }
+  .contexto-item, .contexto-escola .entrada { width: 100%; min-width: 0; }
+  .contexto-demo { margin-left: 0; }
+  .app-corpo { grid-template-columns: 1fr; }
+  main { padding: var(--e5) var(--e4) var(--e8); }
+  .navegacao { display: none; }
+  .nav-movel { display: block; }
+}
+
+/* ---------- Telas fora da estrutura (entrar, erros) ---------- */
+.tela-avulsa { min-height: 100dvh; display: flex; flex-direction: column; }
+.tela-avulsa main { flex: 1; display: flex; justify-content: center; padding: var(--e7) var(--e4); }
+.tela-avulsa .pagina { width: 100%; max-width: 640px; }
