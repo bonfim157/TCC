@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "contrast": "node scripts/contrast.mjs",
-    "verificar": "node scripts/verificacao/f1-regressao.mjs && node scripts/verificacao/f2-registro.mjs && node scripts/verificacao/f3-central.mjs && node scripts/verificacao/f4-gestao.mjs && node scripts/verificacao/f5-acessibilidade.mjs"
+    "verificar": "node scripts/verificacao/f1-regressao.mjs && node scripts/verificacao/f2-registro.mjs && node scripts/verificacao/f3-central.mjs && node scripts/verificacao/f3-atualizacao.mjs && node scripts/verificacao/f4-gestao.mjs && node scripts/verificacao/f5-acessibilidade.mjs"
   },
   "dependencies": {
     "@fontsource/source-sans-3": "^5.1.0",

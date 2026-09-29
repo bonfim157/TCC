@@ -163,10 +163,11 @@ function FormComunicacao({ o, para, modelos, escola, autor, valor, setValor }: {
 }
 
 /* ---------- Caso na Central ---------- */
-export function CasoNaCentral({ id, aoMudar }: { id: string; aoMudar: () => void }) {
+export function CasoNaCentral({ id, externo = 0, aoMudar }: { id: string; externo?: number; aoMudar: () => void }) {
   const s = useSessao();
   const notificar = useNotificar();
-  const carga = useApi<Ocorrencia>(rotas.ocorrencia(id), [s.rede?.id]);
+  // Recarrega quando outra pessoa altera o caso, sem fechar diálogos abertos.
+  const carga = useApi<Ocorrencia>(rotas.ocorrencia(id), [s.rede?.id, externo], { manterAoAtualizar: true });
   const categorias = useApi<Categoria[]>(rotas.categorias, [s.rede?.id]);
   const equipe = useApi<PessoaDaEquipe[]>(rotas.equipe, [s.escola?.id]);
   const modelos = useApi<ModeloDeComunicacao[]>(rotas.modelos, [s.rede?.id]);

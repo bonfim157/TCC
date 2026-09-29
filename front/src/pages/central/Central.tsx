@@ -6,6 +6,7 @@ import { Painel } from '../../components/estrutura';
 import { Etiqueta, EtiquetaPrioridade, EtiquetaStatus, EstadoDaCarga, Vazio } from '../../components/feedback';
 import { useSessao } from '../../state/sessao';
 import { useApi } from '../../state/useApi';
+import { useAtualizacao } from '../../state/useAtualizacao';
 import { dataHoraCurta, diaPorExtenso, diasAte, hojeISO } from '../../util/formato';
 import { CasoNaCentral } from './CasoNaCentral';
 
@@ -33,7 +34,7 @@ function Indicador({ ativo, valor, rotulo, destaque, aoClicar }: { ativo: boolea
   );
 }
 
-function Agenda({ versao }: { versao: number }) {
+function Agenda({ versao }: { versao: string }) {
   const s = useSessao();
   const agenda = useApi<ItemDaAgenda[]>(rotas.agenda, [s.escola?.id, versao], { manterAoAtualizar: true });
   const nomeTipo = { prazo_plano: 'Plano de apoio', devolutiva: 'Devolutiva', reavaliacao: 'Reavaliação' };
@@ -82,7 +83,9 @@ function CentralDaEscola() {
   const { id } = useParams();
   const s = useSessao();
   const [versao, setVersao] = useState(0);
-  const fila = useApi<ItemDaFila[]>(rotas.fila, [s.escola?.id, versao], { manterAoAtualizar: true });
+  // Mudanças feitas por outras pessoas chegam sozinhas, sem recarregar a página.
+  const externo = useAtualizacao();
+  const fila = useApi<ItemDaFila[]>(rotas.fila, [s.escola?.id, versao, externo], { manterAoAtualizar: true });
   const categorias = useApi<Categoria[]>(rotas.categorias, [s.rede?.id]);
   const [filtro, setFiltro] = useState<Filtro>('todos');
   const [situacao, setSituacao] = useState<Situacao>('abertos');
@@ -143,6 +146,7 @@ function CentralDaEscola() {
                       <option value="todos">Todos</option>
                     </CampoSelecao>
                     <CaixaMarcar rotulo="Só os que eu conduzo" checked={soMeus} onChange={(e) => setSoMeus(e.target.checked)} />
+                    <p className="nota-rodape">A fila se atualiza sozinha quando alguém altera um caso.</p>
                   </div>
                   <p className="visualmente-oculto" aria-live="polite">{visiveis.length} casos na fila.</p>
                   {visiveis.length === 0 ? (
@@ -177,7 +181,7 @@ function CentralDaEscola() {
 
                 <div className="central-detalhe">
                   {id ? (
-                    <CasoNaCentral key={id} id={id} aoMudar={() => setVersao((v) => v + 1)} />
+                    <CasoNaCentral key={id} id={id} externo={externo} aoMudar={() => setVersao((v) => v + 1)} />
                   ) : (
                     <Vazio titulo="Escolha um caso na fila">
                       O caso abre aqui com o resumo, as providências exigidas pelo tipo, os encaminhamentos e a linha do tempo.
@@ -186,7 +190,7 @@ function CentralDaEscola() {
                 </div>
               </div>
 
-              <Agenda versao={versao} />
+              <Agenda versao={`${versao}-${externo}`} />
             </>
           );
         }}

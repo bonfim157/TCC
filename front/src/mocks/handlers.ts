@@ -1,7 +1,7 @@
 import { delay, http } from 'msw';
 import type { NovaOcorrencia, NovaSessao, NovoAdendo, Ocorrencia, OcorrenciaSemelhante, PrazoProximo, Sessao } from '../api/contract';
 import {
-  auditar, contexto, erro, escolasDoVinculo, json, novoEvento, paraQuemConsulta, persistir, podeAbrir, resumo,
+  auditar, auditoria, contexto, erro, escolasDoVinculo, json, novoEvento, paraQuemConsulta, persistir, podeAbrir, resumo,
   semAcento, sessoes, soProprios,
 } from './base';
 import { handlersCentral } from './central';
@@ -158,7 +158,12 @@ export const handlers = [
       auditar(ctx, 'negado', `caso ${item.protocolo}`, 'negado', 'perfil sem acesso');
       return erro(403, 'sem_permissao', 'Seu perfil não tem acesso a este registro.');
     }
-    auditar(ctx, 'consulta', `caso ${item.protocolo}`);
+    // A tela recarrega o caso sozinha; uma consulta da mesma pessoa ao mesmo caso
+    // em 15 minutos conta uma vez só, para a auditoria não virar ruído.
+    const recurso = `caso ${item.protocolo}`;
+    const limite = new Date(Date.now() - 15 * 60_000).toISOString();
+    const jaConsultou = auditoria.some((r) => r.acao === 'consulta' && r.recurso === recurso && r.ator === ctx.usuario.nome && r.redeId === ctx.vinculo.redeId && r.em > limite);
+    if (!jaConsultou) auditar(ctx, 'consulta', recurso);
     return json(paraQuemConsulta(ctx, item));
   }),
 
