@@ -329,6 +329,7 @@ export type Relatorio = {
   porCategoria: Contagem[];
   porMes: Contagem[];
   porSituacao: Contagem[];
+  porEscola: Contagem[];      // só quando o escopo tem mais de uma escola; senão, vazio
 };
 
 export type PedidoExportacao = { motivo: string; de: string; ate: string; escolaId: string; somenteCategoriaId: string };

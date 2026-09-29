@@ -421,7 +421,8 @@ function Estados() {
               aoCancelar={() => setRestaurar(false)}
               aoConfirmar={() => {
                 try {
-                  localStorage.removeItem('demo.banco.v6'); // mesma chave de src/mocks/base.ts
+                  // Apaga todas as versões do banco da demonstração (chave em src/mocks/base.ts).
+                  Object.keys(localStorage).filter((k) => k.startsWith('demo.banco')).forEach((k) => localStorage.removeItem(k));
                 } catch {
                   /* sem armazenamento: nada a apagar */
                 }

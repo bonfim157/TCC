@@ -21,7 +21,7 @@ export const auditoria: RegistroDeAuditoria[] = [];
  * veja os mesmos dados. A chave tem versão: formatos antigos são ignorados.
  * "Restaurar dados de demonstração", no Guia da interface, apaga esta chave.
  */
-export const CHAVE_BANCO = 'demo.banco.v6';
+export const CHAVE_BANCO = 'demo.banco.v7';
 const colecoes: Record<string, unknown[]> = { ocorrencias, auditoria, regras, modelos, categorias, contatos, pessoas };
 let ultimoSalvo: string | null = null;
 

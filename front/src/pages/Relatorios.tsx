@@ -136,6 +136,7 @@ export function Relatorios() {
               <Barras titulo="Casos por tipo" dados={[...r.porCategoria].sort((a, b) => (b.total ?? 0) - (a.total ?? 0))} limite={r.limiteMinimo} />
               <Barras titulo="Casos por mês" dados={r.porMes} limite={r.limiteMinimo} />
               <Barras titulo="Casos por situação" dados={r.porSituacao} limite={r.limiteMinimo} />
+              {r.porEscola.length > 0 && <Barras titulo="Casos por escola" dados={r.porEscola} limite={r.limiteMinimo} />}
             </div>
           </>
         )}

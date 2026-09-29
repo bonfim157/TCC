@@ -54,6 +54,10 @@ function montarRelatorio(ctx: Contexto, q: URLSearchParams): Relatorio {
   const status = [...new Set(lista.map((o) => o.status))];
   const porSituacao: Contagem[] = status.map((st) => ({ chave: st, rotulo: rotuloStatus[st][0], total: suprimir(lista.filter((o) => o.status === st).length) }));
   const escolaId = q.get('escolaId') || (ctx.vinculo.escolaIds.length ? ctx.escolaId : '');
+  const escolasNoEscopo = escolaId ? [] : escolasDoVinculo(ctx.vinculo);
+  const porEscola: Contagem[] = escolasNoEscopo.length > 1
+    ? escolasNoEscopo.map((e) => ({ chave: e.id, rotulo: e.sigla ?? e.nome, total: suprimir(lista.filter((o) => o.escolaId === e.id).length) }))
+    : [];
   const escopo = escolaId
     ? escolas.find((e) => e.id === escolaId)?.nome ?? ''
     : ctx.vinculo.regionalId
@@ -67,6 +71,7 @@ function montarRelatorio(ctx: Contexto, q: URLSearchParams): Relatorio {
     porCategoria,
     porMes,
     porSituacao,
+    porEscola,
   };
 }
 
@@ -122,6 +127,7 @@ export const handlersGestao = [
       [],
       ['Mês', 'Casos'],
       ...r.porMes.map((c) => [c.rotulo, valor(c)]),
+      ...(r.porEscola.length ? [[], ['Escola', 'Casos'], ...r.porEscola.map((c) => [c.rotulo, valor(c)])] : []),
     ]);
     auditar(ctx, 'exportacao', `relatório agregado (${r.escopo})`, 'permitido', p.motivo.trim());
     const data = new Date().toISOString().slice(0, 10);

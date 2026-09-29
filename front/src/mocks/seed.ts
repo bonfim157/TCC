@@ -58,6 +58,16 @@ export const escolas: Escola[] = [
     municipio: 'Cidade Fictícia',
     bairro: 'Centro',
   },
+  // Segunda escola da regional fictícia: permite testar a visão regional com
+  // várias escolas sem inventar escolas reais em Limeira.
+  {
+    id: 'esc-teste-2',
+    redeId: 'rede-teste',
+    regionalId: 'reg-teste',
+    nome: 'Segunda Escola Fictícia',
+    municipio: 'Cidade Fictícia',
+    bairro: 'Vila Nova',
+  },
 ];
 
 const cat = (redeId: string, prefixo: string): Categoria[] =>
@@ -102,6 +112,7 @@ export const usuarios: Usuario[] = [
     ],
   },
   { id: 'u-luis', nome: 'Luís Farias', vinculos: [{ redeId: 'rede-teste', perfil: 'coordenacao', escolaIds: ['esc-teste'] }] },
+  { id: 'u-rita', nome: 'Rita Moraes', vinculos: [{ redeId: 'rede-teste', perfil: 'diretoria_regional', escolaIds: [], regionalId: 'reg-teste' }] },
 ];
 
 /* Estudantes e profissionais fictícios. Estudantes aparecem com nome e inicial do sobrenome. */
@@ -329,10 +340,32 @@ const marcar = (id: string, provs: string[], por: string, em: string, obs = '') 
     o.encerramento = { em: `${data}T18:00:00-03:00`, por: 'Carlos Mendes', justificativa: 'Caso histórico fictício encerrado.', reavaliarEm: null };
     ocorrencias.push(o);
   }
+
+  // Rede de testes: histórico nas duas escolas da regional fictícia (12 e 9 casos),
+  // para a regional ver números somados de mais de uma escola.
+  for (let n = 1; n <= 21; n++) {
+    const escolaId = n <= 12 ? 'esc-teste' : 'esc-teste-2';
+    const mes = 3 + (n % 6);
+    const data = `2026-${String(mes).padStart(2, '0')}-${String(1 + ((n * 7) % 27)).padStart(2, '0')}`;
+    const cat = [1, 1, 2, 3, 6, 7][n % 6];
+    const local = locais[n % locais.length];
+    const o = completar({
+      id: `oc-rt-h${n}`, redeId: 'rede-teste', escolaId, protocolo: `2026-${String(300 + n).padStart(6, '0')}`,
+      categoriaId: `rt-cat-${cat}`, status: 'encerrado', prioridade: 'media',
+      abertaEm: `${data}T10:00:00-03:00`, local, criadoPorId: 'u-historico', criadoPorNome: 'Registro histórico', registroNaRede: null,
+      fato: { categoriaId: `rt-cat-${cat}`, data, hora: '10:00', local, riscoImediato: false, relato: 'Registro histórico fictício da rede de testes.', providenciaImediata: '' },
+      envolvidos: [], anexos: [], plano: [],
+      eventos: [ev('registro', 'Registro histórico', 'coordenacao', `${data}T10:00:00-03:00`, 'Registro histórico fictício.')],
+    });
+    o.providencias = o.providencias.map((p) => ({ ...p, situacao: 'feita', registradaPor: 'Registro histórico' }));
+    o.encerramento = { em: `${data}T18:00:00-03:00`, por: 'Luís Farias', justificativa: 'Caso histórico fictício encerrado.', reavaliarEm: null };
+    ocorrencias.push(o);
+  }
 }
 
 /** Contatos locais da rede de proteção (fictícios até a escola confirmar; ver Pendências). */
 export const contatos: import('../api/contract').ContatosLocais[] = [
   { escolaId: 'esc-imsil', conselhoTutelar: 'Conselho Tutelar de Limeira', cras: 'CRAS de referência do Jardim Ouro Verde', creas: 'CREAS de Limeira', delegacia: 'Delegacia de Polícia de Limeira', saude: 'UBS de referência do Jardim Ouro Verde' },
   { escolaId: 'esc-teste', conselhoTutelar: 'Conselho Tutelar Fictício', cras: 'CRAS Fictício', creas: 'CREAS Fictício', delegacia: 'Delegacia Fictícia', saude: 'UBS Fictícia' },
+  { escolaId: 'esc-teste-2', conselhoTutelar: 'Conselho Tutelar Fictício', cras: 'CRAS Fictício da Vila Nova', creas: 'CREAS Fictício', delegacia: 'Delegacia Fictícia', saude: 'UBS Fictícia da Vila Nova' },
 ];
