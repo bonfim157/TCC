@@ -12,6 +12,7 @@ Protótipo acadêmico, sem vínculo oficial com a Secretaria da Educação. Pess
 | [`docs/pendencias.md`](docs/pendencias.md) | Tudo o que ficou para depois, com situação |
 | [`docs/gestao-da-ocorrencia.md`](docs/gestao-da-ocorrencia.md) | Como a gestão escolar trata uma ocorrência, base legal e fontes |
 | [`docs/registro-de-execucao.md`](docs/registro-de-execucao.md) | O que foi construído e verificado em cada fase |
+| [`docs/contrato-para-o-backend.md`](docs/contrato-para-o-backend.md) | Rotas, erros e regras de acesso que o backend precisa seguir |
 | [`front/`](front/README.md) | Aplicação web (React, TypeScript, Vite) com API simulada |
 | `relatorio-sistema-ocorrencias-escolas-publicas.docx` | Relatório completo do sistema (v1.0) |
 | `documentacao-prototipo.docx` | Documentação do protótipo HTML inicial |
@@ -20,14 +21,18 @@ Protótipo acadêmico, sem vínculo oficial com a Secretaria da Educação. Pess
 ## Rodar o front
 
 ```bash
-cd "C:/Users/Rafael/Desktop/dev/tcc/front"
+cd front
 npm install
 npm run dev        # http://localhost:5173/?rede=sp
 ```
 
 Detalhes, verificação e estrutura em [`front/README.md`](front/README.md).
 
-## Acesse:
+## Situação
 
-## https://claude.ai/code/artifact/419a1396-84bd-4ee3-8340-e1d20e260b8d#391a3e9b-a973.mkg7bf73qee.5200
-## https://claude.ai/artifact/96r5ojTWWnHQBnAZmcTqek#391a3e9b-a973
+Front completo em 29/09/2026 (fases F1 a F4 e a parte técnica da F5). Falta o que depende de pessoas, decisões da gestão e backend. Veja a situação atual no [plano de escopo](docs/plano-de-escopo.md) e em [pendências](docs/pendencias.md).
+
+## Links externos
+
+- [Cópia antiga do plano no Claude Docs](https://claude.ai/code/artifact/419a1396-84bd-4ee3-8340-e1d20e260b8d): desatualizada; a versão oficial é [`docs/plano-de-escopo.md`](docs/plano-de-escopo.md)
+- [Artifact no Claude](https://claude.ai/artifact/96r5ojTWWnHQBnAZmcTqek)
