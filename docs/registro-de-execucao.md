@@ -93,6 +93,27 @@ O que foi construído em cada fase e como foi verificado. As verificações fora
 
 **Corrigido durante a verificação**: legenda oculta de tabelas escapava do quadro de rolagem e criava rolagem lateral no celular; contorno de foco aparecia em volta do conteúdo principal; rascunho não era restaurado ao recarregar quando a lista de escolas demorava (o formulário agora espera a escola).
 
+## F5 · Validação e entrega (parte técnica) e fechamento do front, 29/09/2026
+
+**Construído**
+
+- Auditoria automática de acessibilidade (`scripts/verificacao/f5-acessibilidade.mjs`, axe-core, regras WCAG 2.0 e 2.1 A e AA): professora, coordenação, direção, secretaria e família; todas as abas da administração e do caso; diálogo de encerramento; formulário com erros; temas claro e escuro; 360 e 1440px
+- Central se atualiza sozinha (pendência 22): consulta a cada 30 s com a aba visível, ao voltar à aba e, na demonstração, quando outra aba grava dados. Diálogos abertos não fecham. Consultas repetidas ao mesmo caso contam uma vez a cada 15 minutos na auditoria
+- Encerramento com ações do plano em aberto (pendência 23): o diálogo lista as ações e exige marcar o cancelamento; sem isso, 409. As ações ficam "Canceladas no encerramento" e o cancelamento entra na linha do tempo
+- Regional com várias escolas (pendência 26): segunda escola fictícia e diretora regional na rede de testes, com histórico nas duas; o relatório ganhou "Casos por escola" (também no CSV). A chave do banco da demonstração passou a `demo.banco.v7`
+- Comunicação à família: a API simulada também recusa texto que cite outro estudante do caso, inclusive nomes restritos que a tela não conhece, e audita a recusa
+- Contrato para o backend (`docs/contrato-para-o-backend.md`), tirado do código
+- Limpeza: `EmConstrucao` e o campo `fase` removidos; a nota do Início sobre "relatórios na F4" virou link
+
+**Verificado** (`npm run build`, `npm run contrast` e `npm run verificar`, todos passando)
+
+- Acessibilidade: 172 telas auditadas, nenhuma violação. O único item inconclusivo é contraste de texto sobre elementos sobrepostos, coberto pelo `npm run contrast`. Antes de confiar no resultado, conferimos que o axe acusa um campo sem rótulo e um texto sem contraste inseridos de propósito
+- Atualização: Beatriz conclui a triagem do 484; na aba de Carlos, sem recarregar, a fila passa de "Recebido, sem responsável" para "Em acompanhamento, com Carlos Mendes", o caso aberto muda e o diálogo que ele tinha aberto continua aberto; a auditoria tem uma só consulta dele ao caso
+- O servidor recusa (422) a comunicação à família de Gabriel que cita Lara e aceita (201) o texto só sobre Gabriel
+- Encerrar o 482 sem confirmar: "Há 2 ações do plano de apoio em aberto…"; confirmando, o caso é encerrado e as duas ações aparecem como canceladas
+- Regional fictícia: 23 casos das duas escolas, nenhum da IMSIL, nenhum link para abrir caso, barras por escola com 14 e 9; a regional de SP continua só com a IMSIL e sem quebra por escola
+- F1 a F4 sem regressão
+
 ## Situação da última rodada de verificação
 
-29/09/2026: `npm run build` sem erros e `npm run verificar` completo (F1, F2, F3 e F4) passou depois das últimas mudanças (dados compartilhados entre abas e espera da escola no registro). Destaques da rodada: protocolo novo 2026-000485 criado e rascunho restaurado após recarregar; ofício ao Conselho Tutelar zera a pendência na fila; envio à família com nome de outro estudante bloqueado; ciência da família confirmada; busca com 68 casos (10 de bullying); regional com 5 grupos suprimidos e sem links para casos; exportação só com motivo e auditada; nenhuma rolagem lateral em 360px nas telas verificadas.
+29/09/2026: `npm run build`, `npm run contrast` e `npm run verificar` completo (F1, F2, F3, atualização, F4, regional e acessibilidade) passaram. O front está completo; o que falta é validação com pessoas, decisões da gestão e backend (ver Pendências).

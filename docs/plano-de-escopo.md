@@ -1,6 +1,6 @@
 # Plano de escopo do front-end: sistema de ocorrências escolares
 
-Atualizado em 28/09/2026 (F1 a F4 construídas). Este arquivo é a fonte oficial do plano; a cópia no Claude Docs é só para leitura.
+Atualizado em 29/09/2026 (front completo: F1 a F4 construídas e parte técnica da F5 feita; faltam os testes com pessoas). Este arquivo é a fonte oficial do plano; a cópia no Claude Docs é só para leitura.
 
 Propomos construir o front-end completo do sistema em 5 fases, com dados simulados, antes de qualquer integração com backend. O protótipo HTML (`prototipo-ocorrencias.html`) serve como referência de linguagem visual, não como base de código.
 
@@ -9,6 +9,7 @@ Documentos relacionados:
 - [Gestão da ocorrência](gestao-da-ocorrencia.md): o que o gestor faz ao receber uma ocorrência, base legal e fontes
 - [Pendências](pendencias.md): tudo o que ficou para depois, com situação
 - [Registro de execução](registro-de-execucao.md): o que foi construído e verificado em cada fase
+- [Contrato para o backend](contrato-para-o-backend.md): rotas, erros e regras de acesso que o servidor precisa seguir
 - [README do front](../front/README.md): como rodar
 
 ## Situação atual
@@ -17,11 +18,11 @@ Documentos relacionados:
 | --- | --- | --- |
 | F1 Fundação e multi-rede | Construída | Guia da interface com 20 componentes, contraste AA verificado por script, duas redes isoladas, perfis de demonstração, estados do sistema |
 | F2 Registrar e acompanhar | Construída | Início, registro em 3 passos com rascunho no aparelho, meus registros, detalhe do caso com linha do tempo e adendos |
-| F3 Central de Gestão | Construída | Fila por risco, caso com providências por tipo, encaminhamentos com devolutiva, plano de apoio, comunicação à família com ciência, ofício ao Conselho Tutelar, encerramento com justificativa, agenda |
-| F4 Gestão e administração | Construída | Busca por perfil, relatório agregado com supressão de grupos pequenos e exportação com motivo, administração em dois níveis (rede e escola), matriz de permissões (consulta), auditoria |
-| F5 Validação e entrega | Adiada | Testes de usabilidade e de acessibilidade com pessoas, depois do front completo |
+| F3 Central de Gestão | Construída | Fila por risco que se atualiza sozinha, caso com providências por tipo, encaminhamentos com devolutiva, plano de apoio, comunicação à família com ciência, ofício ao Conselho Tutelar, encerramento com justificativa, agenda |
+| F4 Gestão e administração | Construída | Busca por perfil, relatório agregado com supressão de grupos pequenos, quebra por escola na regional e exportação com motivo, administração em dois níveis (rede e escola), matriz de permissões (consulta), auditoria |
+| F5 Validação e entrega | Parte técnica feita | Auditoria automática de acessibilidade sem violações e contrato entregue para o backend. Faltam os testes com pessoas (usabilidade e leitor de tela) |
 
-Os testes com usuários ficaram para depois de o front estar completo (decisão de 28/09/2026). Estão em [Pendências](pendencias.md).
+Os testes com usuários ficaram para depois de o front estar completo (decisão de 28/09/2026). O front ficou completo em 29/09/2026; os testes estão em [Pendências](pendencias.md).
 
 ## Objetivo e limites
 
@@ -155,13 +156,13 @@ Uma fase só é concluída quando todos os itens forem verificados em demonstra�
 - [x] Exportação exige motivo antes de liberar o arquivo, e o motivo vai para a auditoria
 - [x] Busca retorna apenas casos permitidos ao perfil ativo
 - [x] Protocolo configurado pela secretaria vale para todas as escolas da rede; a escola altera apenas o que é dela (contatos, pessoas)
-- [ ] Visão da regional agrega várias escolas da mesma rede e nunca de outra rede (funciona, mas a regional de demonstração só tem a IMSIL; testar com mais escolas)
+- [x] Visão da regional agrega várias escolas da mesma rede e nunca de outra rede (verificado na rede de testes, com duas escolas fictícias)
 
 **F5 · Validação e entrega**
 
-- [ ] Auditoria de acessibilidade sem pendências críticas nos caminhos de registro, triagem e acompanhamento
+- [x] Auditoria de acessibilidade sem pendências críticas nos caminhos de registro, triagem e acompanhamento (automática, com axe-core; falta a passada com leitor de tela)
 - [ ] Segundo teste de usabilidade com melhora frente ao primeiro
-- [ ] Documentação de componentes e contrato de dados entregues à equipe de backend
+- [x] Documentação de componentes e contrato de dados entregues à equipe de backend (componentes em `/guia`; contrato em [Contrato para o backend](contrato-para-o-backend.md); falta a validação com o backend)
 
 ## Decisões tomadas
 
@@ -174,6 +175,9 @@ Uma fase só é concluída quando todos os itens forem verificados em demonstra�
 | 28/09/2026 | Testes com usuários adiados até o front estar completo | Definição do usuário |
 | 28/09/2026 | Repositório Git é a fonte oficial de todos os registros | Definição do usuário, para trabalhar em locais diferentes |
 | 28/09/2026 | Azul institucional e fontes Source Serif 4 e Source Sans 3, servidas pelo próprio app | Documentação do protótipo; conexão instável e privacidade |
+| 29/09/2026 | Encerrar caso com ações do plano em aberto exige confirmar o cancelamento delas | Caso encerrado não aceita ações; nada fica pendurado. A direção pode mudar a regra (pendência 23) |
+| 29/09/2026 | A segunda escola para testar a regional é fictícia, na rede de testes | A IMSIL é a única escola real por enquanto; não inventar escolas reais |
+| 29/09/2026 | A Central se atualiza por consulta periódica (30 s), sem conexão em tempo real | Funciona com qualquer backend; tempo real pode vir depois sem mudar a tela |
 
 ## Decisões pendentes da gestão
 
