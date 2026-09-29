@@ -10,6 +10,7 @@ Documentos relacionados:
 - [Pendências](pendencias.md): tudo o que ficou para depois, com situação
 - [Registro de execução](registro-de-execucao.md): o que foi construído e verificado em cada fase
 - [Contrato para o backend](contrato-para-o-backend.md): rotas, erros e regras de acesso que o servidor precisa seguir
+- [Plano do back-end](plano-backend.md): servidor, banco, hospedagem na Vercel, segurança, LGPD e piloto
 - [README do front](../front/README.md): como rodar
 
 ## Situação atual

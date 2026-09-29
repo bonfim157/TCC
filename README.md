@@ -13,6 +13,7 @@ Protótipo acadêmico, sem vínculo oficial com a Secretaria da Educação. Pess
 | [`docs/gestao-da-ocorrencia.md`](docs/gestao-da-ocorrencia.md) | Como a gestão escolar trata uma ocorrência, base legal e fontes |
 | [`docs/registro-de-execucao.md`](docs/registro-de-execucao.md) | O que foi construído e verificado em cada fase |
 | [`docs/contrato-para-o-backend.md`](docs/contrato-para-o-backend.md) | Rotas, erros e regras de acesso que o backend precisa seguir |
+| [`docs/plano-backend.md`](docs/plano-backend.md) | Plano do back-end, banco de dados, hospedagem na Vercel, segurança e LGPD |
 | [`front/`](front/README.md) | Aplicação web (React, TypeScript, Vite) com API simulada |
 | `relatorio-sistema-ocorrencias-escolas-publicas.docx` | Relatório completo do sistema (v1.0) |
 | `documentacao-prototipo.docx` | Documentação do protótipo HTML inicial |
@@ -30,7 +31,7 @@ Detalhes, verificação e estrutura em [`front/README.md`](front/README.md).
 
 ## Situação
 
-Front completo em 29/09/2026 (fases F1 a F4 e a parte técnica da F5). Falta o que depende de pessoas, decisões da gestão e backend. Veja a situação atual no [plano de escopo](docs/plano-de-escopo.md) e em [pendências](docs/pendencias.md).
+Front completo em 29/09/2026 (fases F1 a F4 e a parte técnica da F5). Falta o que depende de pessoas, decisões da gestão e backend. Veja a situação atual no [plano de escopo](docs/plano-de-escopo.md) e em [pendências](docs/pendencias.md). Próxima etapa: [plano do back-end](docs/plano-backend.md).
 
 ## Links externos
 
