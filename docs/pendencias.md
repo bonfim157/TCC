@@ -51,7 +51,7 @@ Tudo o que ficou para depois de o front estar completo, em um só lugar. Atualiz
 | --- | --- | --- | --- | --- |
 | 22 | Atualização automática da fila quando outra pessoa altera um caso | F3 | Aberta | Hoje a fila atualiza ao agir ou recarregar |
 | 23 | Encerrar caso com ações do plano ainda abertas: decidir se cancela ou mantém | F3 | Aberta | Hoje mantém, fora da agenda |
-| 24 | Rodar de novo `npm run verificar` completo (F3 e F4) depois das últimas mudanças | F4 | Aberta | Rodada interrompida no fim da sessão de 28/09 |
+| 24 | Rodar de novo `npm run verificar` completo (F3 e F4) depois das últimas mudanças | F4 | Resolvida | 29/09/2026: F1 a F4 passaram; ver Registro de execução |
 | 25 | Edição da matriz de permissões | F4 | Aberta | Hoje só consulta; depende do backend |
 | 26 | Testar a visão da regional com mais de uma escola | F4 | Aberta | Regional de demonstração só tem a IMSIL |
 | 27 | Configurações da administração (protocolo, modelos, contatos) persistem só no navegador da demonstração | F4 | Aberta | Depende do backend |

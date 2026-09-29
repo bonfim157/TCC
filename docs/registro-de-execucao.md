@@ -95,4 +95,4 @@ O que foi construído em cada fase e como foi verificado. As verificações fora
 
 ## Situação da última rodada de verificação
 
-Depois das últimas mudanças (dados compartilhados entre abas e espera da escola no registro), F1 e F2 foram verificadas de novo e passaram. F3 e F4 passaram antes dessas mudanças; a nova rodada completa (`npm run verificar`) ficou pendente porque a sessão foi encerrada. Ver Pendências.
+29/09/2026: `npm run build` sem erros e `npm run verificar` completo (F1, F2, F3 e F4) passou depois das últimas mudanças (dados compartilhados entre abas e espera da escola no registro). Destaques da rodada: protocolo novo 2026-000485 criado e rascunho restaurado após recarregar; ofício ao Conselho Tutelar zera a pendência na fila; envio à família com nome de outro estudante bloqueado; ciência da família confirmada; busca com 68 casos (10 de bullying); regional com 5 grupos suprimidos e sem links para casos; exportação só com motivo e auditada; nenhuma rolagem lateral em 360px nas telas verificadas.
