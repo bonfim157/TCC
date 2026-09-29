@@ -8,6 +8,41 @@ Documentos relacionados:
 - [Plano de escopo do front](plano-de-escopo.md) e [Pendências](pendencias.md)
 - A API simulada em `front/src/mocks/` é a referência executável: o servidor real deve se comportar igual a ela
 
+## Situação atual e próximos passos (29/09/2026)
+
+**Feito**
+
+- B0, parte local: workspaces (`front`, `servidor`, `compartilhado`), modo real no front (`VITE_API=real`), faixa de demonstração, GitHub Actions
+- B1: banco completo (todas as tabelas, papel da aplicação, Row-Level Security, auditoria só de inserção com cadeia de hashes), seed fictício, API com saúde, redes, login de demonstração, escolas e categorias, ponto de entrada da Vercel, 19 testes passando, front em modo real entrando pelo servidor
+
+**Falta, em ordem**
+
+1. **B0, publicação**: fazer `vercel login` (digite `! npx vercel login` no Claude Code), criar o projeto na Vercel ligado ao repositório e decidir como publicar a demonstração (ver Decisões pendentes). Conferir se o GitHub Actions passou no primeiro push
+2. **B1, banco na nuvem**: criar o banco Neon em São Paulo pela Vercel Marketplace, definir `DATABASE_URL`, rodar migrações e seed num preview e repetir os testes contra a Neon (confirmar o driver com transações, ver Banco de dados)
+3. **B2, login e acesso** (3 semanas): senha com Argon2id, segundo fator (TOTP), sessão em cookie `HttpOnly`, telas de login no front, matriz de permissões vinda do banco, tabela de testes perfil × rota
+4. **B3 a B5**: portar as rotas da simulação (`front/src/mocks/handlers.ts`, `central.ts`, `gestao.ts`) para o servidor, na ordem registro → Central → gestão. Critério de cada fase: o roteiro correspondente do front passa contra o servidor real, duas vezes seguidas
+5. **B6 e B7**: operação, segurança, homologação e piloto (ver Fases)
+
+**Como retomar em outra máquina**
+
+```bash
+git clone https://github.com/bonfim157/TCC.git
+cd TCC
+npm install
+npm test                       # testes do servidor (banco local, sem Docker)
+npm run dev:servidor           # terminal 1: API em http://localhost:3000/api
+VITE_API=real npm run dev      # terminal 2: front usando o servidor
+npm run dev                    # ou: só a demonstração, com API simulada
+```
+
+Para os roteiros do navegador: `npx playwright install chromium` uma vez, e `npm run verificar` com o front rodando. Em modo real, só `f1-regressao.mjs` passa por enquanto; os outros dependem das rotas da B3 em diante.
+
+Cuidados anotados nesta etapa:
+
+- O banco local (PGlite) atende uma conexão por vez; o servidor de desenvolvimento e os testes usam pool com uma conexão
+- No Windows, parar o `npm run dev` pelo Claude Code pode deixar o Vite rodando na porta 5173; rodar o Vite direto (`node ../node_modules/vite/bin/vite.js` dentro de `front/`) evita isso
+- Novas migrações: arquivo `003_...sql` em `servidor/src/banco/migracoes/`; toda tabela nova com `rede_id` precisa entrar na lista de Row-Level Security de `002_seguranca.sql` (ou numa migração nova com as mesmas regras)
+
 ## Ponto de partida
 
 O front está pronto e fala com uma API simulada no navegador. O servidor real precisa responder às mesmas rotas, com os mesmos formatos e as mesmas regras. Isso dá duas vantagens:
@@ -27,11 +62,12 @@ O trabalho do back-end é, portanto, **trocar a simulação por um servidor de v
 | Framework da API | Hono | Leve, feito para funções serverless, roda na Vercel sem adaptação e é fácil de testar |
 | Validação | Zod, com os esquemas em um pacote compartilhado (`compartilhado/`) usado pelo front e pelo servidor | Uma só definição de cada formato; o que o front envia é validado do mesmo jeito no servidor |
 | Banco | PostgreSQL gerenciado pela Neon, na região AWS `sa-east-1` (São Paulo), contratado pela Vercel Marketplace | Postgres padrão, plano gratuito para o TCC, cria uma cópia do banco para cada versão de teste (preview) |
-| Acesso ao banco | Drizzle ORM, com migrações em SQL versionadas no Git | Consultas tipadas, SQL visível, funciona bem em serverless |
+| Acesso ao banco | SQL direto com o driver `pg`, migrações em SQL versionadas no Git (`servidor/src/banco/migracoes/`) | Papéis, permissões e Row-Level Security são SQL de qualquer forma; menos uma dependência. Trocado pelo Drizzle em 29/09/2026, na B1 |
 | Isolamento entre redes | Toda tabela tem `rede_id`; filtro obrigatório na aplicação e, por baixo, Row-Level Security do Postgres | Duas barreiras: um erro no código não expõe dados de outra rede |
 | Arquivos (anexos) | Vercel Blob **privado**, região São Paulo, entregue só por função com checagem de acesso | Anexo nunca fica em link público; o servidor decide quem baixa |
 | E-mail às famílias | Serviço transacional (Resend ou similar) com domínio próprio | Envio confiável e rastreável. O e-mail só leva o link, nunca o conteúdo do caso |
 | Tarefas agendadas | Vercel Cron Jobs | Alertas de prazo e expiração de links. No Hobby, uma vez por dia |
+| Banco local | PGlite (Postgres em WebAssembly) servido no protocolo padrão, sem Docker | O mesmo driver e o mesmo SQL da Neon; testes e desenvolvimento sem instalar nada. Atende uma conexão por vez |
 | Testes | Vitest para regras e rotas; roteiros Playwright do front contra o servidor real; testes da matriz de acesso | O que já foi verificado na demonstração vira garantia do servidor |
 | Integração contínua | GitHub Actions: build, testes e migrações a cada push; preview na Vercel a cada pull request | Nada entra no ar sem passar nos testes |
 
@@ -39,13 +75,15 @@ O trabalho do back-end é, portanto, **trocar a simulação por um servidor de v
 
 ```
 tcc/
-  front/          aplicação React (já existe)
-  api/            ponto de entrada das Vercel Functions (Hono)
-  servidor/       rotas, regras de acesso, serviços, acesso ao banco
-    banco/        esquema Drizzle e migrações SQL
+  front/          aplicação React
+  api/            ponto de entrada das Vercel Functions ([[...rota]].ts)
+  servidor/
+    src/          API (app.ts), contexto da requisição, erros
+      banco/      conexão, migrações SQL, seed, banco local
     testes/
-  compartilhado/  contrato: tipos e esquemas Zod usados pelo front e pelo servidor
+  compartilhado/  contrato, esquemas Zod, protocolo e dados fictícios, usados pelo front e pelo servidor
   docs/
+  vercel.json     build do front, região gru1, rotas
 ```
 
 Um só projeto na Vercel, com a pasta raiz do repositório: o build gera o front estático e as funções em `api/`. Os pacotes são ligados por npm workspaces.
@@ -69,7 +107,7 @@ A lista de pessoas de demonstração continua só no modo simulado.
 
 ### Tabelas principais
 
-Toda tabela de dados de escola tem `rede_id`. Identificadores são UUID; o protocolo legível (`2026-000482`) é único por rede.
+Toda tabela de dados de escola tem `rede_id`. Identificadores são texto (UUID gerado pelo banco quando não informado), para o seed usar os mesmos ids da demonstração (`oc-sp-482`, `esc-imsil`), dos quais os roteiros do front dependem. Itens de um caso (eventos, providências, ações) têm chave (caso, id). O protocolo legível (`2026-000482`) é único por rede.
 
 | Grupo | Tabelas | Observações |
 | --- | --- | --- |
@@ -222,6 +260,15 @@ Todas as pendências abertas em [Pendências](pendencias.md), com a fase que res
 | 25 | Edição da matriz de permissões | B5 |
 | 27 | Configurações da administração persistidas | B5 |
 | 31 | Supressão complementar nos relatórios | Decisão do encarregado; implementação na B5 |
+
+## Decisões tomadas
+
+| Data | Decisão | Motivo |
+| --- | --- | --- |
+| 29/09/2026 | Arquitetura deste plano aprovada para execução | Usuário: "vamos implementar o plano de back-end agora mesmo, pode começar" |
+| 29/09/2026 | SQL direto com `pg` no lugar do Drizzle | Segurança do banco é toda em SQL; menos dependências |
+| 29/09/2026 | PGlite para desenvolvimento e testes, no lugar de Docker | Máquina com pouca memória livre; teste prévio confirmou papéis, Row-Level Security, `set_config` local e permissões |
+| 29/09/2026 | Faixa "Demonstração: protótipo acadêmico, sem vínculo com a Secretaria da Educação" no topo de todas as telas do modo simulado | Recomendação para a publicação da demonstração; a forma de publicar continua em decisão |
 
 ## Decisões pendentes
 

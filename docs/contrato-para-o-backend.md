@@ -2,7 +2,7 @@
 
 Documento de entrega da fase F5. Descreve o que o front espera do servidor: rotas, cabeçalhos, formatos, erros e regras de acesso. A API simulada (MSW, em `front/src/mocks/`) implementa tudo isto e serve de referência executável: o backend pode rodar o front apontando para ele e comparar o comportamento com a demonstração.
 
-Fonte da verdade dos tipos: [`front/src/api/contract.ts`](../front/src/api/contract.ts). Este documento cita os tipos pelo nome em vez de copiá-los, para não haver duas versões. Tudo o que está aqui vem do código em 29/09/2026; ao mudar o contrato, mude o arquivo de tipos e a API simulada juntos.
+Fonte da verdade dos tipos: [`compartilhado/src/contrato.ts`](../compartilhado/src/contrato.ts) (o front reexporta em `front/src/api/contract.ts`). Este documento cita os tipos pelo nome em vez de copiá-los, para não haver duas versões. Tudo o que está aqui vem do código em 29/09/2026; ao mudar o contrato, mude o arquivo de tipos e a API simulada juntos.
 
 Situação: **aguarda validação com o backend** (pendência 14).
 

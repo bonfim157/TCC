@@ -36,7 +36,7 @@ Tudo o que ficou para depois de o front estar completo, em um só lugar. Atualiz
 
 | # | Pendência | Fase | Depende de | Situação | Notas |
 | --- | --- | --- | --- | --- | --- |
-| 14 | Validar o contrato de dados (`front/src/api/contract.ts`) com a equipe de backend | F1 | Backend | Aberta | Documento de entrega: `docs/contrato-para-o-backend.md` |
+| 14 | Validar o contrato de dados (`compartilhado/src/contrato.ts`) com a equipe de backend | F1 | Backend | Em andamento | Documento de entrega: `docs/contrato-para-o-backend.md`. 29/09/2026: servidor da B1 já segue o contrato nas rotas de redes, sessão, escolas e categorias |
 | 15 | Controle de acesso aplicado no servidor real, com a mesma matriz do front | Todas | Backend | Aberta | Regras de referência em `front/src/mocks/base.ts` |
 | 16 | Login com a conta institucional da rede, com MFA para perfis de gestão | F1 | Seduc-SP e backend | Aberta | |
 | 17 | Relação com o Conviva SP: lançamento manual com código (atual) ou integração | F3 | Seduc-SP | Aberta | |

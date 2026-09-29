@@ -5,7 +5,7 @@ Interface do sistema de ocorrências escolares. Fases F1 a F4 construídas; F5 (
 ## Como rodar
 
 ```bash
-npm install
+npm install        # na raiz do repositório (workspaces)
 npm run dev        # http://localhost:5173
 npm run build      # checagem de tipos + build de produção
 npm run contrast   # confere o contraste WCAG AA das cores de todas as redes

@@ -15,6 +15,8 @@ Protótipo acadêmico, sem vínculo oficial com a Secretaria da Educação. Pess
 | [`docs/contrato-para-o-backend.md`](docs/contrato-para-o-backend.md) | Rotas, erros e regras de acesso que o backend precisa seguir |
 | [`docs/plano-backend.md`](docs/plano-backend.md) | Plano do back-end, banco de dados, hospedagem na Vercel, segurança e LGPD |
 | [`front/`](front/README.md) | Aplicação web (React, TypeScript, Vite) com API simulada |
+| `servidor/`, `api/` | API (Hono) para Vercel Functions, banco PostgreSQL, testes |
+| `compartilhado/` | Contrato de dados, esquemas de validação, protocolo e dados fictícios |
 | `relatorio-sistema-ocorrencias-escolas-publicas.docx` | Relatório completo do sistema (v1.0) |
 | `documentacao-prototipo.docx` | Documentação do protótipo HTML inicial |
 | `prototipo-ocorrencias.html` | Protótipo HTML inicial, referência visual |
@@ -22,9 +24,16 @@ Protótipo acadêmico, sem vínculo oficial com a Secretaria da Educação. Pess
 ## Rodar o front
 
 ```bash
-cd front
-npm install
-npm run dev        # http://localhost:5173/?rede=sp
+npm install            # na raiz: instala front, servidor e compartilhado
+npm run dev            # demonstração com API simulada: http://localhost:5173/?rede=sp
+```
+
+Com o servidor real (banco local, dados fictícios), em dois terminais:
+
+```bash
+npm run dev:servidor           # API em http://localhost:3000/api
+VITE_API=real npm run dev      # front usando o servidor
+npm test                       # testes do servidor
 ```
 
 Detalhes, verificação e estrutura em [`front/README.md`](front/README.md).

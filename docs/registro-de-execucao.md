@@ -116,6 +116,28 @@ O que foi construído em cada fase e como foi verificado. As verificações fora
 
 **Registrado para depois**: supressão complementar nos relatórios (pendência 31); consulta à auditoria contada uma vez a cada 15 minutos, a validar com o encarregado de dados
 
+## Back-end B0 (parte local) e B1 · Fundação do servidor, 29/09/2026
+
+**Construído**
+
+- Repositório em workspaces: `front/`, `servidor/`, `compartilhado/`. Contrato, dados fictícios e protocolo passaram para `compartilhado/`; a API simulada e o seed do banco usam os mesmos arquivos
+- `VITE_API=real` liga o front ao servidor (`/api` do mesmo domínio; em desenvolvimento, proxy para a porta 3000). No modo real a simulação não entra no pacote gerado (conferido no build)
+- Faixa de demonstração no topo de todas as telas do modo simulado
+- GitHub Actions (`.github/workflows/verificacao.yml`): build, contraste, testes do servidor e roteiros no navegador
+- Banco: migrações `001_esquema.sql` (todas as tabelas do plano) e `002_seguranca.sql` (papel `app_tcc`, Row-Level Security forçada em toda tabela por rede, auditoria e linha do tempo só com inserção, cadeia de hashes na auditoria com trava por rede, funções para ciência e login que não expõem dados)
+- Seed com os mesmos dados da demonstração; contador de protocolo parte do maior número de cada rede
+- API (Hono): saúde, redes, login de demonstração (só com `TCC_LOGIN_DEMO=1` e fora de produção), escolas e categorias; contexto da requisição igual ao da simulação; recusas marcadas gravadas na auditoria mesmo quando a transação é desfeita
+- Ponto de entrada da Vercel (`api/[[...rota]].ts`) e `vercel.json` (região `gru1`). Nada publicado ainda
+
+**Verificado**
+
+- Teste prévio do PGlite: papel sem dono, `FORCE ROW LEVEL SECURITY`, `set_config` local à transação e permissões funcionam como no Postgres
+- `npm test`: 19 testes. Destaques: com a rede SP ativa, nenhuma linha da rede de testes aparece mesmo sem filtro na consulta (o protocolo 2026-000482 existe nas duas redes e só o da rede ativa volta); sem rede, nenhuma tabela mostra nada; a rede não vaza para a transação seguinte; gravar em outra rede é recusado pelo banco; auditoria e linha do tempo recusam alteração e exclusão; a aplicação não consegue ler o hash de senha; a auditoria encadeia os hashes; 401 sem sessão e com sessão vencida; 403 sem vínculo com a rede; 403 `rede_divergente` com escola de outra rede; regional fictícia alcança as duas escolas; login de demonstração some sem a variável e em produção
+- Front em modo real contra o servidor local: `f1-regressao.mjs` passa (login real, troca de rede, tema, 130% sem rolagem lateral); o Início mostra a pessoa logada e as áreas ainda não construídas aparecem com o aviso de erro e "Tentar de novo"
+- Modo simulado sem regressão: build, F1, F2 e acessibilidade (180 verificações, nenhuma violação) com a faixa de demonstração
+
+**Ainda não feito**: publicar na Vercel (depende do login na conta e da decisão sobre o endereço público); rodar contra a Neon.
+
 ## Situação da última rodada de verificação
 
 29/09/2026: `npm run build`, `npm run contrast` e `npm run verificar` completo (F1, F2, F3, atualização, F4, regional e acessibilidade) passaram. O front está completo; o que falta é validação com pessoas, decisões da gestão e backend (ver Pendências).
