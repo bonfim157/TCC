@@ -47,14 +47,16 @@ Caminhos em `rotas` no arquivo de contrato. "Conduz" = coordenação, direção 
 
 | Método e caminho | Quem | Envia | Recebe | Observações |
 | --- | --- | --- | --- | --- |
-| `GET /api/redes` | Público | | `Rede[]` | Nome, secretaria, sigla e cor da rede para o timbre |
+| `GET /api/redes` | Público | | `Rede[]` | Nome, secretaria e sigla para o timbre. A cor não vem do servidor: o front associa cada rede ao seu tema em `front/src/design/themes.ts` |
 | `GET /api/redes/:redeId/usuarios-demo` | Público | | `Usuario[]` | **Só da demonstração.** Some com o login institucional (pendência 16) |
 | `POST /api/sessoes` | Público | `NovaSessao` | `Sessao` | Na produção, troca pelo login da rede com MFA para gestão. Audita `login` |
 | `GET /api/escolas` | Todos | | `Escola[]` | Só as escolas do alcance |
 | `GET /api/categorias` | Todos | | `Categoria[]` | Tipos de ocorrência da rede |
-| `GET /api/pessoas?busca=` | Quem registra | | `Pessoa[]` | Estudantes e profissionais da escola ativa, para escolher envolvidos |
-| `GET /api/equipe` | Conduz | | `PessoaDaEquipe[]` | Quem pode receber um caso na triagem |
-| `GET /api/modelos` | Conduz | | `ModeloDeComunicacao[]` | Modelos de comunicação da rede |
+| `GET /api/pessoas?busca=` | Quem tem vínculo com a escola ativa* | | `Pessoa[]` | Estudantes e profissionais da escola ativa, para escolher envolvidos; até 8 resultados |
+| `GET /api/equipe` | Todos da rede* | | `PessoaDaEquipe[]` | Quem conduz casos na escola ativa, para escolher o responsável na triagem |
+| `GET /api/modelos` | Todos da rede* | | `ModeloDeComunicacao[]` | Modelos de comunicação da rede |
+
+\* A simulação não restringe estas três rotas por perfil. Recomendação para o servidor real: `/api/pessoas` só para quem registra ou conduz; `/api/equipe` e `/api/modelos` só para quem conduz.
 
 ### Registro e acompanhamento
 
@@ -63,7 +65,7 @@ Caminhos em `rotas` no arquivo de contrato. "Conduz" = coordenação, direção 
 | `GET /api/ocorrencias` | Todos de escola | | `OcorrenciaResumo[]` | Professor e apoio recebem só os próprios; quem conduz, os da escola; administração técnica, lista vazia |
 | `GET /api/ocorrencias-semelhantes?data=&categoriaId=` | Quem registra | | `OcorrenciaSemelhante[]` | Aviso de possível duplicata antes de enviar |
 | `POST /api/ocorrencias` | Quem registra | `NovaOcorrencia` | `Ocorrencia` (201) | Escola do corpo = `X-Escola-Id`; relato ≥ 20 caracteres; gera protocolo e providências pelo protocolo da rede. Audita `criacao` |
-| `GET /api/ocorrencias/:id` | Autor ou quem conduz | | `Ocorrencia` | Filtrado: nomes com visibilidade restrita chegam como "Pessoa com visibilidade restrita"; quem só registrou não recebe providências, encaminhamentos nem comunicações. Audita `consulta` (uma vez a cada 15 min por pessoa e caso) e cada negação |
+| `GET /api/ocorrencias/:id` | Autor ou quem conduz | | `Ocorrencia` | Filtrado: nomes com visibilidade restrita chegam como "Pessoa com visibilidade restrita"; quem só registrou não recebe providências, encaminhamentos nem comunicações. Audita `consulta` e cada negação. A consulta da mesma pessoa ao mesmo caso conta uma vez a cada 15 min, porque a tela recarrega o caso sozinha (decisão a validar com o encarregado de dados) |
 | `POST /api/ocorrencias/:id/adendos` | Autor ou quem conduz | `NovoAdendo` | `Ocorrencia` (201) | Correção nunca edita o relato; vira adendo. Texto ≥ 10 |
 | `GET /api/prazos` | Todos de escola | | `PrazoProximo[]` | Ações do plano com prazo próximo, para o Início |
 
@@ -144,7 +146,8 @@ A matriz de menus por perfil (`front/src/state/perfis.ts`) deve bater com estas 
 - Dados guardados no navegador (`localStorage`, chave `demo.banco.v7`) e compartilhados entre abas.
 - Anexos: só o nome e o tamanho são guardados (pendência 18).
 - Link de ciência exibido na tela para a demonstração, em vez de enviado à família (pendência 20).
-- Atraso artificial de 200 a 500 ms em cada resposta.
+- Atraso artificial de 150 a 500 ms em cada resposta.
+- `GET /api/diagnostico/falha`, que responde 500 de propósito para mostrar a tela de erro no Guia.
 
 ## Atualização da fila
 

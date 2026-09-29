@@ -34,12 +34,12 @@ async function auditar(p, nome) {
   }
 }
 
-async function entrar(ctx, nome) {
+async function entrar(ctx, nome, rede = 'sp') {
   const p = await ctx.newPage();
   p.on('pageerror', (e) => log('PAGEERROR', e.message));
-  await p.goto(`${B}/entrar?rede=sp`);
+  await p.goto(`${B}/entrar?rede=${rede}`);
   await p.waitForTimeout(700);
-  await auditar(p, 'entrar');
+  if (rede === 'sp') await auditar(p, 'entrar');
   await p.getByLabel(nome, { exact: false }).check();
   await p.getByRole('button', { name: 'Entrar' }).click();
   await p.waitForTimeout(900);
@@ -88,8 +88,10 @@ for (const esquema of ['light', 'dark']) {
     await visitar(carlos, '/central');
     await visitar(carlos, '/central/oc-sp-483', 'central › caso 483');
     await porAba(carlos, 'caso 483');
+    // 482 tem ações do plano em aberto: o diálogo mostra o aviso e a caixa de cancelamento
+    await visitar(carlos, '/central/oc-sp-482', 'central › caso 482');
     await carlos.getByRole('button', { name: 'Encerrar caso' }).click();
-    await auditar(carlos, 'diálogo encerrar');
+    await auditar(carlos, 'diálogo encerrar com ações abertas');
     await carlos.keyboard.press('Escape');
     await visitar(carlos, '/buscar');
     await carlos.getByRole('button', { name: 'Buscar' }).click();
@@ -109,6 +111,11 @@ for (const esquema of ['light', 'dark']) {
     await visitar(paulo, '/administracao', 'administração (secretaria)');
     await porAba(paulo, 'administração (secretaria)');
     await paulo.close();
+
+    // Regional da rede de testes: relatório com duas escolas, no tema dessa rede
+    const rita = await entrar(ctx, 'Rita Moraes', 'teste');
+    await visitar(rita, '/relatorios', 'relatórios (regional, duas escolas)');
+    await rita.close();
 
     // Família: página pública de ciência
     const pub = await ctx.newPage();

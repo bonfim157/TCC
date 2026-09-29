@@ -11,7 +11,7 @@ Tudo o que ficou para depois de o front estar completo, em um só lugar. Atualiz
 | 1 | Teste de usabilidade na IMSIL com professores, coordenação e ao menos uma pessoa com deficiência | F2 e F5 | Agenda da escola | Aberta | Roteiro de teste ainda a preparar |
 | 2 | Registro completo feito só com teclado e com leitor de tela (NVDA) | F2 e F5 | Equipe do TCC | Aberta | Ordem de foco verificada por script; axe sem violações nas telas principais |
 | 3 | Aprovação do design system e da navegação pela gestão | F1 | Gestão | Aberta | Mostrar em `/guia` |
-| 4 | Revisão das telas de comunicação pelo encarregado de dados | F3 | Encarregado de dados | Aberta | Comunicação à família, ofício ao CT, página de ciência |
+| 4 | Revisão das telas de comunicação pelo encarregado de dados | F3 | Encarregado de dados | Aberta | Comunicação à família, ofício ao CT, página de ciência. Incluir: consultas repetidas ao mesmo caso contam uma vez a cada 15 min na auditoria, e a supressão complementar (pendência 31) |
 | 5 | Teste de leitura com o texto em 130% em aparelhos reais da escola | F5 | Equipe do TCC | Aberta | Em 360px já não há rolagem lateral |
 
 ## Decisões
@@ -56,5 +56,6 @@ Tudo o que ficou para depois de o front estar completo, em um só lugar. Atualiz
 | 26 | Testar a visão da regional com mais de uma escola | F4 | Resolvida | 29/09/2026: rede de testes com duas escolas fictícias e Rita Moraes (regional); relatório ganhou quebra por escola; `f4-regional.mjs` |
 | 27 | Configurações da administração (protocolo, modelos, contatos) persistem só no navegador da demonstração | F4 | Aberta (backend) | Rotas já definidas no contrato |
 | 28 | Remover o componente `EmConstrucao` e o campo `fase` da navegação, que não são mais usados | F4 | Resolvida | 29/09/2026 |
-| 29 | Auditoria automática de acessibilidade | F5 | Resolvida | 29/09/2026: 172 telas auditadas sem violação WCAG A/AA. Contraste de texto sobre elementos sobrepostos fica inconclusivo no axe; coberto por `npm run contrast` |
+| 29 | Auditoria automática de acessibilidade | F5 | Resolvida | 29/09/2026: 45 verificações em cada uma das 4 combinações de tema (claro, escuro) e largura (360, 1440px), 180 no total, sem violação WCAG A/AA. Contraste de texto sobre elementos sobrepostos fica inconclusivo no axe; coberto por `npm run contrast` |
 | 30 | Bloqueio de nome de outro estudante na comunicação à família também no servidor | F3 | Resolvida | 29/09/2026: a simulação recusa, inclusive nomes restritos que a tela não vê. O backend real precisa repetir a regra |
+| 31 | Supressão complementar nos relatórios | F4 | Aberta | Com só um grupo suprimido, o total menos os outros grupos revela o número escondido (vale para tipos, meses e escolas). Decidir com o encarregado de dados se suprime também um segundo grupo ou se mostra o total arredondado |

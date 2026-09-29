@@ -97,7 +97,7 @@ O que foi construído em cada fase e como foi verificado. As verificações fora
 
 **Construído**
 
-- Auditoria automática de acessibilidade (`scripts/verificacao/f5-acessibilidade.mjs`, axe-core, regras WCAG 2.0 e 2.1 A e AA): professora, coordenação, direção, secretaria e família; todas as abas da administração e do caso; diálogo de encerramento; formulário com erros; temas claro e escuro; 360 e 1440px
+- Auditoria automática de acessibilidade (`scripts/verificacao/f5-acessibilidade.mjs`, axe-core, regras WCAG 2.0 e 2.1 A e AA): professora, coordenação, direção, secretaria e família; todas as abas da administração e do caso; diálogo de encerramento com ações do plano em aberto; formulário com erros; relatório da regional com duas escolas na rede de testes; temas claro e escuro; 360 e 1440px
 - Central se atualiza sozinha (pendência 22): consulta a cada 30 s com a aba visível, ao voltar à aba e, na demonstração, quando outra aba grava dados. Diálogos abertos não fecham. Consultas repetidas ao mesmo caso contam uma vez a cada 15 minutos na auditoria
 - Encerramento com ações do plano em aberto (pendência 23): o diálogo lista as ações e exige marcar o cancelamento; sem isso, 409. As ações ficam "Canceladas no encerramento" e o cancelamento entra na linha do tempo
 - Regional com várias escolas (pendência 26): segunda escola fictícia e diretora regional na rede de testes, com histórico nas duas; o relatório ganhou "Casos por escola" (também no CSV). A chave do banco da demonstração passou a `demo.banco.v7`
@@ -107,12 +107,14 @@ O que foi construído em cada fase e como foi verificado. As verificações fora
 
 **Verificado** (`npm run build`, `npm run contrast` e `npm run verificar`, todos passando)
 
-- Acessibilidade: 172 telas auditadas, nenhuma violação. O único item inconclusivo é contraste de texto sobre elementos sobrepostos, coberto pelo `npm run contrast`. Antes de confiar no resultado, conferimos que o axe acusa um campo sem rótulo e um texto sem contraste inseridos de propósito
-- Atualização: Beatriz conclui a triagem do 484; na aba de Carlos, sem recarregar, a fila passa de "Recebido, sem responsável" para "Em acompanhamento, com Carlos Mendes", o caso aberto muda e o diálogo que ele tinha aberto continua aberto; a auditoria tem uma só consulta dele ao caso
+- Acessibilidade: 45 verificações em cada uma das 4 combinações de tema e largura (180 no total; a tela de entrada e a primeira aba de cada tela com abas se repetem), nenhuma violação. O único item inconclusivo é contraste de texto sobre elementos sobrepostos, coberto pelo `npm run contrast`. Antes de confiar no resultado, conferimos que o axe acusa um campo sem rótulo e um texto sem contraste inseridos de propósito
+- Atualização: Beatriz conclui a triagem do 484; na aba de Carlos, sem recarregar e pelo aviso imediato entre abas, a fila passa de "Recebido, sem responsável" para "Em acompanhamento, com Carlos Mendes", o caso aberto muda e o diálogo que ele tinha aberto continua aberto; a auditoria tem uma só consulta dele ao caso. Numa terceira aba em que o aviso entre abas foi desligado de propósito, a mudança não aparece em 1,5 s e aparece pela consulta periódica, como será com o backend real
 - O servidor recusa (422) a comunicação à família de Gabriel que cita Lara e aceita (201) o texto só sobre Gabriel
 - Encerrar o 482 sem confirmar: "Há 2 ações do plano de apoio em aberto…"; confirmando, o caso é encerrado e as duas ações aparecem como canceladas
 - Regional fictícia: 23 casos das duas escolas, nenhum da IMSIL, nenhum link para abrir caso, barras por escola com 14 e 9; a regional de SP continua só com a IMSIL e sem quebra por escola
 - F1 a F4 sem regressão
+
+**Registrado para depois**: supressão complementar nos relatórios (pendência 31); consulta à auditoria contada uma vez a cada 15 minutos, a validar com o encarregado de dados
 
 ## Situação da última rodada de verificação
 

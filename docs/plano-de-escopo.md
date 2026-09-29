@@ -178,6 +178,7 @@ Uma fase só é concluída quando todos os itens forem verificados em demonstra�
 | 29/09/2026 | Encerrar caso com ações do plano em aberto exige confirmar o cancelamento delas | Caso encerrado não aceita ações; nada fica pendurado. A direção pode mudar a regra (pendência 23) |
 | 29/09/2026 | A segunda escola para testar a regional é fictícia, na rede de testes | A IMSIL é a única escola real por enquanto; não inventar escolas reais |
 | 29/09/2026 | A Central se atualiza por consulta periódica (30 s), sem conexão em tempo real | Funciona com qualquer backend; tempo real pode vir depois sem mudar a tela |
+| 29/09/2026 | Na auditoria, consultas da mesma pessoa ao mesmo caso contam uma vez a cada 15 minutos | A atualização automática geraria um registro a cada 30 s e esconderia o que importa. Muda o que a trilha da LGPD guarda: validar com o encarregado de dados (pendência 4) |
 
 ## Decisões pendentes da gestão
 

@@ -71,9 +71,9 @@ log('link de ciência:', link);
 // Encerrar 482: deve bloquear? (providências obrigatórias já feitas?) tentar
 await p.getByRole('button', { name: 'Encerrar caso' }).click();
 await p.waitForTimeout(400);
-log('pendências no encerrar:', await dialogo(p).locator('.aviso-atencao li').allTextContents());
+log('pendências no encerrar:', await dialogo(p).locator('.aviso-atencao', { hasText: 'providência' }).locator('li').allTextContents());
 await dialogo(p).getByLabel('Resultado e motivo do encerramento').fill('Mediação realizada; os estudantes combinaram regras de convivência e as famílias foram informadas.');
-log('ações abertas no encerrar:', await dialogo(p).locator('.aviso-atencao li').allTextContents());
+log('ações abertas no encerrar:', await dialogo(p).locator('.aviso-atencao', { hasText: 'plano de apoio' }).locator('li').allTextContents());
 await dialogo(p).getByRole('button', { name: 'Encerrar caso' }).click();
 await p.waitForTimeout(1000);
 log('encerrar sem cancelar as ações:', await dialogo(p).count() ? (await dialogo(p).locator('.aviso-erro, .campo-erro').first().textContent().catch(() => '(sem mensagem)')) : '(fechou)');

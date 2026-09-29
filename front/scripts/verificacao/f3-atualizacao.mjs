@@ -30,6 +30,14 @@ await carlos.getByRole('button', { name: 'Registrar escuta' }).click().catch(() 
 await carlos.waitForTimeout(300);
 const dialogoAntes = await dialogo(carlos).count();
 
+// Outra aba de Carlos sem o aviso entre abas (que só existe na demonstração):
+// ela precisa se atualizar pela consulta periódica, como será com o backend real.
+const semAviso = await entrar('Carlos Mendes');
+await semAviso.addInitScript(() => window.addEventListener('storage', (e) => e.stopImmediatePropagation(), true));
+await semAviso.goto(`${B}/central/oc-sp-484`);
+await semAviso.waitForTimeout(1200);
+const item484SemAviso = semAviso.locator('.fila-item', { hasText: '2026-000484' });
+
 const beatriz = await entrar('Beatriz Nunes');
 await beatriz.goto(`${B}/central/oc-sp-484`);
 await beatriz.waitForTimeout(1200);
@@ -44,8 +52,11 @@ await carlos.waitForTimeout(1500);
 log('Carlos vê 484 depois, sem recarregar:', await item484.locator('.fila-sinais .etiqueta').first().textContent(), '|', await item484.locator('.fila-meta').textContent());
 log('caso aberto de Carlos:', await carlos.locator('.caso-central-titulo .etiqueta').first().textContent());
 log('diálogo de Carlos continua aberto:', dialogoAntes, '->', await dialogo(carlos).count());
+log('aba sem aviso, após 1,5 s:', await item484SemAviso.locator('.fila-sinais .etiqueta').first().textContent());
+await semAviso.waitForTimeout(31_000);
+log('aba sem aviso, após a consulta periódica (30 s):', await item484SemAviso.locator('.fila-sinais .etiqueta').first().textContent());
 
-// Volta à aba também atualiza (visibilitychange); a consulta repetida não enche a auditoria
+// A consulta repetida (três abas recarregando o caso) não enche a auditoria
 const consultas = await carlos.evaluate(() => {
   const chave = Object.keys(localStorage).find((k) => k.startsWith('demo.banco'));
   const banco = JSON.parse(localStorage.getItem(chave));
