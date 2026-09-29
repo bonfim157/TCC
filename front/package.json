@@ -11,6 +11,7 @@
     "verificar": "node scripts/verificacao/f1-regressao.mjs && node scripts/verificacao/f2-registro.mjs && node scripts/verificacao/f3-central.mjs && node scripts/verificacao/f3-atualizacao.mjs && node scripts/verificacao/f4-gestao.mjs && node scripts/verificacao/f4-regional.mjs && node scripts/verificacao/f5-acessibilidade.mjs"
   },
   "dependencies": {
+    "@tcc/compartilhado": "*",
     "@fontsource/source-sans-3": "^5.1.0",
     "@fontsource/source-serif-4": "^5.1.0",
     "react": "^19.0.0",

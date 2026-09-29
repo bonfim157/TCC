@@ -6,3 +6,4 @@ output/
 Thumbs.db
 ~$*.docx
 *.tsbuildinfo
+.dados-locais/

@@ -17,15 +17,24 @@ import './styles/gestao.css';
 
 import { App } from './App';
 import { NotificacoesProvider } from './components/feedback';
+import { FaixaDemonstracao } from './layout/FaixaDemonstracao';
 import { LimiteDeErro } from './pages/Estados';
 import { PreferenciasProvider } from './state/preferencias';
 import { RascunhosProvider } from './state/rascunhos';
 import { SessaoProvider } from './state/sessao';
 
+/*
+ * VITE_API=real: o front chama o servidor em /api, no mesmo domínio.
+ * Qualquer outro valor (padrão): a API simulada responde no próprio navegador.
+ * No modo real, a simulação nem entra no pacote gerado.
+ */
+const simulada = import.meta.env.VITE_API !== 'real';
+
 async function iniciar() {
-  // Enquanto não houver backend, a API simulada responde no próprio navegador.
-  const { worker } = await import('./mocks/browser');
-  await worker.start({ onUnhandledRequest: 'bypass', quiet: true });
+  if (simulada) {
+    const { worker } = await import('./mocks/browser');
+    await worker.start({ onUnhandledRequest: 'bypass', quiet: true });
+  }
 
   createRoot(document.getElementById('root')!).render(
     <StrictMode>
@@ -35,6 +44,7 @@ async function iniciar() {
             <SessaoProvider>
               <RascunhosProvider>
                 <NotificacoesProvider>
+                  {simulada && <FaixaDemonstracao />}
                   <App />
                 </NotificacoesProvider>
               </RascunhosProvider>

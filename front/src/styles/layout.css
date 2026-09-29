@@ -120,3 +120,12 @@ main { padding: var(--e6) var(--e6) var(--e8); outline: none; min-width: 0; }
 .tela-avulsa .pagina { width: 100%; max-width: 640px; }
 .pagina > * { min-width: 0; }
 main:focus, main:focus-visible { outline: none; }
+
+/* ---------- Faixa da demonstração ----------
+ * Só no modo simulado: deixa claro, em toda tela e em qualquer captura,
+ * que não é um sistema oficial. */
+.faixa-demo {
+  margin: 0; padding: var(--e2) var(--e4); text-align: center;
+  font-size: var(--t-pequeno); font-weight: 600; line-height: 1.35;
+  background: var(--warnSoft); color: var(--ink); border-bottom: 1px solid var(--warn);
+}

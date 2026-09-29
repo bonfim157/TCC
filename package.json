@@ -1,0 +1,22 @@
+{
+  "name": "cuidar-registrar",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "workspaces": [
+    "compartilhado",
+    "servidor",
+    "front"
+  ],
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "dev": "npm run dev -w front",
+    "dev:servidor": "npm run dev -w servidor",
+    "build": "npm run build -w front && npm run tipos -w servidor",
+    "test": "npm test -w servidor",
+    "contrast": "npm run contrast -w front",
+    "verificar": "npm run verificar -w front"
+  }
+}

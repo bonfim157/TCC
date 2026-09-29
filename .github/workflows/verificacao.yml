@@ -1,0 +1,52 @@
+# Roda a cada push e pull request: build, contraste, testes do servidor e
+# todos os roteiros de verificação do front no navegador.
+name: Verificação
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Build (checagem de tipos e pacote de produção)
+        run: npm run build
+
+      - name: Contraste WCAG AA
+        run: npm run contrast
+
+      - name: Testes do servidor
+        run: npm test --if-present
+
+      - name: Navegador dos roteiros
+        run: npx playwright install --with-deps chromium
+
+      - name: Roteiros no navegador (F1 a F5)
+        run: |
+          npm run dev > dev.log 2>&1 &
+          for i in $(seq 1 60); do
+            curl -sf -o /dev/null http://localhost:5173/ && break
+            sleep 1
+          done
+          npm run verificar
+
+      - name: Capturas de tela em caso de falha
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: capturas
+          path: front/output/verificacao/
+          if-no-files-found: ignore

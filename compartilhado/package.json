@@ -1,0 +1,16 @@
+{
+  "name": "@tcc/compartilhado",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Contrato de dados, protocolo de providências e dados fictícios usados pelo front e pelo servidor.",
+  "exports": {
+    "./contrato": "./src/contrato.ts",
+    "./protocolo": "./src/protocolo.ts",
+    "./seed": "./src/seed.ts",
+    "./esquemas": "./src/esquemas.ts"
+  },
+  "dependencies": {
+    "zod": "^4.1.0"
+  }
+}
