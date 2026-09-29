@@ -23,16 +23,16 @@ export type Area =
   | 'relatorios'
   | 'administracao';
 
-export type ItemNav = { area: Area; rotulo: string; caminho: string; fase: string; descricao: string };
+export type ItemNav = { area: Area; rotulo: string; caminho: string; descricao: string };
 
 export const navegacao: ItemNav[] = [
-  { area: 'inicio', rotulo: 'Início', caminho: '/', fase: 'F2', descricao: 'Atalhos e prazos próximos.' },
-  { area: 'registrar', rotulo: 'Registrar', caminho: '/registrar', fase: 'F2', descricao: 'Registrar uma ocorrência em três passos.' },
-  { area: 'meus-registros', rotulo: 'Meus registros', caminho: '/meus-registros', fase: 'F2', descricao: 'Registros enviados e rascunhos.' },
-  { area: 'central', rotulo: 'Central de gestão', caminho: '/central', fase: 'F3', descricao: 'Fila, caso, providências e agenda em uma tela.' },
-  { area: 'buscar', rotulo: 'Buscar', caminho: '/buscar', fase: 'F4', descricao: 'Encontrar casos por período, tipo e situação.' },
-  { area: 'relatorios', rotulo: 'Relatórios', caminho: '/relatorios', fase: 'F4', descricao: 'Números agregados, sem expor casos individuais.' },
-  { area: 'administracao', rotulo: 'Administração', caminho: '/administracao', fase: 'F4', descricao: 'Protocolo da rede, escolas, usuários e modelos.' },
+  { area: 'inicio', rotulo: 'Início', caminho: '/', descricao: 'Atalhos e prazos próximos.' },
+  { area: 'registrar', rotulo: 'Registrar', caminho: '/registrar', descricao: 'Registrar uma ocorrência em três passos.' },
+  { area: 'meus-registros', rotulo: 'Meus registros', caminho: '/meus-registros', descricao: 'Registros enviados e rascunhos.' },
+  { area: 'central', rotulo: 'Central de gestão', caminho: '/central', descricao: 'Fila, caso, providências e agenda em uma tela.' },
+  { area: 'buscar', rotulo: 'Buscar', caminho: '/buscar', descricao: 'Encontrar casos por período, tipo e situação.' },
+  { area: 'relatorios', rotulo: 'Relatórios', caminho: '/relatorios', descricao: 'Números agregados, sem expor casos individuais.' },
+  { area: 'administracao', rotulo: 'Administração', caminho: '/administracao', descricao: 'Protocolo da rede, escolas, usuários e modelos.' },
 ];
 
 /** Matriz de acesso do front. O backend aplica a mesma regra; esconder na tela não é segurança. */

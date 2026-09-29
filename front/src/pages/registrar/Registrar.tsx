@@ -248,7 +248,7 @@ function FormularioDeRegistro({ dono }: { dono: Dono }) {
         O que foi escrito será apagado deste aparelho. Nada foi enviado à escola.
       </DialogoConfirmacao>
 
-      <p className="nota-fase">
+      <p className="nota-rodape">
         <Link to="/meus-registros">Ver meus registros e rascunhos</Link>
       </p>
     </div>

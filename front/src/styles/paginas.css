@@ -10,7 +10,7 @@ code { font-size: .92em; background: var(--neutralSoft); padding: 1px 6px; borde
 .lista-areas li:first-child { border-top: 0; padding-top: 0; }
 .lista-areas a { font-weight: 700; font-size: var(--t-destaque); }
 .lista-areas span { color: var(--inkSoft); }
-.nota-fase { color: var(--inkSoft); font-size: var(--t-pequeno); }
+.nota-rodape { color: var(--inkSoft); font-size: var(--t-pequeno); }
 
 /* ---------- Entrar ---------- */
 .entrar { gap: var(--e5); }

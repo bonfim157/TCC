@@ -1,7 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { Vazio } from '../components/feedback';
-import { navegacao, type Area } from '../state/perfis';
 
 /* Tela 2: estados do sistema. */
 
@@ -59,20 +57,4 @@ export class LimiteDeErro extends Component<{ children: ReactNode }, { erro: boo
   render() {
     return this.state.erro ? <ErroGeral aoTentar={() => this.setState({ erro: false })} /> : this.props.children;
   }
-}
-
-/** Áreas previstas para fases seguintes. */
-export function EmConstrucao({ area }: { area: Area }) {
-  const item = navegacao.find((n) => n.area === area)!;
-  return (
-    <div className="pagina pagina-estreita">
-      <div className="pagina-cabeca">
-        <h1>{item.rotulo}</h1>
-        <p>{item.descricao}</p>
-      </div>
-      <Vazio titulo={`Esta tela chega na fase ${item.fase}`}>
-        A navegação e as permissões desta área já estão valendo. O conteúdo será construído conforme o plano de escopo.
-      </Vazio>
-    </div>
-  );
 }

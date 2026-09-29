@@ -160,7 +160,7 @@ export function Inicio() {
                       ? 'Nenhum registro no seu alcance.'
                       : `${dados.length} ${dados.length === 1 ? 'registro' : 'registros'} no seu alcance, sem acesso ao conteúdo individual.`}
                   </p>
-                  <p className="nota-fase">Os relatórios agregados por período e categoria chegam na fase F4.</p>
+                  {podeAcessar(perfil, 'relatorios') && <p><Link to="/relatorios">Ver relatórios por período e tipo</Link></p>}
                 </div>
               )}
             </EstadoDaCarga>
