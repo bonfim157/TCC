@@ -53,4 +53,22 @@ const consultas = await carlos.evaluate(() => {
 });
 log('registros de consulta de Carlos ao 484 na auditoria:', consultas);
 
+// O servidor também recusa a comunicação à família que cita outro estudante,
+// mesmo quando a chamada não passa pela tela (que já bloqueia).
+const resposta = await carlos.evaluate(async () => {
+  const chave = Object.keys(sessionStorage).find((k) => sessionStorage.getItem(k)?.includes('"sessao"'));
+  const { sessao, redeId, escolaId } = JSON.parse(sessionStorage.getItem(chave));
+  const envio = (texto) => fetch('/api/ocorrencias/oc-sp-482/comunicacoes', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessao.token}`, 'X-Rede-Id': redeId, 'X-Escola-Id': escolaId },
+    body: JSON.stringify({ tipo: 'familia', destinatario: 'Família de Gabriel M.', estudanteId: 'p-gabriel', texto }),
+  }).then(async (r) => `${r.status} ${(await r.json()).mensagem ?? 'ok'}`);
+  return [
+    await envio('Houve uma discussão com Lara T. no pátio durante o intervalo de hoje.'),
+    await envio('Houve uma discussão no pátio durante o intervalo; Gabriel M. foi acolhido.'),
+  ];
+});
+log('servidor, texto citando outra estudante:', resposta[0]);
+log('servidor, texto só sobre o estudante:', resposta[1].slice(0, 3));
+
 await b.close();

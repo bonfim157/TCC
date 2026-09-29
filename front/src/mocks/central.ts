@@ -224,6 +224,12 @@ export const handlersCentral = [
     const { ctx, o } = r;
     const p = (await request.json()) as PedidoComunicacao;
     if (p.texto.trim().length < 30 || !p.destinatario.trim()) return erro(422, 'validacao', 'Revise o destinatário e o texto da comunicação.');
+    // A tela já bloqueia, mas só conhece os nomes que o perfil pode ver. O servidor
+    // confere todos, inclusive os de visibilidade restrita, sem revelar qual foi citado.
+    if (p.tipo === 'familia' && o.envolvidos.some((e) => e.tipo === 'estudante' && e.pessoaId !== p.estudanteId && p.texto.includes(e.nome))) {
+      auditar(ctx, 'negado', `caso ${o.protocolo}`, 'negado', 'comunicação à família citava outro estudante');
+      return erro(422, 'validacao', 'O texto cita outro estudante envolvido no caso. Retire o nome antes de enviar à família.');
+    }
     const token = `c${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
     o.comunicacoes.push({
       id: `com-${Date.now()}`, tipo: p.tipo, destinatario: p.destinatario.trim(), texto: p.texto.trim(), em: new Date().toISOString(),

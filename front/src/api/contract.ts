@@ -275,7 +275,8 @@ export type PedidoEncaminhamento = Pick<Encaminhamento, 'orgao' | 'orgaoNome' | 
 export type PedidoDevolutiva = { texto: string };
 export type PedidoRegistroEscola = { tipo: 'escuta' | 'reavaliacao'; texto: string };
 export type PedidoAcaoPlano = Pick<AcaoDoPlano, 'descricao' | 'responsavel' | 'prazo'>;
-export type PedidoComunicacao = { tipo: TipoComunicacao; destinatario: string; texto: string };
+/** À família, `estudanteId` diz de qual estudante se trata: o servidor recusa texto que cite outro estudante do caso. */
+export type PedidoComunicacao = { tipo: TipoComunicacao; destinatario: string; texto: string; estudanteId?: string };
 export type PedidoRegistroRede = { codigo: string };
 export type PedidoEncerramento = { justificativa: string; reavaliarEm: string | null };
 

@@ -247,7 +247,7 @@ export function CasoNaCentral({ id, externo = 0, aoMudar }: { id: string; extern
       case 'comunicar': {
         const outros = o.envolvidos.filter((e) => e.pessoaId !== comunicacao.estudanteId && !e.restrito && e.tipo === 'estudante');
         if (outros.some((e) => comunicacao.texto.includes(e.nome))) return;
-        ok = await acao.executar(c('comunicacoes'), { tipo: dialogo.para, destinatario: comunicacao.destinatario, texto: comunicacao.texto });
+        ok = await acao.executar(c('comunicacoes'), { tipo: dialogo.para, destinatario: comunicacao.destinatario, texto: comunicacao.texto, estudanteId: comunicacao.estudanteId || undefined });
         aviso = dialogo.para === 'familia' ? 'Comunicação enviada. A ciência da família aparece no caso quando ela confirmar.' : 'Ofício registrado. A devolutiva do Conselho Tutelar entrou na agenda.';
         break;
       }
