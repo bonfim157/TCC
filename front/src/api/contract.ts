@@ -170,8 +170,11 @@ export type AcaoDoPlano = {
   descricao: string;
   responsavel: string;
   prazo: string;             // AAAA-MM-DD
-  situacao: 'no_prazo' | 'atrasada' | 'concluida';
+  situacao: 'no_prazo' | 'atrasada' | 'concluida' | 'cancelada'; // cancelada: só ao encerrar o caso, por decisão explícita
 };
+
+/** Ação ainda por fazer (nem concluída, nem cancelada). */
+export const acaoEmAberto = (a: AcaoDoPlano) => a.situacao !== 'concluida' && a.situacao !== 'cancelada';
 
 /* ---------- Gestão do caso (F3) ---------- */
 
@@ -278,7 +281,8 @@ export type PedidoAcaoPlano = Pick<AcaoDoPlano, 'descricao' | 'responsavel' | 'p
 /** À família, `estudanteId` diz de qual estudante se trata: o servidor recusa texto que cite outro estudante do caso. */
 export type PedidoComunicacao = { tipo: TipoComunicacao; destinatario: string; texto: string; estudanteId?: string };
 export type PedidoRegistroRede = { codigo: string };
-export type PedidoEncerramento = { justificativa: string; reavaliarEm: string | null };
+/** Com ações do plano em aberto, o encerramento só passa se `cancelarAcoesAbertas` vier verdadeiro. */
+export type PedidoEncerramento = { justificativa: string; reavaliarEm: string | null; cancelarAcoesAbertas?: boolean };
 
 /**
  * Regra do protocolo da rede: para certos tipos de caso, qual providência

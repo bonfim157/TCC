@@ -4,6 +4,7 @@ import type {
   PedidoDevolutiva, PedidoEncaminhamento, PedidoEncerramento, PedidoProvidencia, PedidoRegistroEscola,
   PedidoRegistroRede, PedidoTriagem, PessoaDaEquipe,
 } from '../api/contract';
+import { acaoEmAberto } from '../api/contract';
 import {
   auditar, casoParaAgir, conduz, recarregar, conduzCasos, contexto, erro, hojeISO, json, novoEvento, paraQuemConsulta, persistir, podeAbrir, resumo,
 } from './base';
@@ -26,7 +27,7 @@ function cumprir(o: Ocorrencia, chave: string, por: string, observacao: string) 
 function itemDaFila(o: Ocorrencia): ItemDaFila {
   const hoje = hojeISO();
   const prazos = [
-    ...o.plano.filter((a) => a.situacao !== 'concluida').map((a) => a.prazo),
+    ...o.plano.filter(acaoEmAberto).map((a) => a.prazo),
     ...o.encaminhamentos.filter((e) => !e.devolutiva).map((e) => e.devolutivaAte),
     ...(o.encerramento?.reavaliarEm ? [o.encerramento.reavaliarEm] : []),
   ].sort();
@@ -71,7 +72,7 @@ export const handlersCentral = [
       .filter((o) => o.escolaId === ctx.escolaId && podeAbrir(ctx, o))
       // Caso encerrado só entra na agenda pela data de reavaliação.
       .flatMap((o) => o.status === 'encerrado' ? (o.encerramento?.reavaliarEm ? [{ data: o.encerramento.reavaliarEm, tipo: 'reavaliacao' as const, descricao: 'Reavaliar caso encerrado', ocorrenciaId: o.id, protocolo: o.protocolo }] : []) : [
-        ...o.plano.filter((a) => a.situacao !== 'concluida').map((a) => ({ data: a.prazo, tipo: 'prazo_plano' as const, descricao: a.descricao, ocorrenciaId: o.id, protocolo: o.protocolo })),
+        ...o.plano.filter(acaoEmAberto).map((a) => ({ data: a.prazo, tipo: 'prazo_plano' as const, descricao: a.descricao, ocorrenciaId: o.id, protocolo: o.protocolo })),
         ...o.encaminhamentos.filter((e) => !e.devolutiva).map((e) => ({ data: e.devolutivaAte, tipo: 'devolutiva' as const, descricao: `Devolutiva de ${e.orgaoNome}`, ocorrenciaId: o.id, protocolo: o.protocolo })),
         ...(o.encerramento?.reavaliarEm ? [{ data: o.encerramento.reavaliarEm, tipo: 'reavaliacao' as const, descricao: 'Reavaliar caso encerrado', ocorrenciaId: o.id, protocolo: o.protocolo }] : []),
       ])
@@ -274,9 +275,15 @@ export const handlersCentral = [
       return erro(409, 'conflito', `Faltam ${pendentes.length} providências obrigatórias: ${pendentes.map((x) => x.descricao.toLowerCase()).join('; ')}. Cumpra ou dispense cada uma com justificativa.`);
     }
     if (p.justificativa.trim().length < 20) return erro(422, 'validacao', 'Explique o resultado e por que o caso pode ser encerrado (pelo menos 20 caracteres).');
+    // Caso encerrado não aceita mais ações: nada do plano pode ficar pendurado.
+    const abertas = o.plano.filter(acaoEmAberto);
+    if (abertas.length && !p.cancelarAcoesAbertas) {
+      return erro(409, 'conflito', `Há ${abertas.length === 1 ? '1 ação' : `${abertas.length} ações`} do plano de apoio em aberto. Conclua antes de encerrar ou confirme que ${abertas.length === 1 ? 'ela será cancelada' : 'elas serão canceladas'}.`);
+    }
+    abertas.forEach((a) => { a.situacao = 'cancelada'; });
     o.status = 'encerrado';
     o.encerramento = { em: new Date().toISOString(), por: ctx.usuario.nome, justificativa: p.justificativa.trim(), reavaliarEm: p.reavaliarEm };
-    o.eventos.push(novoEvento(ctx, 'encerramento', `${p.justificativa.trim()}${p.reavaliarEm ? ` Reavaliação marcada para ${p.reavaliarEm.split('-').reverse().join('/')}.` : ''}`));
+    o.eventos.push(novoEvento(ctx, 'encerramento', `${p.justificativa.trim()}${abertas.length ? ` ${abertas.length === 1 ? 'Ação do plano cancelada' : `${abertas.length} ações do plano canceladas`} no encerramento: ${abertas.map((a) => a.descricao).join('; ')}.` : ''}${p.reavaliarEm ? ` Reavaliação marcada para ${p.reavaliarEm.split('-').reverse().join('/')}.` : ''}`));
     return salvar(o, ctx);
   }),
 

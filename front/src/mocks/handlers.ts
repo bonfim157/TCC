@@ -1,5 +1,6 @@
 import { delay, http } from 'msw';
 import type { NovaOcorrencia, NovaSessao, NovoAdendo, Ocorrencia, OcorrenciaSemelhante, PrazoProximo, Sessao } from '../api/contract';
+import { acaoEmAberto } from '../api/contract';
 import {
   auditar, auditoria, contexto, erro, escolasDoVinculo, json, novoEvento, paraQuemConsulta, persistir, podeAbrir, resumo,
   semAcento, sessoes, soProprios,
@@ -188,7 +189,7 @@ export const handlers = [
     if (ctx instanceof Response) return ctx;
     const lista: PrazoProximo[] = ocorrencias
       .filter((o) => o.status !== 'encerrado' && (!ctx.escolaId || o.escolaId === ctx.escolaId) && podeAbrir(ctx, o))
-      .flatMap((o) => o.plano.filter((a) => a.situacao !== 'concluida').map((a) => ({ ...a, ocorrenciaId: o.id, protocolo: o.protocolo })))
+      .flatMap((o) => o.plano.filter(acaoEmAberto).map((a) => ({ ...a, ocorrenciaId: o.id, protocolo: o.protocolo })))
       .sort((a, b) => a.prazo.localeCompare(b.prazo));
     return json(lista.slice(0, 5));
   }),

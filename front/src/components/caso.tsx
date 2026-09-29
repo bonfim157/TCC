@@ -20,6 +20,7 @@ export const situacaoPlano = {
   no_prazo: ['No prazo', 'info'],
   atrasada: ['Atrasada', 'urgente'],
   concluida: ['Concluída', 'ok'],
+  cancelada: ['Cancelada no encerramento', 'neutra'],
 } as const;
 
 /** Linha do tempo: nada é apagado; adendos aparecem marcados na margem. */

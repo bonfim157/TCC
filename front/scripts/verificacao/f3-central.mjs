@@ -73,9 +73,17 @@ await p.getByRole('button', { name: 'Encerrar caso' }).click();
 await p.waitForTimeout(400);
 log('pendências no encerrar:', await dialogo(p).locator('.aviso-atencao li').allTextContents());
 await dialogo(p).getByLabel('Resultado e motivo do encerramento').fill('Mediação realizada; os estudantes combinaram regras de convivência e as famílias foram informadas.');
+log('ações abertas no encerrar:', await dialogo(p).locator('.aviso-atencao li').allTextContents());
 await dialogo(p).getByRole('button', { name: 'Encerrar caso' }).click();
 await p.waitForTimeout(1000);
-log('erro ao encerrar:', await dialogo(p).locator('.campo-erro').textContent().catch(() => '(fechou)'));
+log('encerrar sem cancelar as ações:', await dialogo(p).count() ? (await dialogo(p).locator('.aviso-erro, .campo-erro').first().textContent().catch(() => '(sem mensagem)')) : '(fechou)');
+await dialogo(p).getByLabel(/Cancelar estas 2 ações ao encerrar/).check();
+await dialogo(p).getByRole('button', { name: 'Encerrar caso' }).click();
+await p.waitForTimeout(1000);
+log('após confirmar o cancelamento, diálogo:', await dialogo(p).count() ? 'aberto' : '(fechou)');
+await p.getByRole('tab', { name: /Plano/ }).click().catch(() => {});
+await p.waitForTimeout(300);
+log('plano do 482 encerrado:', (await p.locator('.lista-plano .etiqueta').allTextContents()).join(' | '));
 await dialogo(p).getByRole('button', { name: 'Cancelar' }).click().catch(() => {});
 
 // 481: devolutiva atrasada

@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  rotas, type Canal, type Categoria, type ContatosLocais, type Encaminhamento, type ModeloDeComunicacao, type Ocorrencia, type Orgao,
+  acaoEmAberto, rotas, type Canal, type Categoria, type ContatosLocais, type Encaminhamento, type ModeloDeComunicacao, type Ocorrencia, type Orgao,
   type PessoaDaEquipe, type Prioridade, type Providencia, type TipoComunicacao,
 } from '../../api/contract';
 import { LinhaDoTempo, situacaoPlano } from '../../components/caso';
-import { Botao, CampoAreaTexto, CampoSelecao, CampoTexto, GrupoOpcoes } from '../../components/controles';
+import { Botao, CaixaMarcar, CampoAreaTexto, CampoSelecao, CampoTexto, GrupoOpcoes } from '../../components/controles';
 import { Abas, DialogoFormulario, Painel } from '../../components/estrutura';
 import { Aviso, Etiqueta, EtiquetaPrioridade, EtiquetaStatus, EstadoDaCarga, useNotificar } from '../../components/feedback';
 import { nomePerfil } from '../../state/perfis';
@@ -260,7 +260,7 @@ export function CasoNaCentral({ id, externo = 0, aoMudar }: { id: string; extern
         aviso = 'Código do sistema da rede registrado.';
         break;
       case 'encerrar':
-        ok = await acao.executar(c('encerrar'), { justificativa: campo('justificativa'), reavaliarEm: campo('reavaliarEm') || null });
+        ok = await acao.executar(c('encerrar'), { justificativa: campo('justificativa'), reavaliarEm: campo('reavaliarEm') || null, cancelarAcoesAbertas: campo('cancelarAcoes') === 'sim' });
         aviso = 'Caso encerrado. O histórico continua disponível.';
         break;
     }
@@ -279,6 +279,7 @@ export function CasoNaCentral({ id, externo = 0, aoMudar }: { id: string; extern
   const emTriagem = o.status === 'recebido' || o.status === 'em_triagem';
   const temCt = o.providencias.some((p) => p.id.endsWith('-ct'));
   const pendentesObrig = o.providencias.filter((p) => p.obrigatoria && p.situacao === 'pendente');
+  const acoesAbertas = o.plano.filter(acaoEmAberto);
   const nomeCategoria = cats.find((x) => x.id === o.categoriaId)?.nome ?? '';
   const redeSP = o.redeId === 'rede-sp';
 
@@ -395,7 +396,7 @@ export function CasoNaCentral({ id, externo = 0, aoMudar }: { id: string; extern
                 conteudo: o.plano.length === 0 ? <p>Nenhuma ação. Use “Incluir no plano”.</p> : (
                   <ul className="lista-plano">
                     {o.plano.map((a) => {
-                      const sit = a.situacao !== 'concluida' && a.prazo < hojeISO() ? 'atrasada' : a.situacao;
+                      const sit = acaoEmAberto(a) && a.prazo < hojeISO() ? 'atrasada' : a.situacao;
                       return (
                         <li key={a.id}>
                           <div>
@@ -404,7 +405,7 @@ export function CasoNaCentral({ id, externo = 0, aoMudar }: { id: string; extern
                           </div>
                           <div className="acoes-linha">
                             <Etiqueta tipo={situacaoPlano[sit][1]}>{situacaoPlano[sit][0]}</Etiqueta>
-                            {sit !== 'concluida' && !encerrado && (
+                            {acaoEmAberto(a) && !encerrado && (
                               <Botao variante="texto" onClick={() => acao.executar(rotas.acao(o.id, `plano/${a.id}/concluir`), {}).then((ok) => ok && notificar('Ação concluída.'))}>
                                 Concluir<span className="visualmente-oculto"> {a.descricao}</span>
                               </Botao>
@@ -596,6 +597,17 @@ export function CasoNaCentral({ id, externo = 0, aoMudar }: { id: string; extern
                 <Aviso tipo="atencao" titulo={`${pendentesObrig.length} ${pendentesObrig.length === 1 ? 'providência obrigatória pendente' : 'providências obrigatórias pendentes'}`}>
                   <ul className="lista-compacta">{pendentesObrig.map((p) => <li key={p.id}>{p.descricao}</li>)}</ul>
                   <p>Cumpra ou marque “não se aplica” com justificativa antes de encerrar.</p>
+                </Aviso>
+              )}
+              {acoesAbertas.length > 0 && (
+                <Aviso tipo="atencao" titulo={`${acoesAbertas.length} ${acoesAbertas.length === 1 ? 'ação do plano de apoio ainda em aberto' : 'ações do plano de apoio ainda em aberto'}`}>
+                  <ul className="lista-compacta">{acoesAbertas.map((a) => <li key={a.id}>{a.descricao} ({a.responsavel})</li>)}</ul>
+                  <p>Depois de encerrado, o caso não aceita mais ações. Conclua o que foi feito ou confirme o cancelamento; ele fica registrado na linha do tempo.</p>
+                  <CaixaMarcar
+                    rotulo={acoesAbertas.length === 1 ? 'Cancelar esta ação ao encerrar' : `Cancelar estas ${acoesAbertas.length} ações ao encerrar`}
+                    checked={campo('cancelarAcoes') === 'sim'}
+                    onChange={(e) => setForm((f) => ({ ...f, cancelarAcoes: e.target.checked ? 'sim' : '' }))}
+                  />
                 </Aviso>
               )}
               <CampoAreaTexto rotulo="Resultado e motivo do encerramento" rows={4} maxLength={1000} value={campo('justificativa')} onChange={muda('justificativa')} />
