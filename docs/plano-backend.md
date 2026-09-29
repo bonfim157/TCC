@@ -52,12 +52,18 @@ Um só projeto na Vercel, com a pasta raiz do repositório: o build gera o front
 
 ### Como o front muda
 
-Quase nada. A simulação (MSW) passa a ser ligada por variável de ambiente:
+As telas de trabalho não mudam. O que muda é a entrada, a sessão e os anexos:
 
-- `VITE_API=simulada`: comportamento atual, sem servidor. Continua existindo para a demonstração e para desenvolver telas sem banco
-- `VITE_API=real`: o front chama `/api` do próprio domínio
+| Mudança no front | Onde | Fase |
+| --- | --- | --- |
+| Simulação ligada por variável: `VITE_API=simulada` (demonstração atual) ou `VITE_API=real` (chama `/api` do mesmo domínio) | `main.tsx` | B0 |
+| Telas de login, cadastro e verificação do segundo fator, recuperação de senha | nova página `Entrar` no modo real | B2 |
+| Sessão sai do `sessionStorage` e passa a ser cookie `HttpOnly`; o front não vê mais o token | `state/sessao.tsx`, `api/client.ts` | B2 |
+| Sessão expirada (401) leva ao login sem perder o que estava sendo digitado | `api/client.ts`, rascunhos | B2 |
+| Envio real de anexos, com barra de progresso e erro por arquivo | passo 1 do registro, caso | B3 |
+| Escolha do contato da família (e-mail cadastrado) na comunicação à família | diálogo da Central | B4 |
 
-O login de demonstração (lista de pessoas) some no modo real e dá lugar à tela de login.
+A lista de pessoas de demonstração continua só no modo simulado.
 
 ## Banco de dados
 
@@ -70,7 +76,7 @@ Toda tabela de dados de escola tem `rede_id`. Identificadores são UUID; o proto
 | Organização | `redes`, `regionais`, `escolas` | Cadastro feito pela administração técnica |
 | Pessoas e acesso | `usuarios`, `vinculos` (usuário, rede, perfil, regional), `vinculo_escolas`, `permissoes` (perfil × ação, por rede) | `permissoes` torna a matriz editável (pendência 25) |
 | Sessão | `sessoes` (hash do token, validade, aparelho), `fatores_mfa` | O token nunca é guardado em texto puro |
-| Cadastros da escola | `pessoas` (estudantes e profissionais), `contatos_locais` | Estudantes com nome e inicial do sobrenome, como na demonstração |
+| Cadastros da escola | `pessoas` (estudantes e profissionais), `responsaveis` (nome, parentesco, e-mail, telefone, consentimento para contato, estudante), `contatos_locais` | Estudantes com nome e inicial do sobrenome, como na demonstração. Responsáveis são cadastrados pela secretaria da escola até virem da Secretaria Escolar Digital (pendência 21) |
 | Protocolo da rede | `categorias`, `regras_protocolo`, `modelos_comunicacao` | Configurados pela secretaria; valem para todas as escolas da rede |
 | Caso | `ocorrencias`, `envolvimentos`, `anexos`, `eventos` | `eventos` é a linha do tempo: só recebe inserções |
 | Gestão do caso | `providencias`, `encaminhamentos`, `acoes_plano`, `comunicacoes`, `ciencias`, `encerramentos` | `ciencias` guarda o hash do token do link, a validade e quem confirmou |
@@ -78,8 +84,11 @@ Toda tabela de dados de escola tem `rede_id`. Identificadores são UUID; o proto
 
 ### Regras garantidas pelo banco
 
-- **Row-Level Security** em todas as tabelas com `rede_id`. Cada requisição abre uma transação e informa a rede ativa (`set_config('app.rede_id', …)`). Uma consulta sem esse valor não enxerga nada.
-- **Auditoria e linha do tempo só aceitam inserção.** O usuário do banco que a aplicação usa não tem permissão de `UPDATE` nem `DELETE` nessas tabelas. Cada registro de auditoria guarda o hash do anterior, o que torna qualquer adulteração detectável.
+- **Row-Level Security** em todas as tabelas com `rede_id`. Cada requisição abre uma transação e informa a rede ativa. Uma consulta sem esse valor não enxerga nada. Três detalhes que, se errados, desligam a proteção sem aviso, e por isso são verificados em teste na B1:
+  - a aplicação conecta com um usuário do banco que **não é dono** das tabelas, e as tabelas usam `FORCE ROW LEVEL SECURITY`;
+  - a rede é informada com `set_config('app.rede_id', …, true)`, que vale só para a transação, por causa do reaproveitamento de conexões;
+  - o driver escolhido precisa aceitar transações interativas. O driver HTTP da Neon não aceita; o de WebSocket (Pool) ou o `pg` aceitam. Confirmar na B1.
+- **Auditoria e linha do tempo só aceitam inserção.** O usuário do banco que a aplicação usa não tem permissão de `UPDATE` nem `DELETE` nessas tabelas. Cada registro de auditoria guarda o hash do anterior, o que torna qualquer adulteração detectável. As inserções na auditoria são feitas em fila (uma trava por rede), senão a cadeia se divide.
 - **Chaves e restrições**: protocolo único por rede; envolvimento, anexo e evento sempre da mesma rede do caso; encerramento só com as regras do contrato (a aplicação checa; o banco impede estados impossíveis).
 - **Dados sensíveis**: relato e textos de comunicação ficam em colunas próprias, com acesso só pelas rotas que já filtram por perfil. A criptografia em repouso é a do provedor. Criptografia por coluna fica como decisão com o encarregado de dados.
 
@@ -88,6 +97,9 @@ Toda tabela de dados de escola tem `rede_id`. Identificadores são UUID; o proto
 - Migrações em SQL no Git, aplicadas pela integração contínua antes de cada publicação.
 - Cada pull request ganha uma cópia (branch) do banco pela integração Neon + Vercel, com os mesmos dados fictícios da demonstração (`front/src/mocks/seed.ts` vira o seed do banco).
 - Produção nunca recebe dados fictícios, e ambientes de teste nunca recebem dados reais.
+- **Testes repetíveis.** Os roteiros do front partem sempre dos mesmos dados (hoje, cada navegador de teste começa com a simulação zerada). Com banco real, a segunda rodada falharia: o 484 já estaria triado e o protocolo 485 já existiria. Por isso, só em preview e homologação:
+  - uma rota de restauração que volta o banco ao seed antes de cada rodada (ou uma nova branch da Neon por rodada), que não existe no build de produção;
+  - usuários fictícios com segredo de segundo fator fixo e conhecido, para os roteiros entrarem pelo login real.
 - Backup: restauração a um ponto no tempo oferecida pela Neon. A janela depende do plano; confirmar antes do piloto.
 
 ## Autenticação e acesso
@@ -167,27 +179,55 @@ O sistema trata dados de crianças e adolescentes, alguns sensíveis (saúde, vi
 
 Valores exatos dependem do plano vigente na contratação e ficam para a decisão da gestão.
 
+**Estimativa de uso na IMSIL.** O que mais gera chamadas é a Central, que recarrega fila, agenda e caso aberto a cada 30 s. Com 5 pessoas da gestão com a Central aberta 8 horas por dia útil: 5 × 960 recargas × 3 chamadas × 22 dias ≈ 317 mil chamadas por mês. O plano Hobby inclui 1 milhão de chamadas e 4 horas de CPU ativa por mês; a 20 ms de CPU por chamada, isso dá cerca de 1,8 hora. Cabe, mas sem folga para mais escolas. Por isso a B4 troca as três chamadas por uma consulta leve ("mudou algo desde a versão X?") e só busca as listas quando houver mudança, o que reduz o volume a cerca de um terço.
+
 ## Fases
 
 Estimativas para uma pessoa de back-end. Cada fase termina com os testes passando e o registro em [Registro de execução](registro-de-execucao.md).
 
 | Fase | Duração | Entregas | Pronto quando |
 | --- | --- | --- | --- |
-| B0 Demonstração publicada e base | 1 semana | Workspaces (`front`, `servidor`, `compartilhado`); **demonstração atual publicada na Vercel** com a API simulada; GitHub Actions rodando build, contraste e `npm run verificar` | A gestão abre a demonstração por um link; todo push roda os testes |
-| B1 Fundação do servidor | 2 semanas | Hono em Vercel Functions (`gru1`); banco Neon em São Paulo; esquema e migrações; middleware de contexto (rede, escola, vínculo); formato de erro; seed fictício; rota de saúde; esquemas Zod compartilhados | Rotas de leitura (`redes`, `escolas`, `categorias`) respondem do banco; testes de isolamento entre redes passam |
-| B2 Login e acesso | 2 semanas | Login, sessão por cookie, segundo fator, módulo de autorização com a matriz vinda do banco, Row-Level Security, auditoria só de inserção | Tabela de testes perfil × rota passa inteira; auditoria registra entradas e negações |
-| B3 Registro e acompanhamento | 2 semanas | Ocorrências, protocolo por rede, semelhantes, pessoas, adendos, prazos, anexos privados | `f2-registro.mjs` passa contra o servidor real |
-| B4 Central de Gestão | 3 semanas | Triagem, providências geradas pelo protocolo, encaminhamentos e devolutivas, plano de apoio, comunicações, ofício ao CT, ciência com token seguro, e-mail às famílias, encerramento | `f3-central.mjs` e `f3-atualizacao.mjs` passam contra o servidor real |
+| B0 Demonstração publicada e base | 1 semana | Workspaces (`front`, `servidor`, `compartilhado`); demonstração atual publicada na Vercel com a API simulada, **depois da decisão sobre o endereço público** (ver Decisões); GitHub Actions rodando build, contraste e `npm run verificar` | A gestão abre a demonstração por um link; todo push roda os testes |
+| B1 Fundação do servidor | 2 semanas | Hono em Vercel Functions (`gru1`); banco Neon em São Paulo; esquema e migrações; middleware de contexto (rede, escola, vínculo); formato de erro; seed fictício e restauração do seed em preview; rota de saúde; esquemas Zod compartilhados | Rotas de leitura (`redes`, `escolas`, `categorias`) respondem do banco; testes de isolamento entre redes passam, inclusive com a Row-Level Security sozinha |
+| B2 Login e acesso | 3 semanas | Login, sessão por cookie, segundo fator, recuperação de senha, telas de login no front, módulo de autorização com a matriz vinda do banco, auditoria só de inserção; roteiros do front adaptados ao login real | Tabela de testes perfil × rota passa inteira; `f1-regressao.mjs` passa com login real; auditoria registra entradas e negações |
+| B3 Registro e acompanhamento | 2 semanas | Ocorrências, protocolo por rede, semelhantes, pessoas, adendos, prazos, anexos privados com envio real no front | `f2-registro.mjs` passa contra o servidor real, duas vezes seguidas |
+| B4 Central de Gestão | 3 semanas | Triagem, providências geradas pelo protocolo, encaminhamentos e devolutivas, plano de apoio, comunicações, ofício ao CT, cadastro de responsáveis, ciência com token seguro, e-mail às famílias, encerramento; consulta leve de mudanças para a atualização da fila | `f3-central.mjs` e `f3-atualizacao.mjs` passam contra o servidor real |
 | B5 Gestão e administração | 2 semanas | Busca, relatórios em SQL com supressão (incluindo a complementar, pendência 31), exportação, auditoria, administração persistida (pendência 27), edição da matriz de permissões (pendência 25) | `f4-gestao.mjs` e `f4-regional.mjs` passam contra o servidor real |
 | B6 Operação e segurança | 2 semanas | Tarefa diária, registro de erros, limites de requisição, cabeçalhos, revisão ASVS, teste de restauração do backup | Checklist de segurança sem item crítico; restauração testada |
 | B7 Homologação e piloto | 2 semanas | Ambiente de homologação com dados fictícios, testes com pessoas da F5 (usabilidade, NVDA), RIPD, treinamento da equipe da IMSIL | Gestão e encarregado aprovam; só então o piloto com dados reais |
 
-Total estimado: **16 semanas**. B0 pode começar já e não depende de nenhuma decisão.
+Total estimado: **17 semanas**. B0 pode começar assim que a conta da Vercel estiver ligada e a forma de publicar a demonstração for decidida.
+
+## O que falta, item por item
+
+Todas as pendências abertas em [Pendências](pendencias.md), com a fase que resolve cada uma. As que não são do back-end continuam com quem decide.
+
+| Pendência | Assunto | Onde se resolve |
+| --- | --- | --- |
+| 1, 2, 5 | Teste de usabilidade, leitor de tela (NVDA), texto em 130% nos aparelhos da escola | B7, com a equipe da IMSIL |
+| 3, 6, 9 | Aprovação do design system, confirmação da stack, nome do produto | Gestão, antes da B7 |
+| 4 | Revisão das telas de comunicação pelo encarregado de dados | Junto com o RIPD, antes da B7 |
+| 7, 8 | Quem registra a comunicação ao Conselho Tutelar; registrar ausência de ocorrências | Direção da IMSIL. Se decidido até a B4, entra na B4 |
+| 10, 11, 12 | Tabela de providências, modelos de comunicação, critério de infrequência | Rede, jurídico e encarregado. Entram como dados de configuração, sem mudar código |
+| 13 | Contatos reais da rede de proteção de Limeira | Direção da IMSIL, cadastrados na administração em B7 |
+| 14 | Validação do contrato com o backend | B1 (este plano) |
+| 15 | Controle de acesso no servidor | B2 |
+| 16 | Login institucional com segundo fator | B2 (conta própria); institucional quando a Seduc-SP autorizar |
+| 17 | Relação com o Conviva SP | Continua manual, com o código anotado no caso. Integração só com a Seduc-SP; fora deste plano |
+| 18 | Anexos reais em armazenamento privado | B3 |
+| 19 | Rascunhos em aparelho compartilhado | B3: rascunho expira no aparelho em 7 dias e é apagado ao sair da sessão; rascunho no servidor fica como alternativa se a direção preferir |
+| 20 | Envio real às famílias e link seguro | B4 |
+| 21 | Turmas, estudantes e responsáveis da Secretaria Escolar Digital | Cadastro manual pela escola no piloto; integração só com a Seduc-SP, fora deste plano |
+| 23 | Regra de encerramento com ações abertas | Direção da IMSIL valida; já implementada |
+| 25 | Edição da matriz de permissões | B5 |
+| 27 | Configurações da administração persistidas | B5 |
+| 31 | Supressão complementar nos relatórios | Decisão do encarregado; implementação na B5 |
 
 ## Decisões pendentes
 
 | Decisão | Recomendação | Quem decide | Impacto se atrasar |
 | --- | --- | --- | --- |
+| Como publicar a demonstração (B0) | Endereço com aviso visível "protótipo acadêmico, sem vínculo com a Seduc-SP; dados fictícios" em todas as telas. Confirmar se o plano Hobby permite proteger o endereço de produção com login; se não permitir, usar o aviso ou só links de preview protegidos | Equipe do TCC e gestão | O link público mostra o nome real da IMSIL sob o timbre da secretaria |
 | Confirmar a arquitetura (Hono, Neon, Drizzle, Vercel Blob) | Como neste plano | Equipe do TCC e gestão | Atrasa B1 |
 | Login no piloto: conta própria com segundo fator ou conta institucional da Seduc-SP | Conta própria no TCC; institucional quando a Seduc autorizar | Seduc-SP | Atrasa o piloto real, não o TCC |
 | Onde o sistema roda em produção: Vercel ou infraestrutura do governo | Vercel no TCC e no piloto, com arquitetura portável | Seduc-SP | Pode exigir migração antes da rede toda |

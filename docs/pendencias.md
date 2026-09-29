@@ -2,7 +2,7 @@
 
 Tudo o que ficou para depois de o front estar completo, em um só lugar. Atualize a coluna Situação ao avançar (Aberta, Em andamento, Resolvida) e registre a data na coluna Notas.
 
-Última revisão: 29/09/2026. O front está completo; o que sobra depende de pessoas, decisões da gestão ou backend.
+Última revisão: 29/09/2026. O front está completo; o que sobra depende de pessoas, decisões da gestão ou backend. A fase do back-end que resolve cada item está em [Plano do back-end › O que falta, item por item](plano-backend.md#o-que-falta-item-por-item).
 
 ## Validação com pessoas
 
