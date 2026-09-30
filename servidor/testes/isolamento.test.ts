@@ -150,3 +150,17 @@ describe('login de demonstração', () => {
     expect(r.status).toBe(403);
   });
 });
+
+describe('restaurar dados de demonstração', () => {
+  test('volta ao seed; não existe em produção', async () => {
+    const h = await amb.entrar('u-ana', 'rede-sp', 'esc-imsil');
+    await amb.pool.query(`delete from comunicacoes`);
+    expect((await amb.pedir('/diagnostico/restaurar', { method: 'POST' })).status).toBe(200);
+    expect(await contar('rede-sp', 'select count(*) n from comunicacoes')).toBeGreaterThan(0);
+    // As sessões também voltam ao início: o token antigo deixa de valer
+    expect((await amb.pedir('/escolas', { cabecalhos: h })).status).toBe(401);
+    process.env.VERCEL_ENV = 'production';
+    expect((await amb.pedir('/diagnostico/restaurar', { method: 'POST' })).status).toBe(404);
+    delete process.env.VERCEL_ENV;
+  });
+});

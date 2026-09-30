@@ -9,7 +9,10 @@ import pg from 'pg';
 // Datas sem hora voltam como texto AAAA-MM-DD, como no contrato;
 // datas com hora voltam em ISO 8601.
 pg.types.setTypeParser(1082, (v) => v);
-pg.types.setTypeParser(1184, (v) => new Date(v).toISOString());
+// Horário de Brasília (sem horário de verão desde 2019), como nos dados da demonstração:
+// a tela compara o dia do registro com o dia de hoje pelo texto da data.
+const lerDataHora = pg.types.getTypeParser(1184) as (v: string) => Date;
+pg.types.setTypeParser(1184, (v) => `${new Date(lerDataHora(v).getTime() - 3 * 3600_000).toISOString().slice(0, 19)}-03:00`);
 pg.types.setTypeParser(20, (v) => Number(v));
 
 let pool: pg.Pool | null = null;

@@ -9,7 +9,13 @@ import { ErroApi, naoAutenticado, redeDivergente, semPermissao } from './erros';
  * (front/src/mocks/base.ts), agora com o banco filtrando por rede.
  */
 
-export type Contexto = { usuario: Usuario; vinculo: Vinculo; escolaId: string | null };
+export type Contexto = {
+  usuario: Usuario;
+  vinculo: Vinculo;
+  escolaId: string | null;
+  /** Ids das escolas no alcance do vínculo; preenchido sob demanda (casos.ts). */
+  alcance?: string[];
+};
 
 type Cabecalhos = { get(nome: string): string | null | undefined };
 

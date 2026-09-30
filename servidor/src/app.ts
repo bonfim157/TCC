@@ -1,9 +1,12 @@
-import { Hono, type Context } from 'hono';
+import { Hono } from 'hono';
 import type { Categoria, Rede, Sessao, Usuario } from '@tcc/compartilhado/contrato';
 import { esquemaNovaSessao } from '@tcc/compartilhado/esquemas';
 import { banco, naRede } from './banco/conexao';
+import { carregarSeed } from './banco/seed';
 import { auditar, comContexto, escolasDoVinculo, vinculosDe } from './contexto';
-import { ErroApi, naoEncontrado, semPermissao, validacao } from './erros';
+import { ErroApi, naoEncontrado, semPermissao } from './erros';
+import { rotasDeRegistro } from './rotas/registro';
+import { corpo } from './util';
 import { hashDoToken, novoToken } from './seguranca';
 
 /** Validade da sessão. */
@@ -15,14 +18,6 @@ const HORAS_DE_SESSAO = 8;
  * servidor real; em produção a rota nem responde.
  */
 export const loginDemoAtivo = () => process.env.TCC_LOGIN_DEMO === '1' && process.env.VERCEL_ENV !== 'production';
-
-async function corpoJson(c: Context) {
-  try {
-    return await c.req.json();
-  } catch {
-    throw validacao('O pedido não veio em JSON válido.');
-  }
-}
 
 export function criarApp() {
   const app = new Hono().basePath('/api');
@@ -70,9 +65,7 @@ export function criarApp() {
 
   app.post('/sessoes', async (c) => {
     if (!loginDemoAtivo()) throw naoEncontrado('Esta função não existe neste ambiente.');
-    const pedido = esquemaNovaSessao.safeParse(await corpoJson(c));
-    if (!pedido.success) throw validacao('Escolha a rede e a pessoa.');
-    const { redeId, usuarioId } = pedido.data;
+    const { redeId, usuarioId } = await corpo(c, esquemaNovaSessao, 'Escolha a rede e a pessoa.');
     const sessao = await naRede({ redeId, usuarioId }, async (db) => {
       const u = await db.query<{ id: string; nome: string }>('select id, nome from usuarios where id = $1', [usuarioId]);
       const vinculos = u.rows[0] ? await vinculosDe(db, usuarioId) : [];
@@ -90,6 +83,17 @@ export function criarApp() {
     return c.json(sessao);
   });
 
+  /**
+   * Volta o banco aos dados fictícios iniciais. Os roteiros do navegador chamam
+   * antes de cada rodada, para partir sempre do mesmo estado. Como o login de
+   * demonstração, só existe fora de produção.
+   */
+  app.post('/diagnostico/restaurar', async (c) => {
+    if (!loginDemoAtivo()) throw naoEncontrado('Esta função não existe neste ambiente.');
+    await carregarSeed(banco());
+    return c.json({ ok: true });
+  });
+
   /* ---------- Cadastros da rede ---------- */
   app.get('/escolas', (c) => comContexto(c.req.raw.headers, async (db, ctx) => c.json(await escolasDoVinculo(db, ctx.vinculo))));
 
@@ -101,6 +105,8 @@ export function criarApp() {
       return c.json(r.rows.map(({ rede_id, ...cat }) => ({ ...cat, redeId: rede_id })));
     }),
   );
+
+  rotasDeRegistro(app);
 
   return app;
 }

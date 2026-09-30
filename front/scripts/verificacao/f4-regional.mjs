@@ -4,6 +4,8 @@
 import { chromium } from 'playwright';
 
 const B = 'http://localhost:5173';
+// Com o servidor real (VITE_API=real), volta o banco aos dados iniciais; na simulação não faz nada.
+await fetch(`${B}/api/diagnostico/restaurar`, { method: 'POST' }).catch(() => {});
 const log = (...a) => console.log(...a);
 const b = await chromium.launch();
 const ctx = await b.newContext({ viewport: { width: 1440, height: 1000 } });

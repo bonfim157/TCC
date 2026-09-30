@@ -1,7 +1,7 @@
 import type pg from 'pg';
 import { hashDoToken } from '../seguranca';
 import { modelos, regras } from '@tcc/compartilhado/protocolo';
-import { categorias, contatos, escolas, ocorrencias, pessoas, redes, regionais, usuarios } from '@tcc/compartilhado/seed';
+import { categorias, categoriasSensiveis, contatos, escolas, ocorrencias, pessoas, redes, regionais, usuarios } from '@tcc/compartilhado/seed';
 
 /*
  * Carrega os dados fictícios da demonstração (os mesmos da API simulada).
@@ -46,7 +46,7 @@ export async function carregarSeed(pool: pg.Pool) {
       }
     }
 
-    for (const [i, cat] of categorias.entries()) await ins('categorias', { id: cat.id, rede_id: cat.redeId, nome: cat.nome, ativa: cat.ativa, ordem: i });
+    for (const [i, cat] of categorias.entries()) await ins('categorias', { id: cat.id, rede_id: cat.redeId, nome: cat.nome, ativa: cat.ativa, ordem: i, sensivel: categoriasSensiveis.includes(cat.id) });
     for (const [i, r] of regras.entries()) {
       await ins('regras_protocolo', {
         id: r.id, rede_id: r.redeId, categoria_ids: r.categoriaIds === 'todas' ? null : r.categoriaIds,
@@ -94,7 +94,7 @@ export async function carregarSeed(pool: pg.Pool) {
         const token = cm.linkCiencia?.replace('/ciencia/', '') ?? null;
         await ins('comunicacoes', {
           id: cm.id, rede_id: r, ocorrencia_id: o.id, tipo: cm.tipo, destinatario: cm.destinatario, texto: cm.texto, em: cm.em,
-          registrada_por: cm.registradaPor, token_hash: token ? hashDoToken(token) : null,
+          registrada_por: cm.registradaPor, token_hash: token ? hashDoToken(token) : null, link_ciencia: cm.linkCiencia,
           ciencia_em: cm.ciencia?.em ?? null, ciencia_nome: cm.ciencia?.nome ?? null,
         });
       }

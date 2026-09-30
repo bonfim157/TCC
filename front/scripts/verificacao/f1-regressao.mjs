@@ -6,6 +6,8 @@ import { mkdirSync } from 'node:fs';
 const out = process.argv[2] ?? fileURLToPath(new URL('../../output/verificacao/', import.meta.url));
 mkdirSync(out, { recursive: true });
 const B = 'http://localhost:5173';
+// Com o servidor real (VITE_API=real), volta o banco aos dados iniciais; na simulação não faz nada.
+await fetch(`${B}/api/diagnostico/restaurar`, { method: 'POST' }).catch(() => {});
 const b = await chromium.launch();
 const sw = (p) => p.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
 // 2. Timbre segue a rede escolhida; tema sobrevive à troca claro/escuro
