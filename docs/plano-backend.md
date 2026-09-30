@@ -21,7 +21,7 @@ Documentos relacionados:
 
 **Falta, em ordem**
 
-1. **Publicação**: feita em 30/09/2026. Projeto `cuidar-registrar` na conta `ferreirabonfimrafael-1561` (plano Hobby); produção em https://cuidar-registrar.vercel.app com a API simulada e a faixa de demonstração. Publicar de novo: `npx vercel deploy --prod` na raiz. Falta ligar o projeto ao repositório do GitHub para publicar a cada push (no painel da Vercel, em Settings › Git). Variáveis de ambiente na Vercel:
+1. **Publicação**: feita em 30/09/2026. Projeto `cuidar-registrar` na conta `ferreirabonfimrafael-1561` (plano Hobby); produção em https://cuidar-registrar.vercel.app com a API simulada e a faixa de demonstração. O projeto está ligado ao repositório `bonfim157/TCC` desde 30/09/2026: cada push na `main` publica em produção, e cada outra branch ou pull request ganha um endereço de preview. Publicar à mão, se precisar: `npx vercel deploy --prod` na raiz. Variáveis de ambiente na Vercel:
    - produção: `VITE_API=real`, `DATABASE_URL`, `TCC_CHAVE_SEGREDOS` (32 bytes em base64; gere com `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`)
    - previews: as mesmas, mais `DATABASE_URL_DONO` e `TCC_LOGIN_DEMO=1`. Ligue a proteção de previews da Vercel: com essas duas variáveis, quem tiver o endereço entra como qualquer pessoa fictícia e pode restaurar o banco do preview
    - demonstração só com a API simulada: nenhuma variável
