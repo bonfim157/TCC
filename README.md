@@ -4,6 +4,8 @@ Sistema para registrar, acompanhar e prevenir ocorrências em escolas públicas,
 
 Protótipo acadêmico, sem vínculo oficial com a Secretaria da Educação. Pessoas e casos nos dados de demonstração são fictícios.
 
+**Demonstração no ar:** https://cuidar-registrar.vercel.app (dados fictícios, API simulada no navegador). Para abrir já na rede de São Paulo: https://cuidar-registrar.vercel.app/?rede=sp
+
 ## Onde está cada coisa
 
 | Caminho | Conteúdo |
@@ -15,7 +17,7 @@ Protótipo acadêmico, sem vínculo oficial com a Secretaria da Educação. Pess
 | [`docs/contrato-para-o-backend.md`](docs/contrato-para-o-backend.md) | Rotas, erros e regras de acesso que o backend precisa seguir |
 | [`docs/plano-backend.md`](docs/plano-backend.md) | Plano do back-end, banco de dados, hospedagem na Vercel, segurança e LGPD |
 | [`front/`](front/README.md) | Aplicação web (React, TypeScript, Vite) com API simulada |
-| `servidor/`, `api/` | API (Hono) para Vercel Functions, banco PostgreSQL, testes |
+| `servidor/`, `api/` | API (Hono) para Vercel Functions, banco PostgreSQL, testes. `api/index.js` é a função única da Vercel; o servidor é empacotado nela durante o build |
 | `compartilhado/` | Contrato de dados, esquemas de validação, protocolo e dados fictícios |
 | `relatorio-sistema-ocorrencias-escolas-publicas.docx` | Relatório completo do sistema (v1.0) |
 | `documentacao-prototipo.docx` | Documentação do protótipo HTML inicial |

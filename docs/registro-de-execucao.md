@@ -187,6 +187,13 @@ O que foi construído em cada fase e como foi verificado. As verificações fora
 
 **Limitações conhecidas**: sem recuperação de senha por e-mail; sem QR code; a obrigação de trocar a senha temporária é da tela, não do servidor; o mesmo código do segundo fator pode ser reutilizado dentro dos seus 30 segundos.
 
+## Publicação na Vercel, 30/09/2026
+
+- Projeto `cuidar-registrar` criado e ligado à pasta do repositório; região das funções `gru1`
+- A construção local com `vercel build` mostrou que a Vercel compila a API arquivo por arquivo e que os imports entre módulos falhariam. A API passou a ser empacotada num só arquivo durante o build, com uma função única e reescrita de `/api/*`
+- Produção publicada em https://cuidar-registrar.vercel.app, com a API simulada. Conferido no navegador: a faixa de demonstração aparece, o login de demonstração entra, a Central abre por endereço direto com 4 casos na fila, e a função responde em `/api/ambiente` com `loginDemo: false` (produção não tem login de demonstração)
+- Banco Neon: pedido feito pela integração da Vercel (região São Paulo, plano gratuito, só para preview); aguardando o aceite dos termos no navegador
+
 ## Situação da última rodada de verificação
 
 29/09/2026: `npm run build`, `npm run contrast` e `npm run verificar` completo (F1, F2, F3, atualização, F4, regional e acessibilidade) passaram. O front está completo; o que falta é validação com pessoas, decisões da gestão e backend (ver Pendências).

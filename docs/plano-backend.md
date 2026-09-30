@@ -21,7 +21,7 @@ Documentos relacionados:
 
 **Falta, em ordem**
 
-1. **Publicação (precisa de você)**: `! npx vercel login`, criar o projeto na Vercel ligado ao repositório, decidir como publicar a demonstração (ver Decisões pendentes). Variáveis de ambiente na Vercel:
+1. **Publicação**: feita em 30/09/2026. Projeto `cuidar-registrar` na conta `ferreirabonfimrafael-1561` (plano Hobby); produção em https://cuidar-registrar.vercel.app com a API simulada e a faixa de demonstração. Publicar de novo: `npx vercel deploy --prod` na raiz. Falta ligar o projeto ao repositório do GitHub para publicar a cada push (no painel da Vercel, em Settings › Git). Variáveis de ambiente na Vercel:
    - produção: `VITE_API=real`, `DATABASE_URL`, `TCC_CHAVE_SEGREDOS` (32 bytes em base64; gere com `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`)
    - previews: as mesmas, mais `DATABASE_URL_DONO` e `TCC_LOGIN_DEMO=1`. Ligue a proteção de previews da Vercel: com essas duas variáveis, quem tiver o endereço entra como qualquer pessoa fictícia e pode restaurar o banco do preview
    - demonstração só com a API simulada: nenhuma variável
@@ -100,7 +100,7 @@ O trabalho do back-end é, portanto, **trocar a simulação por um servidor de v
 ```
 tcc/
   front/          aplicação React
-  api/            ponto de entrada das Vercel Functions ([[...rota]].ts)
+  api/            função única da Vercel (index.js); o servidor empacotado (_app.cjs) é gerado no build
   servidor/
     src/          API (app.ts), contexto da requisição, erros
       banco/      conexão, migrações SQL, seed, banco local
@@ -293,6 +293,10 @@ Todas as pendências abertas em [Pendências](pendencias.md), com a fase que res
 | 29/09/2026 | Arquitetura deste plano aprovada para execução | Usuário: "vamos implementar o plano de back-end agora mesmo, pode começar" |
 | 29/09/2026 | SQL direto com `pg` no lugar do Drizzle | Segurança do banco é toda em SQL; menos dependências |
 | 29/09/2026 | PGlite para desenvolvimento e testes, no lugar de Docker | Máquina com pouca memória livre; teste prévio confirmou papéis, Row-Level Security, `set_config` local e permissões |
+| 30/09/2026 | Demonstração publicada em endereço público, com a faixa de demonstração no topo | Usuário: "Pública, com a faixa". Facilita mostrar à gestão e à banca |
+| 30/09/2026 | Banco Neon criado só para o ambiente de teste (preview), em São Paulo, plano gratuito | Usuário: "Sim, criar agora". Produção continua sem banco até o piloto ser autorizado |
+| 30/09/2026 | API empacotada num só arquivo no build (`npm run empacotar -w servidor` gera `api/_app.cjs`) | A Vercel compila as funções arquivo por arquivo e os imports entre módulos TypeScript falhariam lá |
+| 30/09/2026 | Uma função só (`api/index.js`) e regra de reescrita de `/api/*` para ela | Rotas opcionais de captura só existem no Next.js |
 | 30/09/2026 | Senhas com Argon2id pela biblioteca `hash-wasm` (WebAssembly) | Sem binário nativo: roda igual no computador de desenvolvimento e nas funções da Vercel |
 | 30/09/2026 | Segundo fator (TOTP) obrigatório para todos os perfis, menos professor e apoio | Quem conduz casos, vê relatórios ou administra acessa dados sensíveis; quem só registra vê apenas o que escreveu |
 | 30/09/2026 | Segredo do segundo fator cifrado com chave fora do banco (`TCC_CHAVE_SEGREDOS`) | Quem copiar o banco não consegue gerar códigos |
@@ -310,7 +314,7 @@ Todas as pendências abertas em [Pendências](pendencias.md), com a fase que res
 
 | Decisão | Recomendação | Quem decide | Impacto se atrasar |
 | --- | --- | --- | --- |
-| Como publicar a demonstração (B0) | Endereço com aviso visível "protótipo acadêmico, sem vínculo com a Seduc-SP; dados fictícios" em todas as telas. Confirmar se o plano Hobby permite proteger o endereço de produção com login; se não permitir, usar o aviso ou só links de preview protegidos | Equipe do TCC e gestão | O link público mostra o nome real da IMSIL sob o timbre da secretaria |
+| ~~Como publicar a demonstração (B0)~~ decidido em 30/09/2026: pública, com a faixa | Endereço com aviso visível "protótipo acadêmico, sem vínculo com a Seduc-SP; dados fictícios" em todas as telas. Confirmar se o plano Hobby permite proteger o endereço de produção com login; se não permitir, usar o aviso ou só links de preview protegidos | Equipe do TCC e gestão | O link público mostra o nome real da IMSIL sob o timbre da secretaria |
 | Confirmar a arquitetura (Hono, Neon, Drizzle, Vercel Blob) | Como neste plano | Equipe do TCC e gestão | Atrasa B1 |
 | Login no piloto: conta própria com segundo fator ou conta institucional da Seduc-SP | Conta própria no TCC; institucional quando a Seduc autorizar | Seduc-SP | Atrasa o piloto real, não o TCC |
 | Onde o sistema roda em produção: Vercel ou infraestrutura do governo | Vercel no TCC e no piloto, com arquitetura portável | Seduc-SP | Pode exigir migração antes da rede toda |

@@ -7,3 +7,7 @@ Thumbs.db
 ~$*.docx
 *.tsbuildinfo
 .dados-locais/
+
+.vercel
+.env*
+api/_app.cjs
