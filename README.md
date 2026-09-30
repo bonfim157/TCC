@@ -15,6 +15,7 @@ Protótipo acadêmico, sem vínculo oficial com a Secretaria da Educação. Pess
 | [`docs/gestao-da-ocorrencia.md`](docs/gestao-da-ocorrencia.md) | Como a gestão escolar trata uma ocorrência, base legal e fontes |
 | [`docs/registro-de-execucao.md`](docs/registro-de-execucao.md) | O que foi construído e verificado em cada fase |
 | [`docs/contrato-para-o-backend.md`](docs/contrato-para-o-backend.md) | Rotas, erros e regras de acesso que o backend precisa seguir |
+| [`docs/fluxo-de-trabalho.md`](docs/fluxo-de-trabalho.md) | Como toda mudança chega à produção: branch, pull request, testes, preview e só então a `main` |
 | [`docs/plano-backend.md`](docs/plano-backend.md) | Plano do back-end, banco de dados, hospedagem na Vercel, segurança e LGPD |
 | [`front/`](front/README.md) | Aplicação web (React, TypeScript, Vite) com API simulada |
 | `servidor/`, `api/` | API (Hono) para Vercel Functions, banco PostgreSQL, testes. `api/index.js` é a função única da Vercel; o servidor é empacotado nela durante o build |
