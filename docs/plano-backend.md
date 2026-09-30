@@ -8,20 +8,28 @@ Documentos relacionados:
 - [Plano de escopo do front](plano-de-escopo.md) e [Pendências](pendencias.md)
 - A API simulada em `front/src/mocks/` é a referência executável: o servidor real deve se comportar igual a ela
 
-## Situação atual e próximos passos (29/09/2026)
+## Situação atual e próximos passos (30/09/2026)
 
 **Feito**
 
-- B0, parte local: workspaces (`front`, `servidor`, `compartilhado`), modo real no front (`VITE_API=real`), faixa de demonstração, GitHub Actions
-- B1: banco completo (todas as tabelas, papel da aplicação, Row-Level Security, auditoria só de inserção com cadeia de hashes), seed fictício, API com saúde, redes, login de demonstração, escolas e categorias, ponto de entrada da Vercel, 19 testes passando, front em modo real entrando pelo servidor
+- B0, parte local: workspaces (`front`, `servidor`, `compartilhado`), modo real no front (`VITE_API=real`), faixa de demonstração, GitHub Actions rodando e passando a cada push
+- B1: banco completo, papel da aplicação, Row-Level Security, auditoria só de inserção com cadeia de hashes, seed fictício, ponto de entrada da Vercel
+- B3: registro e acompanhamento (pessoas, ocorrências, semelhantes, adendos, prazos)
+- B4: Central de Gestão inteira e a página pública de ciência, com token guardado só como hash
+- B5: busca, relatórios com supressão, exportação com motivo, auditoria e administração gravada no banco
+- **Todas as rotas do contrato respondem pelo servidor real.** Os 7 roteiros do front passam em modo real, com o banco restaurado ao seed antes de cada um; 80 testes do servidor
 
 **Falta, em ordem**
 
-1. **B0, publicação**: fazer `vercel login` (digite `! npx vercel login` no Claude Code), criar o projeto na Vercel ligado ao repositório e decidir como publicar a demonstração (ver Decisões pendentes). Conferir se o GitHub Actions passou no primeiro push
-2. **B1, banco na nuvem**: criar o banco Neon em São Paulo pela Vercel Marketplace, definir `DATABASE_URL`, rodar migrações e seed num preview e repetir os testes contra a Neon (confirmar o driver com transações, ver Banco de dados)
-3. **B2, login e acesso** (3 semanas): senha com Argon2id, segundo fator (TOTP), sessão em cookie `HttpOnly`, telas de login no front, matriz de permissões vinda do banco, tabela de testes perfil × rota
-4. **B3 a B5**: portar as rotas da simulação (`front/src/mocks/handlers.ts`, `central.ts`, `gestao.ts`) para o servidor, na ordem registro → Central → gestão. Critério de cada fase: o roteiro correspondente do front passa contra o servidor real, duas vezes seguidas
-5. **B6 e B7**: operação, segurança, homologação e piloto (ver Fases)
+1. **B0, publicação**: fazer `vercel login` (digite `! npx vercel login` no Claude Code), criar o projeto na Vercel ligado ao repositório e decidir como publicar a demonstração (ver Decisões pendentes)
+2. **B1, banco na nuvem**: criar o banco Neon em São Paulo pela Vercel Marketplace, definir `DATABASE_URL`, rodar migrações e seed num preview e repetir os testes contra a Neon. O banco local já usa um dono sem superusuário, como a Neon, o que reduz as surpresas
+3. **B2, login e acesso** (3 semanas): senha com Argon2id, segundo fator (TOTP), sessão em cookie `HttpOnly`, telas de login no front, matriz de permissões vinda do banco e editável (pendência 25), tabela de testes perfil × rota. Hoje o servidor só tem o login de demonstração, que não existe em produção: **sem a B2 ninguém entra no ambiente de produção**
+4. **O que ficou das fases B3 a B5**, tudo dependente de contas ou decisões:
+   - envio real de anexos (Vercel Blob privado) e a tela de envio no front
+   - cadastro de responsáveis e envio de e-mail às famílias (escolher o serviço de e-mail)
+   - consulta leve de mudanças para a Central (hoje são 3 chamadas a cada 30 s por aba)
+   - supressão complementar nos relatórios (pendência 31, decisão do encarregado de dados)
+5. **B6 e B7**: tarefa diária, limites de requisição, cabeçalhos de segurança, revisão ASVS, homologação e piloto (ver Fases)
 
 **Como retomar em outra máquina**
 
@@ -35,11 +43,13 @@ VITE_API=real npm run dev      # terminal 2: front usando o servidor
 npm run dev                    # ou: só a demonstração, com API simulada
 ```
 
-Para os roteiros do navegador: `npx playwright install chromium` uma vez, e `npm run verificar` com o front rodando. Em modo real, só `f1-regressao.mjs` passa por enquanto; os outros dependem das rotas da B3 em diante.
+Para os roteiros do navegador: `npx playwright install chromium` uma vez, e `npm run verificar` com o front rodando. Os roteiros funcionam nos dois modos: na simulação e contra o servidor real (eles restauram o banco ao seed antes de começar).
 
 Cuidados anotados nesta etapa:
 
 - O banco local (PGlite) atende uma conexão por vez; o servidor de desenvolvimento e os testes usam pool com uma conexão
+- O banco local entra como o papel `dono_tcc`, sem superusuário, para a Row-Level Security valer também para o dono, como na Neon. Código que roda como dono (seed, migrações) precisa informar a rede (`set_config('app.rede_id', ...)`) antes de gravar em tabelas por rede
+- Funções `security definer` não enxergam tabelas com `FORCE ROW LEVEL SECURITY` sem a rede informada; para achar a rede de um token de ciência existe a tabela `tokens_ciencia`
 - No Windows, parar o `npm run dev` pelo Claude Code pode deixar o Vite rodando na porta 5173; rodar o Vite direto (`node ../node_modules/vite/bin/vite.js` dentro de `front/`) evita isso
 - Novas migrações: arquivo `003_...sql` em `servidor/src/banco/migracoes/`; toda tabela nova com `rede_id` precisa entrar na lista de Row-Level Security de `002_seguranca.sql` (ou numa migração nova com as mesmas regras)
 
@@ -268,6 +278,11 @@ Todas as pendências abertas em [Pendências](pendencias.md), com a fase que res
 | 29/09/2026 | Arquitetura deste plano aprovada para execução | Usuário: "vamos implementar o plano de back-end agora mesmo, pode começar" |
 | 29/09/2026 | SQL direto com `pg` no lugar do Drizzle | Segurança do banco é toda em SQL; menos dependências |
 | 29/09/2026 | PGlite para desenvolvimento e testes, no lugar de Docker | Máquina com pouca memória livre; teste prévio confirmou papéis, Row-Level Security, `set_config` local e permissões |
+| 30/09/2026 | Banco local com dono sem superusuário | O superusuário ignora a Row-Level Security e escondia dois erros que só apareceriam na Neon (seed e busca do token de ciência) |
+| 30/09/2026 | Caso de outra rede responde 404, e não 403 | O banco nem mostra a linha; responder 403 revelaria que o id existe |
+| 30/09/2026 | Ciência da família só pode ser confirmada uma vez (409 na segunda) | O registro de quem confirmou não pode ser trocado depois |
+| 30/09/2026 | Na triagem, o responsável precisa conduzir casos na escola do caso | A simulação aceitava qualquer pessoa; o servidor confere o vínculo |
+| 30/09/2026 | B3 a B5 feitas antes da B2 | O login de demonstração permitiu validar todas as rotas com os roteiros do front; o login real entra por cima sem mudar as rotas |
 | 29/09/2026 | Faixa "Demonstração: protótipo acadêmico, sem vínculo com a Secretaria da Educação" no topo de todas as telas do modo simulado | Recomendação para a publicação da demonstração; a forma de publicar continua em decisão |
 
 ## Decisões pendentes

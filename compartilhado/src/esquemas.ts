@@ -96,3 +96,37 @@ export const esquemaEncerramento = z.object({
 });
 
 export const esquemaCiencia = z.object({ nome: texto(200) });
+
+/* ---------- Gestão e administração ---------- */
+
+export const esquemaExportacao = z.object({
+  motivo: texto(1000),
+  de: z.string().max(10),
+  ate: z.string().max(10),
+  escolaId: z.string().max(100),
+  somenteCategoriaId: z.string().max(100),
+});
+
+export const esquemaRegra = z.object({
+  descricao: texto(500).optional(),
+  base: texto(300).optional(),
+  obrigatoria: z.boolean().optional(),
+});
+
+export const esquemaCategoria = z.object({ ativa: z.boolean(), nome: texto(120).optional() });
+
+export const esquemaModelo = z.object({ texto: texto(8000).optional() });
+
+export const esquemaContatos = z.object({
+  conselhoTutelar: texto(200),
+  cras: texto(200),
+  creas: texto(200),
+  delegacia: texto(200),
+  saude: texto(200),
+});
+
+export const esquemaNovaPessoa = z.object({
+  nome: texto(200),
+  tipo: z.enum(['estudante', 'profissional', 'familiar', 'outro']),
+  turma: texto(60).optional(),
+});

@@ -78,6 +78,18 @@ export type StatusCaso =
   | 'cancelado'
   | 'encaminhado_rede';
 
+/** Nome de cada situação, como aparece nas telas, nos relatórios e nas exportações. */
+export const nomeStatus: Record<StatusCaso, string> = {
+  rascunho: 'Rascunho',
+  recebido: 'Recebido',
+  em_triagem: 'Em triagem',
+  em_acompanhamento: 'Em acompanhamento',
+  encerrado: 'Encerrado',
+  duplicado: 'Duplicado',
+  cancelado: 'Cancelado',
+  encaminhado_rede: 'Encaminhado à rede',
+};
+
 export type Prioridade = 'urgente' | 'alta' | 'media' | 'baixa';
 
 export type Categoria = { id: string; redeId: RedeId; nome: string; ativa: boolean };

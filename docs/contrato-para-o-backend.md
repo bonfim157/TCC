@@ -4,7 +4,7 @@ Documento de entrega da fase F5. Descreve o que o front espera do servidor: rota
 
 Fonte da verdade dos tipos: [`compartilhado/src/contrato.ts`](../compartilhado/src/contrato.ts) (o front reexporta em `front/src/api/contract.ts`). Este documento cita os tipos pelo nome em vez de copiá-los, para não haver duas versões. Tudo o que está aqui vem do código em 29/09/2026; ao mudar o contrato, mude o arquivo de tipos e a API simulada juntos.
 
-Situação: **aguarda validação com o backend** (pendência 14).
+Situação: **implementado no servidor** (`servidor/src/`) em 30/09/2026, com os roteiros do front passando contra ele. As diferenças em relação à simulação estão marcadas nas tabelas.
 
 ## Convenções
 
@@ -32,7 +32,7 @@ Todo erro responde com `ApiErro`: `{ codigo, mensagem }`. A `mensagem` é mostra
 | 401 | `nao_autenticado` | Token ausente, inválido ou expirado. O front volta para a tela de entrada |
 | 403 | `sem_permissao` | Perfil sem acesso à rota ou ao recurso |
 | 403 | `rede_divergente` | Recurso ou escola de outra rede |
-| 404 | `nao_encontrado` | Recurso inexistente **ou de outra rede** quando a existência não deve vazar |
+| 404 | `nao_encontrado` | Recurso inexistente **ou de outra rede**. O servidor real responde 404 a um caso de outra rede, porque o banco nem mostra a linha (a simulação respondia 403 `rede_divergente`) |
 | 409 | `conflito` | Ação impossível no estado atual: caso encerrado, providências obrigatórias pendentes no encerramento |
 | 422 | `validacao` | Dado inválido; a mensagem diz qual campo corrigir |
 | 500 | `erro_interno` | Falha do servidor. O front oferece tentar de novo e não perde o que foi digitado |
@@ -77,7 +77,7 @@ Todas as ações abaixo exigem que a pessoa conduza casos na escola do caso e re
 | --- | --- | --- |
 | `GET /api/central/fila` | | `ItemDaFila[]` da escola ativa, com sinais: Conselho Tutelar pendente, devolutivas atrasadas, obrigatórias pendentes |
 | `GET /api/central/agenda` | | `ItemDaAgenda[]`: prazos do plano, devolutivas esperadas e reavaliações. Caso encerrado só aparece pela data de reavaliação |
-| `POST .../:id/triagem` | `PedidoTriagem` | Define prioridade, responsável e tipo; o caso passa a "Em acompanhamento" |
+| `POST .../:id/triagem` | `PedidoTriagem` | Define prioridade, responsável e tipo; o caso passa a "Em acompanhamento". O responsável precisa conduzir casos na escola do caso. Mudar o tipo troca as providências pendentes e mantém as já feitas |
 | `POST .../:id/providencias/:pid` | `PedidoProvidencia` | Dispensar exige observação ≥ 15 caracteres |
 | `POST .../:id/encaminhamentos` | `PedidoEncaminhamento` | Exige a data de devolutiva esperada. Encaminhar ao Conselho Tutelar cumpre a providência correspondente |
 | `POST .../:id/encaminhamentos/:eid/devolutiva` | `PedidoDevolutiva` | Texto ≥ 10 |
@@ -93,7 +93,7 @@ Todas as ações abaixo exigem que a pessoa conduza casos na escola do caso e re
 | Método e caminho | Envia | Recebe | Observações |
 | --- | --- | --- | --- |
 | `GET /api/ciencia/:token` | | `CienciaPublica` | Sem login. Só o texto enviado à família, sem nomes de terceiros. 404 com orientação se o link não vale |
-| `POST /api/ciencia/:token` | `{ nome }` | `CienciaPublica` | Registra quem confirmou e quando. Na produção o token precisa expirar e não pode ser adivinhável (pendência 20) |
+| `POST /api/ciencia/:token` | `{ nome }` | `{ ok: true }` | Registra quem confirmou e quando; a segunda confirmação responde 409. No servidor real o token tem 256 bits aleatórios, só o hash fica no banco e o link vale 30 dias. `linkCiencia` só vem preenchido em ambientes de demonstração; em produção o link segue por e-mail (pendência 20) |
 
 ### Busca, relatórios e auditoria
 
@@ -148,6 +148,8 @@ A matriz de menus por perfil (`front/src/state/perfis.ts`) deve bater com estas 
 - Link de ciência exibido na tela para a demonstração, em vez de enviado à família (pendência 20).
 - Atraso artificial de 150 a 500 ms em cada resposta.
 - `GET /api/diagnostico/falha`, que responde 500 de propósito para mostrar a tela de erro no Guia.
+
+No servidor real, o login de demonstração (`/api/redes/:id/usuarios-demo`, `POST /api/sessoes` com `usuarioId`), `POST /api/diagnostico/restaurar` (volta o banco ao seed) e `/api/diagnostico/falha` só respondem com `TCC_LOGIN_DEMO=1` e fora de produção.
 
 ## Atualização da fila
 

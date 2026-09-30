@@ -138,6 +138,33 @@ O que foi construído em cada fase e como foi verificado. As verificações fora
 
 **Ainda não feito**: publicar na Vercel (depende do login na conta e da decisão sobre o endereço público); rodar contra a Neon.
 
+## Back-end B3, B4 e B5 · Todas as rotas no servidor real, 30/09/2026
+
+**Construído**
+
+- `servidor/src/casos.ts`: caso completo montado das tabelas e as regras de acesso (quem conduz, só os próprios, nomes com visibilidade restrita), iguais às da simulação
+- B3 (`rotas/registro.ts`): pessoas, ocorrências (lista, criar, abrir), semelhantes, adendos, prazos. Protocolo por rede e ano com trava de linha; providências geradas das regras gravadas no banco
+- B4 (`rotas/central.ts`): fila, agenda, equipe, modelos e todas as ações do caso; página pública de ciência
+- B5 (`rotas/gestao.ts`): busca, relatórios, exportação, auditoria, administração da rede e da escola
+- Migrações 003 (horário real em eventos e auditoria, link de ciência para demonstração, tipos sensíveis) e 004 (`tokens_ciencia`)
+- `POST /api/diagnostico/restaurar` (fora de produção): os roteiros do front chamam antes de cada rodada
+- Esquemas Zod de todos os pedidos em `compartilhado/src/esquemas.ts`; nomes das situações em um só lugar (`nomeStatus`)
+
+**Encontrado e corrigido**
+
+- O banco local usava superusuário, que ignora a Row-Level Security. Com um dono comum, como o da Neon, apareceram dois erros que só surgiriam em produção: o seed gravava sem informar a rede, e a função que achava a rede pelo token de ciência não devolvia nada. Corrigidos; o banco local passou a usar sempre o dono comum
+- Horário dos eventos: `now()` é o início da transação, e dois eventos da mesma requisição empatavam. Passou a `clock_timestamp()`
+
+**Verificado**
+
+- `npm test`: 80 testes em 4 arquivos (isolamento, registro, Central, gestão)
+- Roteiros do front em modo real (`VITE_API=real`), com saída igual à da simulação: `f2-registro` duas vezes seguidas com resultado idêntico (protocolo 2026-000485, rascunho, duplicata, adendo, nomes restritos); `f3-central` (ofício ao CT, vazamento bloqueado, encerramento com ações canceladas, devolutiva, ciência); `f4-gestao` (68 casos, 10 de bullying, 5 grupos suprimidos, exportação auditada, protocolo editado pela secretaria, contato da direção usado no encaminhamento); `f4-regional` (23 casos, 14 e 9 por escola, nada da rede SP)
+- `f3-atualizacao` em modo real: sem o aviso entre abas (que só existe na demonstração), a fila se atualiza pela consulta de 30 s
+
+**Diferenças do servidor em relação à simulação** (registradas no contrato): caso de outra rede responde 404; ciência só é confirmada uma vez; responsável da triagem precisa conduzir casos na escola.
+
+**Não feito nestas fases**: envio real de anexos, e-mail às famílias e cadastro de responsáveis, consulta leve de mudanças, supressão complementar, login real (B2).
+
 ## Situação da última rodada de verificação
 
 29/09/2026: `npm run build`, `npm run contrast` e `npm run verificar` completo (F1, F2, F3, atualização, F4, regional e acessibilidade) passaram. O front está completo; o que falta é validação com pessoas, decisões da gestão e backend (ver Pendências).

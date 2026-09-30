@@ -10,7 +10,7 @@ on:
 jobs:
   verificar:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
 
@@ -34,11 +34,22 @@ jobs:
       - name: Navegador dos roteiros
         run: npx playwright install --with-deps chromium
 
-      - name: Roteiros no navegador (F1 a F5)
+      - name: Roteiros no navegador, com a API simulada (F1 a F5)
         run: |
           npm run dev > dev.log 2>&1 &
           for i in $(seq 1 60); do
             curl -sf -o /dev/null http://localhost:5173/ && break
+            sleep 1
+          done
+          npm run verificar
+          pkill -f vite || true
+
+      - name: Roteiros no navegador, contra o servidor real (banco local)
+        run: |
+          npm run dev:servidor > servidor.log 2>&1 &
+          VITE_API=real npm run dev > dev-real.log 2>&1 &
+          for i in $(seq 1 90); do
+            curl -sf -o /dev/null http://localhost:5173/api/saude && break
             sleep 1
           done
           npm run verificar

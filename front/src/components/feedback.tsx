@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useState, type ReactNode } from 'react';
-import type { Prioridade, StatusCaso } from '../api/contract';
+import { nomeStatus, type Prioridade, type StatusCaso } from '../api/contract';
 import type { EstadoCarga } from '../state/useApi';
 import { Botao } from './controles';
 import { IconeAtencao, IconeErro, IconeInfo, IconeOk, IconeSemConexao } from './icones';
@@ -31,16 +31,13 @@ export function Etiqueta({ tipo = 'neutra', children }: { tipo?: TipoEtiqueta; c
   return <span className={`etiqueta etiqueta-${tipo}`}>{children}</span>;
 }
 
-export const rotuloStatus: Record<StatusCaso, [string, TipoEtiqueta]> = {
-  rascunho: ['Rascunho', 'neutra'],
-  recebido: ['Recebido', 'info'],
-  em_triagem: ['Em triagem', 'atencao'],
-  em_acompanhamento: ['Em acompanhamento', 'info'],
-  encerrado: ['Encerrado', 'ok'],
-  duplicado: ['Duplicado', 'neutra'],
-  cancelado: ['Cancelado', 'neutra'],
-  encaminhado_rede: ['Encaminhado à rede', 'atencao'],
+const tipoStatus: Record<StatusCaso, TipoEtiqueta> = {
+  rascunho: 'neutra', recebido: 'info', em_triagem: 'atencao', em_acompanhamento: 'info',
+  encerrado: 'ok', duplicado: 'neutra', cancelado: 'neutra', encaminhado_rede: 'atencao',
 };
+export const rotuloStatus = Object.fromEntries(
+  (Object.keys(nomeStatus) as StatusCaso[]).map((s) => [s, [nomeStatus[s], tipoStatus[s]]]),
+) as Record<StatusCaso, [string, TipoEtiqueta]>;
 export const EtiquetaStatus = ({ status }: { status: StatusCaso }) => {
   const [texto, tipo] = rotuloStatus[status];
   return <Etiqueta tipo={tipo}>{texto}</Etiqueta>;

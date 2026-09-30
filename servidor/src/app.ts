@@ -7,6 +7,7 @@ import { carregarSeed } from './banco/seed';
 import { auditar, comContexto, escolasDoVinculo, vinculosDe } from './contexto';
 import { ErroApi, naoEncontrado, semPermissao } from './erros';
 import { rotasDaCentral } from './rotas/central';
+import { rotasDeGestao } from './rotas/gestao';
 import { rotasDeRegistro } from './rotas/registro';
 import { corpo } from './util';
 import { hashDoToken, novoToken } from './seguranca';
@@ -90,6 +91,12 @@ export function criarApp() {
     return c.json({ ok: true });
   });
 
+  /** Erro de propósito, para o Guia da interface mostrar a tela de falha. Só fora de produção. */
+  app.get('/diagnostico/falha', () => {
+    if (!loginDemoAtivo()) throw naoEncontrado('Esta função não existe neste ambiente.');
+    throw new ErroApi(500, 'erro_interno', 'O servidor não conseguiu concluir o pedido.');
+  });
+
   /* ---------- Cadastros da rede ---------- */
   app.get('/escolas', (c) => comContexto(c.req.raw.headers, async (db, ctx) => c.json(await escolasDoVinculo(db, ctx.vinculo))));
 
@@ -104,6 +111,7 @@ export function criarApp() {
 
   rotasDeRegistro(app);
   rotasDaCentral(app);
+  rotasDeGestao(app);
 
   return app;
 }
