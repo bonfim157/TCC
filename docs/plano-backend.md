@@ -12,27 +12,36 @@ Documentos relacionados:
 
 **Feito**
 
-- B0, parte local: workspaces (`front`, `servidor`, `compartilhado`), modo real no front (`VITE_API=real`), faixa de demonstração, GitHub Actions rodando e passando a cada push
-- B1: banco completo, papel da aplicação, Row-Level Security, auditoria só de inserção com cadeia de hashes, seed fictício, ponto de entrada da Vercel
-- B3: registro e acompanhamento (pessoas, ocorrências, semelhantes, adendos, prazos)
-- B4: Central de Gestão inteira e a página pública de ciência, com token guardado só como hash
-- B5: busca, relatórios com supressão, exportação com motivo, auditoria e administração gravada no banco
-- **Todas as rotas do contrato respondem pelo servidor real.** Os 7 roteiros do front passam em modo real, com o banco restaurado ao seed antes de cada um; 83 testes do servidor
+- B0, parte local: workspaces (`front`, `servidor`, `compartilhado`), modo real no front (`VITE_API=real`), faixa de demonstração, GitHub Actions rodando os roteiros nos dois modos a cada push
+- B1: banco completo, a API conecta como papel restrito (não é dona das tabelas), Row-Level Security, auditoria só de inserção com cadeia de hashes, seed fictício, ponto de entrada da Vercel
+- B2: login por e-mail e senha (Argon2id), segundo fator por aplicativo para perfis de gestão, sessão em cookie `HttpOnly`, bloqueio após 5 senhas erradas, senha temporária com troca obrigatória, telas de login no front, sessão expirada leva ao login sem perder rascunho, tabela de testes de todos os perfis contra todas as rotas
+- B3, B4 e B5: todas as rotas do contrato (registro, Central, ciência da família, busca, relatórios, auditoria, administração)
+- Caminho de produção testado: banco sem dados fictícios, carga inicial da IMSIL e conta criada pela linha de comando
+- 118 testes do servidor; os 8 roteiros do front passam contra o servidor real
 
 **Falta, em ordem**
 
-1. **B0, publicação**: fazer `vercel login` (digite `! npx vercel login` no Claude Code), criar o projeto na Vercel ligado ao repositório e decidir como publicar a demonstração (ver Decisões pendentes)
-2. **B1, banco na nuvem**: criar o banco Neon em São Paulo pela Vercel Marketplace e definir **duas** conexões:
-   - `DATABASE_URL`: a que a API usa. Precisa ser de um papel com login que **não é dono** das tabelas e é membro de `app_tcc` (criar na Neon: `create role app_login login password '...' in role app_tcc`). É a única definida em produção
-   - `DATABASE_URL_DONO`: a do dono do banco, usada só para migrações e seed. Definida em previews e na integração contínua; em produção, só no passo de migração, nunca nas funções da API
-   - depois, rodar migrações e seed num preview e repetir os testes contra a Neon
-3. **B2, login e acesso** (3 semanas): senha com Argon2id, segundo fator (TOTP), sessão em cookie `HttpOnly`, telas de login no front, matriz de permissões vinda do banco e editável (pendência 25), tabela de testes perfil × rota. Hoje o servidor só tem o login de demonstração, que não existe em produção: **sem a B2 ninguém entra no ambiente de produção**
+1. **Publicação (precisa de você)**: `! npx vercel login`, criar o projeto na Vercel ligado ao repositório, decidir como publicar a demonstração (ver Decisões pendentes). Variáveis de ambiente na Vercel:
+   - produção: `VITE_API=real`, `DATABASE_URL`, `TCC_CHAVE_SEGREDOS` (32 bytes em base64; gere com `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`)
+   - previews: as mesmas, mais `DATABASE_URL_DONO` e `TCC_LOGIN_DEMO=1`. Ligue a proteção de previews da Vercel: com essas duas variáveis, quem tiver o endereço entra como qualquer pessoa fictícia e pode restaurar o banco do preview
+   - demonstração só com a API simulada: nenhuma variável
+2. **Banco na nuvem**: criar o banco Neon em São Paulo pela Vercel Marketplace e definir **duas** conexões:
+   - `DATABASE_URL`: a que a API usa. Precisa ser de um papel com login que **não é dono** das tabelas e é membro de `app_tcc` (criar na Neon depois das migrações: `create role app_login login password '...' in role app_tcc`)
+   - `DATABASE_URL_DONO`: a do dono do banco, usada só para migrações, seed e criação de contas. Em produção, só na máquina de quem administra, nunca nas funções da API
+   - depois: `npm run cli -w servidor -- migrar`, `... -- carga-inicial --rede rede-sp`, `... -- conta --nome ... --email ... --rede rede-sp --perfil direcao --escola esc-imsil`
+   - repetir `npm test` e os roteiros contra a Neon
+3. **O que ficou da B2**:
+   - matriz de permissões lida do banco e editável (pendência 25); hoje as regras estão no código do servidor e são conferidas pela tabela de testes
+   - recuperação de senha por e-mail (depende do serviço de e-mail); por enquanto, quem administra cria outra senha temporária
+   - QR code no cadastro do segundo fator (hoje a chave é digitada ou aberta por link no celular)
+   - login com a conta institucional da Seduc-SP (pendência 16), quando houver autorização
+   - o servidor não obriga a troca da senha temporária: quem obriga é a tela
 4. **O que ficou das fases B3 a B5**, tudo dependente de contas ou decisões:
    - envio real de anexos (Vercel Blob privado) e a tela de envio no front
    - cadastro de responsáveis e envio de e-mail às famílias (escolher o serviço de e-mail)
    - consulta leve de mudanças para a Central (hoje são 3 chamadas a cada 30 s por aba)
    - supressão complementar nos relatórios (pendência 31, decisão do encarregado de dados)
-5. **B6 e B7**: tarefa diária, limites de requisição, cabeçalhos de segurança, revisão ASVS, homologação e piloto (ver Fases)
+5. **B6 e B7**: tarefa diária, limites de requisição por endereço, cabeçalhos de segurança (CSP, HSTS), revisão ASVS, homologação e piloto (ver Fases)
 
 **Como retomar em outra máquina**
 
@@ -45,6 +54,8 @@ npm run dev:servidor           # terminal 1: API em http://localhost:3000/api
 VITE_API=real npm run dev      # terminal 2: front usando o servidor
 npm run dev                    # ou: só a demonstração, com API simulada
 ```
+
+No modo real em desenvolvimento, a tela de entrada mostra as pessoas fictícias (login de demonstração). O login por senha fica em `/entrar?modo=senha`: qualquer pessoa fictícia entra com `<primeiro nome>@demo.tcc` (por exemplo `ana@demo.tcc`, `carlos@demo.tcc`) e a senha `demonstracao-2026`. Para perfis de gestão, o código do segundo fator vem do segredo `JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP`, que pode ser cadastrado em qualquer aplicativo autenticador. Esses valores só existem no seed e nunca vão para produção.
 
 Para os roteiros do navegador: `npx playwright install chromium` uma vez, e `npm run verificar` com o front rodando. Os roteiros funcionam nos dois modos: na simulação e contra o servidor real (eles restauram o banco ao seed antes de começar).
 
@@ -282,6 +293,10 @@ Todas as pendências abertas em [Pendências](pendencias.md), com a fase que res
 | 29/09/2026 | Arquitetura deste plano aprovada para execução | Usuário: "vamos implementar o plano de back-end agora mesmo, pode começar" |
 | 29/09/2026 | SQL direto com `pg` no lugar do Drizzle | Segurança do banco é toda em SQL; menos dependências |
 | 29/09/2026 | PGlite para desenvolvimento e testes, no lugar de Docker | Máquina com pouca memória livre; teste prévio confirmou papéis, Row-Level Security, `set_config` local e permissões |
+| 30/09/2026 | Senhas com Argon2id pela biblioteca `hash-wasm` (WebAssembly) | Sem binário nativo: roda igual no computador de desenvolvimento e nas funções da Vercel |
+| 30/09/2026 | Segundo fator (TOTP) obrigatório para todos os perfis, menos professor e apoio | Quem conduz casos, vê relatórios ou administra acessa dados sensíveis; quem só registra vê apenas o que escreveu |
+| 30/09/2026 | Segredo do segundo fator cifrado com chave fora do banco (`TCC_CHAVE_SEGREDOS`) | Quem copiar o banco não consegue gerar códigos |
+| 30/09/2026 | Contas criadas pela linha de comando, com senha temporária entregue em mãos | Não há serviço de e-mail ainda; a criação de contas pela tela fica para depois |
 | 30/09/2026 | Conexões separadas: a API como papel restrito, migrações e seed como dono | Na B1 a aplicação conectava como dona e só trocava de papel dentro das transações; código fora delas teria poder de dono. Corrigido antes do login real, que depende de a aplicação não ler o hash de senha |
 | 30/09/2026 | Protocolo numerado por rede e por ano, também na simulação | O servidor recomeça de 1 a cada ano; a simulação continuava a contagem |
 | 30/09/2026 | Banco local com dono sem superusuário | O superusuário ignora a Row-Level Security e escondia dois erros que só apareceriam na Neon (seed e busca do token de ciência) |

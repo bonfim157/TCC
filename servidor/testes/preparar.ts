@@ -5,12 +5,12 @@ import { carregarSeed } from '../src/banco/seed';
 import { criarApp } from '../src/app';
 
 /** Banco local novo, com migrações e dados fictícios, e a API pronta para receber pedidos. */
-export async function prepararAmbiente() {
+export async function prepararAmbiente(opcoes: { semSeed?: boolean } = {}) {
   process.env.TCC_LOGIN_DEMO = '1';
   const local = await iniciarBancoLocal();
   const pool = configurarBanco(local.url, { max: 1, donoLocal: DONO_LOCAL });
   await migrar();
-  await carregarSeed();
+  if (!opcoes.semSeed) await carregarSeed();
   const app = criarApp();
 
   const pedir = (caminho: string, init: RequestInit & { cabecalhos?: Record<string, string> } = {}) =>

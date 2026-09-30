@@ -47,7 +47,7 @@ async function usuarioDaSessao(c: Cliente, token: string | null) {
   if (!token) return null;
   const s = await c.query<{ id: string; nome: string }>(
     `select u.id, u.nome from sessoes s join usuarios u on u.id = s.usuario_id
-      where s.token_hash = $1 and s.expira_em > now()`,
+      where s.token_hash = $1 and s.expira_em > now() and not s.mfa_pendente`,
     [hashDoToken(token)],
   );
   return s.rows[0] ?? null;

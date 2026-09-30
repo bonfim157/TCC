@@ -1,7 +1,10 @@
 import { comoDono, type Cliente } from './conexao';
+import { cifrar } from '../cifra';
+import { exigeSegundoFator } from '../rotas/acesso';
 import { hashDoToken } from '../seguranca';
+import { hashDaSenha } from '../senha';
 import { modelos, regras } from '@tcc/compartilhado/protocolo';
-import { categorias, categoriasSensiveis, contatos, escolas, ocorrencias, pessoas, redes, regionais, usuarios } from '@tcc/compartilhado/seed';
+import { acessoDemo, categorias, categoriasSensiveis, contatos, escolas, ocorrencias, pessoas, redes, regionais, usuarios } from '@tcc/compartilhado/seed';
 
 /*
  * Carrega os dados fictícios da demonstração (os mesmos da API simulada).
@@ -12,7 +15,7 @@ import { categorias, categoriasSensiveis, contatos, escolas, ocorrencias, pessoa
 
 /** Tabelas com dados, na ordem em que podem ser esvaziadas (filhas antes das mães). */
 const TABELAS = [
-  'tokens_ciencia', 'auditoria', 'sessoes', 'comunicacoes', 'acoes_plano', 'encaminhamentos', 'providencias', 'eventos', 'anexos',
+  'tentativas_login', 'fatores_mfa', 'tokens_ciencia', 'auditoria', 'sessoes', 'comunicacoes', 'acoes_plano', 'encaminhamentos', 'providencias', 'eventos', 'anexos',
   'envolvimentos', 'ocorrencias', 'contadores_protocolo', 'responsaveis', 'pessoas', 'contatos_locais',
   'modelos_comunicacao', 'regras_protocolo', 'categorias', 'vinculo_escolas', 'vinculos', 'usuarios', 'escolas',
   'regionais', 'redes',
@@ -49,8 +52,16 @@ async function semear(c: Cliente) {
     for (const e of escolas) await ins('escolas', { id: e.id, rede_id: e.redeId, regional_id: e.regionalId, nome: e.nome, sigla: e.sigla ?? null, municipio: e.municipio, bairro: e.bairro });
 
     await ins('usuarios', { id: 'u-historico', nome: 'Registro histórico' });
+    // Login real das pessoas fictícias: mesma senha para todas e, para quem é de gestão,
+    // segundo fator já cadastrado com um segredo conhecido (os roteiros geram o código).
+    const senhaHash = await hashDaSenha(acessoDemo.senha);
+    const segredo = cifrar(acessoDemo.segredoTotp);
     for (const u of usuarios) {
-      await ins('usuarios', { id: u.id, nome: u.nome });
+      await ins('usuarios', { id: u.id, nome: u.nome, email: acessoDemo.email(u.id), senha_hash: senhaHash });
+      if (exigeSegundoFator(u.vinculos)) {
+        await c.query(`select set_config('app.usuario_id', $1, true)`, [u.id]);
+        await ins('fatores_mfa', { usuario_id: u.id, segredo_cifrado: segredo, confirmado_em: '2026-09-01T08:00:00-03:00' });
+      }
       for (const v of u.vinculos) {
         const id = `${u.id}@${v.redeId}`;
         await ins('vinculos', { id, usuario_id: u.id, rede_id: v.redeId, perfil: v.perfil, regional_id: v.regionalId ?? null });

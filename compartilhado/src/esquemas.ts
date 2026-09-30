@@ -130,3 +130,9 @@ export const esquemaNovaPessoa = z.object({
   tipo: z.enum(['estudante', 'profissional', 'familiar', 'outro']),
   turma: texto(60).optional(),
 });
+
+/* ---------- Login ---------- */
+
+export const esquemaEntrar = z.object({ email: z.string().max(200), senha: z.string().max(200) });
+export const esquemaSegundoFator = z.object({ codigo: z.string().max(12) });
+export const esquemaTrocaDeSenha = z.object({ atual: z.string().max(200), nova: z.string().max(200) });

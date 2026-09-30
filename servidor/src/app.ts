@@ -2,10 +2,11 @@ import { Hono } from 'hono';
 import type { Categoria, Rede, Sessao, Usuario } from '@tcc/compartilhado/contrato';
 import { esquemaNovaSessao } from '@tcc/compartilhado/esquemas';
 import { loginDemoAtivo } from './ambiente';
-import { banco, naRede, temDono } from './banco/conexao';
+import { banco, comoDono, naRede, temDono } from './banco/conexao';
 import { carregarSeed } from './banco/seed';
 import { auditar, comContexto, escolasDoVinculo, vinculosDe } from './contexto';
 import { ErroApi, naoEncontrado, semPermissao } from './erros';
+import { rotasDeAcesso } from './rotas/acesso';
 import { rotasDaCentral } from './rotas/central';
 import { rotasDeGestao } from './rotas/gestao';
 import { rotasDeRegistro } from './rotas/registro';
@@ -88,6 +89,19 @@ export function criarApp() {
   app.post('/diagnostico/restaurar', async (c) => {
     if (!loginDemoAtivo() || !temDono()) throw naoEncontrado('Esta função não existe neste ambiente.');
     await carregarSeed();
+    // Para testar o primeiro acesso de um perfil de gestão: tira o segundo fator de uma pessoa fictícia.
+    const semSegundoFator = c.req.query('semSegundoFator');
+    if (semSegundoFator) {
+      await comoDono(async (db) => {
+        await db.query('begin');
+        await db.query(`select set_config('app.usuario_id', $1, true)`, [semSegundoFator]);
+        await db.query('delete from fatores_mfa where usuario_id = $1', [semSegundoFator]);
+        await db.query('commit');
+      });
+    }
+    // Para testar a troca obrigatória de senha: marca a senha de uma pessoa fictícia como temporária.
+    const senhaTemporaria = c.req.query('senhaTemporaria');
+    if (senhaTemporaria) await comoDono((db) => db.query('update usuarios set senha_temporaria = true where id = $1', [senhaTemporaria]));
     return c.json({ ok: true });
   });
 
@@ -109,6 +123,7 @@ export function criarApp() {
     }),
   );
 
+  rotasDeAcesso(app);
   rotasDeRegistro(app);
   rotasDaCentral(app);
   rotasDeGestao(app);

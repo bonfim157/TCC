@@ -52,6 +52,7 @@ export function BarraDeContexto() {
         </div>
       )}
 
+      {s.demonstracao && (
       <div className="contexto-item contexto-demo">
         <label htmlFor={`${id}-perfil`}>Ver como (demonstração)</label>
         <select
@@ -65,6 +66,7 @@ export function BarraDeContexto() {
           ))}
         </select>
       </div>
+      )}
 
       <DialogoConfirmacao
         aberto={pendente !== null}

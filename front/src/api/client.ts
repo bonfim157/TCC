@@ -9,6 +9,15 @@ type Credenciais = { token: string | null; redeId: string | null; escolaId: stri
 let credenciais: Credenciais = { token: null, redeId: null, escolaId: null };
 let semConexaoSimulada = false;
 
+/** O front fala com o servidor real (VITE_API=real) ou com a API simulada no navegador? */
+export const apiReal = import.meta.env.VITE_API === 'real';
+
+/** Chamado quando o servidor responde 401 a uma pessoa que estava logada: a sessão expirou. */
+let aoExpirar: (() => void) | null = null;
+export function aoExpirarSessao(fn: (() => void) | null) {
+  aoExpirar = fn;
+}
+
 export function configurarCliente(c: Partial<Credenciais>) {
   credenciais = { ...credenciais, ...c };
 }
@@ -45,6 +54,10 @@ export async function api<T>(caminho: string, init: RequestInit = {}): Promise<T
   } catch {
     throw new FalhaDeRede();
   }
+
+  // Sessão vencida no meio do uso: avisa o provedor de sessão, que leva ao login.
+  // As rotas de login respondem 401 para senha errada e não contam como expiração.
+  if (resposta.status === 401 && !caminho.startsWith('/api/entrar') && caminho !== '/api/sessao') aoExpirar?.();
 
   if (!resposta.ok) {
     const dados = (await resposta.json().catch(() => ({

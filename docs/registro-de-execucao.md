@@ -167,6 +167,26 @@ O que foi construído em cada fase e como foi verificado. As verificações fora
 
 **Não feito nestas fases**: envio real de anexos, e-mail às famílias e cadastro de responsáveis, consulta leve de mudanças, supressão complementar, login real (B2).
 
+## Back-end B2 · Login e acesso, 30/09/2026
+
+**Construído**
+
+- Migrações 005 (segundo fator, tentativas de login, sessão pendente) e 006 (senha temporária)
+- `servidor/src/senha.ts` (Argon2id), `totp.ts` (RFC 6238), `cifra.ts` (AES-256-GCM para o segredo do segundo fator), `rotas/acesso.ts` (entrar, segundo fator, sessão, trocar senha, sair)
+- `servidor/src/administrar.ts` e `cli.ts`: migrar, carga inicial de uma rede real sem dados fictícios, criar conta com senha temporária
+- Front: tela de login por senha em três etapas (credenciais, código ou cadastro do segundo fator, troca da senha temporária), sessão recuperada pelo cookie ao abrir outra aba, aviso de sessão expirada, seletor "ver como" só em ambiente de demonstração
+- Pedidos com corpo precisam declarar JSON, o que impede envio por formulário de outro site
+
+**Verificado**
+
+- `npm test`: 118 testes em 6 arquivos. Dos novos: senha errada e e-mail inexistente dão a mesma resposta; bloqueio após 5 erros e liberação depois de 15 minutos; só a senha não dá acesso a nada para perfis de gestão; código errado recusado e auditado; primeiro acesso cadastra o segundo fator; segredo cifrado e alcançável só pela própria pessoa; sair apaga a sessão; trocar a senha encerra as outras sessões; **tabela de 8 perfis contra 13 rotas de leitura e 4 ações de escrita**, e nenhuma rota de dados responde sem sessão
+- Caminho de produção: com o banco só com migrações, a carga inicial cria a rede SP e a IMSIL sem pessoas nem casos; a conta da direção criada por comando entra com senha temporária, cadastra o segundo fator, troca a senha e registra o caso 000001
+- O vetor de teste oficial do TOTP (RFC 6238) confere
+- `f6-login.mjs` no navegador: erros do formulário, senha errada, professora entra, **nenhum token guardado no navegador**, cookie `HttpOnly` que a página não lê, outra aba recupera a sessão, sessão vencida leva ao login com aviso, coordenação só entra com o código, sair apaga o cookie, cadastro do segundo fator em 360px sem rolagem lateral, troca da senha temporária; acessibilidade das telas de login sem violações
+- Roteiros F1 a F5 em modo real continuam passando (180 verificações de acessibilidade sem violação)
+
+**Limitações conhecidas**: sem recuperação de senha por e-mail; sem QR code; a obrigação de trocar a senha temporária é da tela, não do servidor; o mesmo código do segundo fator pode ser reutilizado dentro dos seus 30 segundos.
+
 ## Situação da última rodada de verificação
 
 29/09/2026: `npm run build`, `npm run contrast` e `npm run verificar` completo (F1, F2, F3, atualização, F4, regional e acessibilidade) passaram. O front está completo; o que falta é validação com pessoas, decisões da gestão e backend (ver Pendências).

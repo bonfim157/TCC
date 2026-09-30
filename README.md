@@ -36,6 +36,8 @@ VITE_API=real npm run dev      # front usando o servidor
 npm test                       # testes do servidor
 ```
 
+No modo real, o login por e-mail e senha fica em `/entrar?modo=senha` (pessoas fictícias: `ana@demo.tcc`, `carlos@demo.tcc`..., senha `demonstracao-2026`). Detalhes em [`docs/plano-backend.md`](docs/plano-backend.md).
+
 Detalhes, verificação e estrutura em [`front/README.md`](front/README.md).
 
 ## Situação

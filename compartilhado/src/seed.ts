@@ -369,3 +369,15 @@ export const contatos: import('./contrato').ContatosLocais[] = [
   { escolaId: 'esc-teste', conselhoTutelar: 'Conselho Tutelar Fictício', cras: 'CRAS Fictício', creas: 'CREAS Fictício', delegacia: 'Delegacia Fictícia', saude: 'UBS Fictícia' },
   { escolaId: 'esc-teste-2', conselhoTutelar: 'Conselho Tutelar Fictício', cras: 'CRAS Fictício da Vila Nova', creas: 'CREAS Fictício', delegacia: 'Delegacia Fictícia', saude: 'UBS Fictícia da Vila Nova' },
 ];
+
+/**
+ * Acesso das pessoas fictícias pelo login real (e-mail, senha e segundo fator),
+ * em desenvolvimento, testes e previews. Não tem valor fora desses ambientes:
+ * produção nunca recebe o seed.
+ */
+export const acessoDemo = {
+  email: (usuarioId: string) => `${usuarioId.replace(/^u-/, '')}@demo.tcc`,
+  senha: 'demonstracao-2026',
+  /** Segredo do segundo fator, igual para todas as pessoas fictícias de gestão. */
+  segredoTotp: 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
+};

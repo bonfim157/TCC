@@ -37,8 +37,8 @@ Tudo o que ficou para depois de o front estar completo, em um só lugar. Atualiz
 | # | Pendência | Fase | Depende de | Situação | Notas |
 | --- | --- | --- | --- | --- | --- |
 | 14 | Validar o contrato de dados (`compartilhado/src/contrato.ts`) com a equipe de backend | F1 | Backend | Resolvida | 30/09/2026: o servidor implementa o contrato inteiro; os roteiros do front passam contra ele |
-| 15 | Controle de acesso aplicado no servidor real, com a mesma matriz do front | Todas | Backend | Em andamento | 30/09/2026: regras de acesso e Row-Level Security no servidor, com testes. Falta a matriz vinda do banco (B2) |
-| 16 | Login com a conta institucional da rede, com MFA para perfis de gestão | F1 | Seduc-SP e backend | Aberta | |
+| 15 | Controle de acesso aplicado no servidor real, com a mesma matriz do front | Todas | Backend | Resolvida | 30/09/2026: regras de acesso no servidor, Row-Level Security no banco e tabela de testes de todos os perfis contra todas as rotas. A matriz editável é a pendência 25 |
+| 16 | Login com a conta institucional da rede, com MFA para perfis de gestão | F1 | Seduc-SP e backend | Em andamento | 30/09/2026: login próprio com senha e segundo fator (TOTP) para perfis de gestão. Falta a conta institucional, que depende da Seduc-SP |
 | 17 | Relação com o Conviva SP: lançamento manual com código (atual) ou integração | F3 | Seduc-SP | Aberta | |
 | 18 | Anexos reais em armazenamento privado, com verificação de arquivo | F2 | Backend | Aberta | Servidor guarda os metadados; o arquivo depende do armazenamento na Vercel |
 | 19 | Rascunhos em aparelho compartilhado: prazo de expiração ou rascunho no servidor | F2 | Backend e direção | Aberta | Hoje ficam no navegador até enviar ou descartar |
@@ -52,10 +52,13 @@ Tudo o que ficou para depois de o front estar completo, em um só lugar. Atualiz
 | 22 | Atualização automática da fila quando outra pessoa altera um caso | F3 | Resolvida | 29/09/2026: fila, agenda e caso aberto recarregam a cada 30 s e ao voltar à aba, sem fechar diálogos; `f3-atualizacao.mjs` |
 | 23 | Encerrar caso com ações do plano ainda abertas: decidir se cancela ou mantém | F3 | Resolvida no front | 29/09/2026: quem encerra precisa confirmar o cancelamento das ações abertas, que fica na linha do tempo. Validar a regra com a direção da IMSIL |
 | 24 | Rodar de novo `npm run verificar` completo (F3 e F4) depois das últimas mudanças | F4 | Resolvida | 29/09/2026: F1 a F4 passaram; ver Registro de execução |
-| 25 | Edição da matriz de permissões | F4 | Aberta (backend) | Hoje só consulta. Editar só na tela mostraria permissões que o servidor recusa; depende de o servidor ler as permissões de um cadastro |
+| 25 | Edição da matriz de permissões | F4 | Aberta | Hoje só consulta. O servidor aplica as regras pelo código, conferidas por testes; falta ler as permissões de um cadastro editável pela secretaria |
 | 26 | Testar a visão da regional com mais de uma escola | F4 | Resolvida | 29/09/2026: rede de testes com duas escolas fictícias e Rita Moraes (regional); relatório ganhou quebra por escola; `f4-regional.mjs` |
 | 27 | Configurações da administração (protocolo, modelos, contatos) persistem só no navegador da demonstração | F4 | Resolvida no servidor | 30/09/2026: protocolo, tipos, modelos, contatos e pessoas gravados no banco. Na demonstração simulada continuam no navegador |
 | 28 | Remover o componente `EmConstrucao` e o campo `fase` da navegação, que não são mais usados | F4 | Resolvida | 29/09/2026 |
 | 29 | Auditoria automática de acessibilidade | F5 | Resolvida | 29/09/2026: 45 verificações em cada uma das 4 combinações de tema (claro, escuro) e largura (360, 1440px), 180 no total, sem violação WCAG A/AA. Contraste de texto sobre elementos sobrepostos fica inconclusivo no axe; coberto por `npm run contrast` |
 | 30 | Bloqueio de nome de outro estudante na comunicação à família também no servidor | F3 | Resolvida | 30/09/2026: o servidor real também recusa e audita |
 | 31 | Supressão complementar nos relatórios | F4 | Aberta | Com só um grupo suprimido, o total menos os outros grupos revela o número escondido (vale para tipos, meses e escolas). Decidir com o encarregado de dados se suprime também um segundo grupo ou se mostra o total arredondado |
+| 32 | Recuperação de senha por e-mail e criação de contas pela tela | B2 | Aberta | Hoje quem administra cria a conta e a senha temporária pela linha de comando (`npm run cli -w servidor -- conta ...`). Depende do serviço de e-mail |
+| 33 | QR code no cadastro do segundo fator | B2 | Aberta | Hoje a chave é digitada no aplicativo ou aberta por link no celular |
+| 34 | Texto do rodapé e da faixa para o piloto real | B7 | Aberta | Hoje dizem "protótipo acadêmico"; definir com a gestão o texto para quando houver dados reais |

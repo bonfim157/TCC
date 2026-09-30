@@ -68,6 +68,25 @@ export type Usuario = {
 export type NovaSessao = { redeId: RedeId; usuarioId: string };
 export type Sessao = { token: string; usuario: Usuario };
 
+/* ---------- Login real (servidor) ---------- */
+
+export type PedidoEntrar = { email: string; senha: string };
+export type PedidoSegundoFator = { codigo: string };
+export type PedidoTrocaDeSenha = { atual: string; nova: string };
+
+/**
+ * Resposta do login. A sessão fica num cookie HttpOnly, que a página não lê.
+ * Perfis de gestão precisam do segundo fator (código do aplicativo autenticador);
+ * no primeiro acesso, o servidor devolve o segredo para cadastrar no aplicativo.
+ */
+export type RespostaEntrar =
+  | { etapa: 'pronto'; usuario: Usuario; trocarSenha?: boolean } // trocarSenha: a senha é temporária
+  | { etapa: 'segundo_fator' }
+  | { etapa: 'cadastrar_segundo_fator'; segredo: string; uri: string };
+
+/** O que este ambiente oferece. `loginDemo` só é verdadeiro em desenvolvimento e previews. */
+export type Ambiente = { loginDemo: boolean };
+
 export type StatusCaso =
   | 'rascunho'
   | 'recebido'
@@ -398,6 +417,12 @@ export const rotas = {
   redes: '/api/redes',
   usuariosDemo: (redeId: RedeId) => `/api/redes/${redeId}/usuarios-demo`,
   sessoes: '/api/sessoes',
+  ambiente: '/api/ambiente',
+  entrar: '/api/entrar',
+  segundoFator: '/api/entrar/segundo-fator',
+  sessao: '/api/sessao',
+  sair: '/api/sair',
+  senha: '/api/senha',
   escolas: '/api/escolas',
   categorias: '/api/categorias',
   ocorrencias: '/api/ocorrencias',

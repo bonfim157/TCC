@@ -58,6 +58,21 @@ Caminhos em `rotas` no arquivo de contrato. "Conduz" = coordenação, direção 
 
 \* A simulação não restringe estas três rotas por perfil. Recomendação para o servidor real: `/api/pessoas` só para quem registra ou conduz; `/api/equipe` e `/api/modelos` só para quem conduz.
 
+### Login real (só no servidor)
+
+A API simulada não tem estas rotas; nela o login é sempre o de demonstração. No servidor real, a sessão fica num cookie `sessao` (`HttpOnly`, `SameSite=Lax`, `Secure` na Vercel, 8 horas) que a página não lê. O cabeçalho `Authorization` continua aceito, para o login de demonstração.
+
+| Método e caminho | Envia | Recebe | Observações |
+| --- | --- | --- | --- |
+| `GET /api/ambiente` | | `Ambiente` | `loginDemo` diz se o ambiente tem o login de demonstração (nunca em produção) |
+| `POST /api/entrar` | `PedidoEntrar` | `RespostaEntrar` | Senha errada e e-mail inexistente respondem o mesmo 401. Depois de 5 erros em 15 minutos, 403 por 15 minutos. Perfis de gestão recebem `segundo_fator` ou, no primeiro acesso, `cadastrar_segundo_fator` com o segredo; até confirmar o código, a sessão não dá acesso a nada |
+| `POST /api/entrar/segundo-fator` | `PedidoSegundoFator` | `RespostaEntrar` | Código TOTP de 6 dígitos, com tolerância de 30 s para mais ou para menos |
+| `GET /api/sessao` | | `{ usuario }` | Para a página se recuperar ao recarregar ou abrir outra aba; 401 sem sessão completa |
+| `POST /api/senha` | `PedidoTrocaDeSenha` | `{ ok }` | Exige a senha atual; mínimo de 12 caracteres; encerra as outras sessões da pessoa |
+| `POST /api/sair` | | `{ ok }` | Apaga a sessão no servidor e o cookie |
+
+Entradas, recusas e trocas de senha ficam na auditoria de cada rede em que a pessoa atua. Todo pedido com corpo precisa vir como `application/json`.
+
 ### Registro e acompanhamento
 
 | Método e caminho | Quem | Envia | Recebe | Observações |

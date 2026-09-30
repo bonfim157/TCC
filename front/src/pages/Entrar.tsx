@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { api, ErroDaApi, FalhaDeRede } from '../api/client';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { api, apiReal, ErroDaApi, FalhaDeRede } from '../api/client';
 import { rotas, type Usuario } from '../api/contract';
 import { Botao, GrupoOpcoes } from '../components/controles';
 import { Aviso, Esqueleto } from '../components/feedback';
@@ -8,12 +8,43 @@ import { Timbre } from '../layout/Estrutura';
 import { MenuAparencia } from '../layout/MenuAparencia';
 import { nomePerfil } from '../state/perfis';
 import { useSessao } from '../state/sessao';
+import { EntrarComSenha } from './EntrarComSenha';
 
 /**
- * Tela 1: login simulado. A rede vem do endereço (subdomínio ou ?rede=)
- * quando possível; senão a pessoa escolhe. O timbre muda com a escolha.
+ * Tela 1: entrar. Com a API simulada, e no servidor real fora de produção, a
+ * pessoa escolhe alguém fictício (demonstração). No servidor real, o login é
+ * por e-mail e senha; em ambiente de demonstração ele fica em /entrar?modo=senha.
  */
 export function Entrar() {
+  const s = useSessao();
+  const [parametros] = useSearchParams();
+  const porSenha = apiReal && (!s.demonstracao || parametros.get('modo') === 'senha');
+  return (
+    <div className="tela-avulsa">
+      <Timbre>
+        <MenuAparencia />
+      </Timbre>
+      <main id="conteudo">
+        {s.conferindoSessao ? (
+          <div className="pagina entrar"><Esqueleto rotulo="Conferindo seu acesso" /></div>
+        ) : porSenha ? (
+          <EntrarComSenha />
+        ) : (
+          <EntrarDemonstracao />
+        )}
+      </main>
+      <footer className="rodape">
+        Protótipo acadêmico (TCC), sem vínculo oficial com a Secretaria da Educação.{s.demonstracao ? ' Pessoas e casos são fictícios.' : ''}
+      </footer>
+    </div>
+  );
+}
+
+/**
+ * Login de demonstração. A rede vem do endereço (subdomínio ou ?rede=)
+ * quando possível; senão a pessoa escolhe. O timbre muda com a escolha.
+ */
+function EntrarDemonstracao() {
   const s = useSessao();
   const navegar = useNavigate();
   const [redeId, setRedeId] = useState<string | null>(null);
@@ -70,11 +101,6 @@ export function Entrar() {
   }
 
   return (
-    <div className="tela-avulsa">
-      <Timbre>
-        <MenuAparencia />
-      </Timbre>
-      <main id="conteudo">
         <form className="pagina entrar" onSubmit={enviar} noValidate>
           <div className="pagina-cabeca">
             <h1>Entrar</h1>
@@ -86,6 +112,11 @@ export function Entrar() {
             acesso será pela conta institucional da rede.
           </Aviso>
 
+          {s.sessaoExpirada && (
+            <Aviso tipo="atencao" titulo="Sua sessão expirou">
+              Entre de novo para continuar. O que você estava escrevendo ficou salvo como rascunho neste aparelho.
+            </Aviso>
+          )}
           {erros.envio && <Aviso tipo="erro" titulo="Não foi possível entrar">{erros.envio}</Aviso>}
 
           {s.redes.length === 0 ? (
@@ -126,9 +157,9 @@ export function Entrar() {
           <div>
             <Botao type="submit" carregando={enviando}>Entrar</Botao>
           </div>
+          {apiReal && (
+            <p className="nota-rodape"><Link to="/entrar?modo=senha">Entrar com e-mail e senha</Link></p>
+          )}
         </form>
-      </main>
-      <footer className="rodape">Protótipo acadêmico (TCC), sem vínculo oficial com a Secretaria da Educação. Pessoas e casos são fictícios.</footer>
-    </div>
   );
 }

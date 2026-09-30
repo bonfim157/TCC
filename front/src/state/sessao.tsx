@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { api, configurarCliente } from '../api/client';
-import { rotas, type Escola, type Perfil, type Rede, type Sessao, type Vinculo } from '../api/contract';
+import { aoExpirarSessao, api, apiReal, configurarCliente } from '../api/client';
+import { rotas, type Ambiente, type Escola, type Perfil, type Rede, type Sessao, type Usuario, type Vinculo } from '../api/contract';
 import { useTemaDaRede } from './preferencias';
 
 type EstadoSessao = {
@@ -14,6 +14,17 @@ type EstadoSessao = {
   escola: Escola | null;
   carregandoEscolas: boolean;
   entrar: (redeId: string, usuarioId: string) => Promise<void>;
+  /** Conclui o login por senha: a sessão está no cookie; aqui só guardamos quem é a pessoa. */
+  entrarComUsuario: (usuario: Usuario) => void;
+  /**
+   * Ambiente de demonstração: login escolhendo uma pessoa fictícia e seletor "ver como".
+   * Sempre verdadeiro com a API simulada; no servidor real, só fora de produção.
+   */
+  demonstracao: boolean;
+  /** A sessão venceu durante o uso e a pessoa foi levada ao login. */
+  sessaoExpirada: boolean;
+  /** Enquanto confere com o servidor se já existe sessão (cookie) ao abrir a página. */
+  conferindoSessao: boolean;
   sair: () => void;
   trocarRede: (redeId: string) => void;
   trocarEscola: (escolaId: string) => void;
@@ -55,14 +66,18 @@ export function SessaoProvider({ children }: { children: ReactNode }) {
   const [escolas, setEscolas] = useState<Escola[]>([]);
   const [carregandoEscolas, setCarregandoEscolas] = useState(false);
   const [redePreviaId, setRedePreviaId] = useState<string | null>(null);
+  const [sessaoExpirada, setSessaoExpirada] = useState(false);
+  const [demonstracao, setDemonstracao] = useState<boolean | null>(apiReal ? null : true);
+  const [conferindoSessao, setConferindoSessao] = useState(apiReal && !guardado);
 
   useEffect(() => {
     api<Rede[]>(rotas.redes).then(setRedes).catch(() => setRedes([]));
+    if (apiReal) api<Ambiente>(rotas.ambiente).then((a) => setDemonstracao(a.loginDemo)).catch(() => setDemonstracao(false));
   }, []);
 
   const rede = redes.find((r) => r.id === redeId) ?? null;
   const vinculo = sessao?.usuario.vinculos.find((v) => v.redeId === redeId) ?? null;
-  const perfil = perfilDemo ?? vinculo?.perfil ?? null;
+  const perfil = (demonstracao ? perfilDemo : null) ?? vinculo?.perfil ?? null;
   const escola = escolas.find((e) => e.id === escolaId) ?? null;
   const doEndereco = useMemo(() => redeDoEndereco(redes), [redes]);
 
@@ -72,7 +87,7 @@ export function SessaoProvider({ children }: { children: ReactNode }) {
 
   // Sincroniza o cliente HTTP durante a renderização: os efeitos das telas
   // filhas rodam antes dos efeitos deste provedor e já precisam dos cabeçalhos.
-  configurarCliente({ token: sessao?.token ?? null, redeId, escolaId });
+  configurarCliente({ token: sessao?.token || null, redeId, escolaId });
 
   // Carrega as escolas alcançadas pelo vínculo sempre que a rede muda.
   useEffect(() => {
@@ -82,7 +97,7 @@ export function SessaoProvider({ children }: { children: ReactNode }) {
     }
     let vivo = true;
     setCarregandoEscolas(true);
-    configurarCliente({ token: sessao.token, redeId, escolaId: null });
+    configurarCliente({ token: sessao.token || null, redeId, escolaId: null });
     api<Escola[]>(rotas.escolas)
       .then((lista) => {
         if (!vivo) return;
@@ -113,11 +128,51 @@ export function SessaoProvider({ children }: { children: ReactNode }) {
     setSessao(s);
   }, []);
 
-  const sair = useCallback(() => {
+  const limpar = useCallback(() => {
     setSessao(null);
     setRedeId(null);
     setEscolaId(null);
     setPerfilDemo(null);
+  }, []);
+
+  const sair = useCallback(() => {
+    // No servidor real a sessão é um cookie: só o servidor consegue apagá-la.
+    if (apiReal) api(rotas.sair, { method: 'POST' }).catch(() => {});
+    setSessaoExpirada(false);
+    limpar();
+  }, [limpar]);
+
+  const entrarComUsuario = useCallback((usuario: Usuario) => {
+    // Rede: a do endereço, se a pessoa tiver vínculo com ela; senão, a primeira.
+    const preferida = redeDoEndereco(redes)?.id;
+    const redeInicial = usuario.vinculos.find((v) => v.redeId === preferida)?.redeId ?? usuario.vinculos[0]?.redeId ?? null;
+    setSessaoExpirada(false);
+    setPerfilDemo(null);
+    setEscolaId(null);
+    setRedeId(redeInicial);
+    setSessao({ token: '', usuario });
+  }, [redes]);
+
+  // Sessão vencida: o servidor respondeu 401 a quem estava logado. O que estava
+  // sendo digitado continua salvo como rascunho neste aparelho.
+  useEffect(() => {
+    aoExpirarSessao(sessao ? () => { setSessaoExpirada(true); limpar(); } : null);
+    return () => aoExpirarSessao(null);
+  }, [sessao, limpar]);
+
+  // Ao abrir a página no modo real sem nada guardado (outra aba, por exemplo),
+  // pergunta ao servidor se o cookie de sessão ainda vale.
+  useEffect(() => {
+    if (!conferindoSessao) return;
+    let vivo = true;
+    api<{ usuario: Usuario }>(rotas.sessao)
+      .then(({ usuario }) => vivo && entrarComUsuario(usuario))
+      .catch(() => {})
+      .finally(() => vivo && setConferindoSessao(false));
+    return () => {
+      vivo = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const valor: EstadoSessao = {
@@ -131,6 +186,10 @@ export function SessaoProvider({ children }: { children: ReactNode }) {
     escola,
     carregandoEscolas,
     entrar,
+    entrarComUsuario,
+    demonstracao: demonstracao ?? false,
+    sessaoExpirada,
+    conferindoSessao: conferindoSessao || demonstracao === null,
     sair,
     trocarRede: (id) => {
       setPerfilDemo(null);

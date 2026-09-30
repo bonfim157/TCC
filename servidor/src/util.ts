@@ -4,6 +4,8 @@ import { validacao } from './erros';
 
 /** Corpo do pedido validado pelo esquema; qualquer problema vira 422 com a mensagem dada. */
 export async function corpo<T>(c: Context, esquema: ZodType<T>, mensagem = 'Os dados enviados não estão no formato esperado.'): Promise<T> {
+  // Só JSON declarado: um formulário de outro site não consegue enviar este tipo sem passar pela checagem de origem do navegador.
+  if (!(c.req.header('content-type') ?? '').includes('application/json')) throw validacao('O pedido precisa vir em JSON.');
   let bruto: unknown;
   try {
     bruto = await c.req.json();

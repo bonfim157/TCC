@@ -21,6 +21,7 @@ import { useSessao } from './state/sessao';
 function ComSessao({ children }: { children: ReactNode }) {
   const s = useSessao();
   const local = useLocation();
+  if (!s.sessao && s.conferindoSessao) return <main className="pagina"><Esqueleto rotulo="Conferindo seu acesso" /></main>;
   if (!s.sessao) return <Navigate to="/entrar" replace state={{ de: local.pathname }} />;
   if (!s.rede || !s.perfil) return <main className="pagina"><Esqueleto rotulo="Preparando sua rede" /></main>;
   return <>{children}</>;
