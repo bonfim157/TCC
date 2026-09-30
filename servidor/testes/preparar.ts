@@ -1,5 +1,5 @@
 import { configurarBanco, fecharBanco } from '../src/banco/conexao';
-import { iniciarBancoLocal } from '../src/banco/local';
+import { DONO_LOCAL, iniciarBancoLocal } from '../src/banco/local';
 import { migrar } from '../src/banco/migrar';
 import { carregarSeed } from '../src/banco/seed';
 import { criarApp } from '../src/app';
@@ -8,7 +8,7 @@ import { criarApp } from '../src/app';
 export async function prepararAmbiente() {
   process.env.TCC_LOGIN_DEMO = '1';
   const local = await iniciarBancoLocal();
-  const pool = configurarBanco(local.url, { max: 1 });
+  const pool = configurarBanco(local.url, { max: 1, papel: DONO_LOCAL });
   await migrar(pool);
   await carregarSeed(pool);
   const app = criarApp();

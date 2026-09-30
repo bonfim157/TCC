@@ -61,6 +61,8 @@ log('aba sem aviso, após a consulta periódica (30 s):', await item484SemAviso.
 // A consulta repetida (três abas recarregando o caso) não enche a auditoria
 const consultas = await carlos.evaluate(() => {
   const chave = Object.keys(localStorage).find((k) => k.startsWith('demo.banco'));
+  // Com o servidor real a auditoria está no banco; a contagem é conferida nos testes do servidor.
+  if (!chave) return '(servidor real: conferido em servidor/testes)';
   const banco = JSON.parse(localStorage.getItem(chave));
   return banco.auditoria.filter((r) => r.acao === 'consulta' && r.recurso === 'caso 2026-000484' && r.ator === 'Carlos Mendes').length;
 });

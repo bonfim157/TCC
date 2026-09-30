@@ -41,3 +41,58 @@ export const esquemaNovaOcorrencia = z.object({
 });
 
 export const esquemaNovoAdendo = z.object({ texto: texto(5000) });
+
+/* ---------- Central de Gestão ---------- */
+
+const dia = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+const prioridade = z.enum(['urgente', 'alta', 'media', 'baixa']);
+
+export const esquemaTriagem = z.object({
+  prioridade,
+  responsavelId: z.string(),
+  categoriaId: z.string(),
+  observacao: texto(2000),
+});
+
+export const esquemaProvidencia = z.object({
+  situacao: z.enum(['feita', 'dispensada', 'pendente']),
+  observacao: texto(2000),
+});
+
+export const esquemaEncaminhamento = z.object({
+  orgao: z.enum(['conselho_tutelar', 'policia', 'samu', 'cras', 'creas', 'saude', 'outro']),
+  orgaoNome: texto(200),
+  canal: z.enum(['oficio', 'telefone', 'email', 'presencial', 'sistema']),
+  protocoloExterno: texto(100),
+  devolutivaAte: z.union([dia, z.literal('')]),
+});
+
+export const esquemaDevolutiva = z.object({ texto: texto(5000) });
+
+export const esquemaRegistroEscola = z.object({
+  tipo: z.enum(['escuta', 'reavaliacao']),
+  texto: texto(5000),
+});
+
+export const esquemaAcaoPlano = z.object({
+  descricao: texto(500),
+  responsavel: texto(200),
+  prazo: z.union([dia, z.literal('')]),
+});
+
+export const esquemaComunicacao = z.object({
+  tipo: z.enum(['familia', 'conselho_tutelar']),
+  destinatario: texto(200),
+  texto: texto(8000),
+  estudanteId: z.string().max(100).optional(),
+});
+
+export const esquemaRegistroRede = z.object({ codigo: texto(100) });
+
+export const esquemaEncerramento = z.object({
+  justificativa: texto(5000),
+  reavaliarEm: dia.nullable(),
+  cancelarAcoesAbertas: z.boolean().optional(),
+});
+
+export const esquemaCiencia = z.object({ nome: texto(200) });

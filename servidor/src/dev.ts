@@ -1,7 +1,7 @@
 import { serve } from '@hono/node-server';
 import { criarApp } from './app';
 import { configurarBanco } from './banco/conexao';
-import { iniciarBancoLocal } from './banco/local';
+import { DONO_LOCAL, iniciarBancoLocal } from './banco/local';
 import { migrar } from './banco/migrar';
 import { carregarSeed } from './banco/seed';
 
@@ -22,7 +22,7 @@ if (!url) {
   url = local.url;
   console.log('banco local (PGlite) em memória');
 }
-const pool = configurarBanco(url, { max: local ? 1 : 5 });
+const pool = configurarBanco(url, local ? { max: 1, papel: DONO_LOCAL } : { max: 5 });
 await migrar(pool, console.log);
 await carregarSeed(pool);
 console.log('dados fictícios carregados');

@@ -12,7 +12,7 @@ import { categorias, categoriasSensiveis, contatos, escolas, ocorrencias, pessoa
 
 /** Tabelas com dados, na ordem em que podem ser esvaziadas (filhas antes das mães). */
 const TABELAS = [
-  'auditoria', 'sessoes', 'comunicacoes', 'acoes_plano', 'encaminhamentos', 'providencias', 'eventos', 'anexos',
+  'tokens_ciencia', 'auditoria', 'sessoes', 'comunicacoes', 'acoes_plano', 'encaminhamentos', 'providencias', 'eventos', 'anexos',
   'envolvimentos', 'ocorrencias', 'contadores_protocolo', 'responsaveis', 'pessoas', 'contatos_locais',
   'modelos_comunicacao', 'regras_protocolo', 'categorias', 'vinculo_escolas', 'vinculos', 'usuarios', 'escolas',
   'regionais', 'redes',
@@ -21,7 +21,16 @@ const TABELAS = [
 export async function carregarSeed(pool: pg.Pool) {
   if (process.env.VERCEL_ENV === 'production') throw new Error('Seed fictício não pode rodar em produção.');
   const c = await pool.connect();
-  const ins = (tabela: string, linha: Record<string, unknown>) => {
+  // O dono do banco também está sujeito à Row-Level Security (FORCE): cada linha
+  // é gravada com a sua rede informada, como a aplicação faz.
+  let redeAtual = '';
+  const naRedeDaLinha = async (rede: string) => {
+    if (rede === redeAtual) return;
+    redeAtual = rede;
+    await c.query(`select set_config('app.rede_id', $1, true)`, [rede]);
+  };
+  const ins = async (tabela: string, linha: Record<string, unknown>) => {
+    if (typeof linha.rede_id === 'string') await naRedeDaLinha(linha.rede_id);
     const cols = Object.keys(linha);
     return c.query(
       `insert into ${tabela} (${cols.join(', ')}) values (${cols.map((_, i) => `$${i + 1}`).join(', ')})`,
@@ -97,14 +106,18 @@ export async function carregarSeed(pool: pg.Pool) {
           registrada_por: cm.registradaPor, token_hash: token ? hashDoToken(token) : null, link_ciencia: cm.linkCiencia,
           ciencia_em: cm.ciencia?.em ?? null, ciencia_nome: cm.ciencia?.nome ?? null,
         });
+        if (token) await ins('tokens_ciencia', { token_hash: hashDoToken(token), rede_id: r });
       }
     }
 
     // O contador de protocolo começa do maior número já usado em cada rede e ano.
-    await c.query(`
-      insert into contadores_protocolo (rede_id, ano, ultimo)
-      select rede_id, split_part(protocolo, '-', 1)::int, max(split_part(protocolo, '-', 2)::int)
-      from ocorrencias group by 1, 2`);
+    for (const r of redes) {
+      await naRedeDaLinha(r.id);
+      await c.query(`
+        insert into contadores_protocolo (rede_id, ano, ultimo)
+        select rede_id, split_part(protocolo, '-', 1)::int, max(split_part(protocolo, '-', 2)::int)
+        from ocorrencias group by 1, 2`);
+    }
 
     await c.query('commit');
   } catch (e) {

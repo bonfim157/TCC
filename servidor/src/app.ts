@@ -1,10 +1,12 @@
 import { Hono } from 'hono';
 import type { Categoria, Rede, Sessao, Usuario } from '@tcc/compartilhado/contrato';
 import { esquemaNovaSessao } from '@tcc/compartilhado/esquemas';
+import { loginDemoAtivo } from './ambiente';
 import { banco, naRede } from './banco/conexao';
 import { carregarSeed } from './banco/seed';
 import { auditar, comContexto, escolasDoVinculo, vinculosDe } from './contexto';
 import { ErroApi, naoEncontrado, semPermissao } from './erros';
+import { rotasDaCentral } from './rotas/central';
 import { rotasDeRegistro } from './rotas/registro';
 import { corpo } from './util';
 import { hashDoToken, novoToken } from './seguranca';
@@ -12,12 +14,6 @@ import { hashDoToken, novoToken } from './seguranca';
 /** Validade da sessão. */
 const HORAS_DE_SESSAO = 8;
 
-/**
- * Login de demonstração (escolher uma pessoa fictícia, sem senha). Só existe
- * em desenvolvimento e previews, para os roteiros do front rodarem contra o
- * servidor real; em produção a rota nem responde.
- */
-export const loginDemoAtivo = () => process.env.TCC_LOGIN_DEMO === '1' && process.env.VERCEL_ENV !== 'production';
 
 export function criarApp() {
   const app = new Hono().basePath('/api');
@@ -107,6 +103,7 @@ export function criarApp() {
   );
 
   rotasDeRegistro(app);
+  rotasDaCentral(app);
 
   return app;
 }

@@ -17,8 +17,12 @@ pg.types.setTypeParser(20, (v) => Number(v));
 
 let pool: pg.Pool | null = null;
 
-export function configurarBanco(url: string, opcoes: { max?: number } = {}) {
+export function configurarBanco(url: string, opcoes: { max?: number; papel?: string } = {}) {
   pool = new pg.Pool({ connectionString: url, max: opcoes.max ?? 5 });
+  // Banco local: a conexão entra como superusuário; trocamos para um dono comum,
+  // como o da Neon, para a Row-Level Security valer também para o dono.
+  const papel = opcoes.papel;
+  if (papel) pool.on('connect', (c) => { c.query(`set role ${papel}`).catch(() => {}); });
   return pool;
 }
 
