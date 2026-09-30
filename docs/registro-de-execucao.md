@@ -157,9 +157,11 @@ O que foi construído em cada fase e como foi verificado. As verificações fora
 
 **Verificado**
 
-- `npm test`: 80 testes em 4 arquivos (isolamento, registro, Central, gestão)
+- `npm test`: 83 testes em 4 arquivos (isolamento, registro, Central, gestão)
 - Roteiros do front em modo real (`VITE_API=real`), com saída igual à da simulação: `f2-registro` duas vezes seguidas com resultado idêntico (protocolo 2026-000485, rascunho, duplicata, adendo, nomes restritos); `f3-central` (ofício ao CT, vazamento bloqueado, encerramento com ações canceladas, devolutiva, ciência); `f4-gestao` (68 casos, 10 de bullying, 5 grupos suprimidos, exportação auditada, protocolo editado pela secretaria, contato da direção usado no encaminhamento); `f4-regional` (23 casos, 14 e 9 por escola, nada da rede SP)
 - `f3-atualizacao` em modo real: sem o aviso entre abas (que só existe na demonstração), a fila se atualiza pela consulta de 30 s
+
+**Correção sobre a B1**: o registro da B1 dizia que a aplicação conectava com um usuário que não é dono das tabelas. Não era exato: a conexão era a do dono, e a troca para o papel restrito só acontecia dentro de cada transação. Em 30/09/2026 isso foi corrigido: a API conecta como o papel restrito, e só migrações e seed usam o dono. Novos testes consultam direto na conexão da aplicação, fora de qualquer transação com rede, e confirmam: nenhuma linha por rede aparece; excluir ou alterar a auditoria, ler hash de senha, `truncate`, `alter table` e `drop table` são recusados; o papel da conexão é `app_tcc`. Total: 83 testes.
 
 **Diferenças do servidor em relação à simulação** (registradas no contrato): caso de outra rede responde 404; ciência só é confirmada uma vez; responsável da triagem precisa conduzir casos na escola.
 

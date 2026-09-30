@@ -1,4 +1,4 @@
-import { configurarBanco, fecharBanco } from '../src/banco/conexao';
+import { comoDono, configurarBanco, fecharBanco } from '../src/banco/conexao';
 import { DONO_LOCAL, iniciarBancoLocal } from '../src/banco/local';
 import { migrar } from '../src/banco/migrar';
 import { carregarSeed } from '../src/banco/seed';
@@ -8,9 +8,9 @@ import { criarApp } from '../src/app';
 export async function prepararAmbiente() {
   process.env.TCC_LOGIN_DEMO = '1';
   const local = await iniciarBancoLocal();
-  const pool = configurarBanco(local.url, { max: 1, papel: DONO_LOCAL });
-  await migrar(pool);
-  await carregarSeed(pool);
+  const pool = configurarBanco(local.url, { max: 1, donoLocal: DONO_LOCAL });
+  await migrar();
+  await carregarSeed();
   const app = criarApp();
 
   const pedir = (caminho: string, init: RequestInit & { cabecalhos?: Record<string, string> } = {}) =>
@@ -33,6 +33,8 @@ export async function prepararAmbiente() {
 
   return {
     pool,
+    /** SQL como dono do banco, para preparar situações de teste. */
+    dono: (sql: string, parametros: unknown[] = []) => comoDono((c) => c.query(sql, parametros)),
     pedir,
     entrar,
     async encerrar() {

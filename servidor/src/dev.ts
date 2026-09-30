@@ -1,6 +1,6 @@
 import { serve } from '@hono/node-server';
 import { criarApp } from './app';
-import { configurarBanco } from './banco/conexao';
+import { configurarBanco, temDono } from './banco/conexao';
 import { DONO_LOCAL, iniciarBancoLocal } from './banco/local';
 import { migrar } from './banco/migrar';
 import { carregarSeed } from './banco/seed';
@@ -22,10 +22,14 @@ if (!url) {
   url = local.url;
   console.log('banco local (PGlite) em memória');
 }
-const pool = configurarBanco(url, local ? { max: 1, papel: DONO_LOCAL } : { max: 5 });
-await migrar(pool, console.log);
-await carregarSeed(pool);
-console.log('dados fictícios carregados');
+const pool = configurarBanco(url, local ? { max: 1, donoLocal: DONO_LOCAL } : { max: 5, urlDono: process.env.DATABASE_URL_DONO });
+if (temDono()) {
+  await migrar(console.log);
+  await carregarSeed();
+  console.log('dados fictícios carregados');
+} else {
+  console.log('sem DATABASE_URL_DONO: migrações e seed não foram aplicados');
+}
 
 serve({ fetch: criarApp().fetch, port: porta }, () => console.log(`API em http://localhost:${porta}/api`));
 

@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import type { Categoria, Rede, Sessao, Usuario } from '@tcc/compartilhado/contrato';
 import { esquemaNovaSessao } from '@tcc/compartilhado/esquemas';
 import { loginDemoAtivo } from './ambiente';
-import { banco, naRede } from './banco/conexao';
+import { banco, naRede, temDono } from './banco/conexao';
 import { carregarSeed } from './banco/seed';
 import { auditar, comContexto, escolasDoVinculo, vinculosDe } from './contexto';
 import { ErroApi, naoEncontrado, semPermissao } from './erros';
@@ -86,8 +86,8 @@ export function criarApp() {
    * demonstração, só existe fora de produção.
    */
   app.post('/diagnostico/restaurar', async (c) => {
-    if (!loginDemoAtivo()) throw naoEncontrado('Esta função não existe neste ambiente.');
-    await carregarSeed(banco());
+    if (!loginDemoAtivo() || !temDono()) throw naoEncontrado('Esta função não existe neste ambiente.');
+    await carregarSeed();
     return c.json({ ok: true });
   });
 

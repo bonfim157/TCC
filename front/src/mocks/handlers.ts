@@ -109,13 +109,15 @@ export const handlers = [
     const problema = validar(corpo);
     if (problema) return erro(422, 'validacao', problema);
 
-    const daRede = ocorrencias.filter((o) => o.redeId === ctx.vinculo.redeId);
-    const numero = Math.max(0, ...daRede.map((o) => Number(o.protocolo.slice(5)))) + 1;
+    // Numeração por rede e por ano, como no servidor: recomeça de 1 a cada ano.
+    const ano = String(new Date().getFullYear());
+    const daRedeNoAno = ocorrencias.filter((o) => o.redeId === ctx.vinculo.redeId && o.protocolo.startsWith(`${ano}-`));
+    const numero = Math.max(0, ...daRedeNoAno.map((o) => Number(o.protocolo.slice(5)))) + 1;
     const nova: Ocorrencia = {
-      id: `oc-${ctx.vinculo.redeId}-${numero}`,
+      id: `oc-${ctx.vinculo.redeId}-${ano}-${numero}`,
       redeId: ctx.vinculo.redeId,
       escolaId: corpo.escolaId,
-      protocolo: `${new Date().getFullYear()}-${String(numero).padStart(6, '0')}`,
+      protocolo: `${ano}-${String(numero).padStart(6, '0')}`,
       categoriaId: corpo.fato.categoriaId,
       status: 'recebido',
       prioridade: corpo.fato.riscoImediato ? 'urgente' : categoriasSensiveis.includes(corpo.fato.categoriaId) ? 'alta' : 'media',

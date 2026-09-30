@@ -68,6 +68,40 @@ describe('banco: Row-Level Security', () => {
   });
 });
 
+/** SQL direto na conexão da aplicação, sem rede e sem trocar de papel, numa transação desfeita ao final. */
+async function cru(sql: string) {
+  const c = await amb.pool.connect();
+  try {
+    await c.query('begin');
+    return await c.query(sql);
+  } finally {
+    await c.query('rollback').catch(() => {});
+    c.release();
+  }
+}
+
+describe('banco: a aplicação não conecta como dona', () => {
+  // Consultas feitas direto no pool da aplicação, fora de naRede: o que um erro de código conseguiria.
+  test('fora de uma transação com rede, não enxerga nenhuma linha por rede', async () => {
+    for (const t of ['ocorrencias', 'escolas', 'auditoria', 'eventos']) {
+      expect(Number((await cru(`select count(*) n from ${t}`)).rows[0].n), t).toBe(0);
+    }
+  });
+
+  test('não altera nem apaga auditoria, não lê hash de senha, não mexe na estrutura', async () => {
+    for (const sql of [
+      'delete from auditoria', `update auditoria set ator = 'x'`, 'select senha_hash from usuarios', 'truncate eventos',
+      'alter table ocorrencias no force row level security', 'drop table sessoes',
+    ]) {
+      await expect(cru(sql), sql).rejects.toThrow(/permission denied|must be owner/);
+    }
+  });
+
+  test('o papel da conexão é o da aplicação', async () => {
+    expect((await amb.pool.query('select current_user')).rows[0].current_user).toBe('app_tcc');
+  });
+});
+
 describe('API: contexto da requisição', () => {
   test('lista as redes sem login', async () => {
     const r = await amb.pedir('/redes');
@@ -118,7 +152,7 @@ describe('API: contexto da requisição', () => {
 
   test('sessão vencida: 401', async () => {
     const h = await amb.entrar('u-beatriz', 'rede-sp');
-    await amb.pool.query(`update sessoes set expira_em = now() - interval '1 minute'`);
+    await amb.dono(`update sessoes set expira_em = now() - interval '1 minute'`);
     const r = await amb.pedir('/escolas', { cabecalhos: h });
     expect(r.status).toBe(401);
   });
@@ -154,9 +188,10 @@ describe('login de demonstração', () => {
 describe('restaurar dados de demonstração', () => {
   test('volta ao seed; não existe em produção', async () => {
     const h = await amb.entrar('u-ana', 'rede-sp', 'esc-imsil');
-    await amb.pool.query(`delete from comunicacoes`);
+    await amb.dono(`select set_config('app.rede_id', 'rede-sp', false)`);
+    await amb.dono(`delete from tokens_ciencia`);
     expect((await amb.pedir('/diagnostico/restaurar', { method: 'POST' })).status).toBe(200);
-    expect(await contar('rede-sp', 'select count(*) n from comunicacoes')).toBeGreaterThan(0);
+    expect(Number((await amb.pool.query('select count(*) n from tokens_ciencia')).rows[0].n)).toBeGreaterThan(0);
     // As sessões também voltam ao início: o token antigo deixa de valer
     expect((await amb.pedir('/escolas', { cabecalhos: h })).status).toBe(401);
     process.env.VERCEL_ENV = 'production';

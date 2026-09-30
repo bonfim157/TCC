@@ -1,4 +1,4 @@
-import type pg from 'pg';
+import { comoDono, type Cliente } from './conexao';
 import { hashDoToken } from '../seguranca';
 import { modelos, regras } from '@tcc/compartilhado/protocolo';
 import { categorias, categoriasSensiveis, contatos, escolas, ocorrencias, pessoas, redes, regionais, usuarios } from '@tcc/compartilhado/seed';
@@ -18,9 +18,12 @@ const TABELAS = [
   'regionais', 'redes',
 ];
 
-export async function carregarSeed(pool: pg.Pool) {
+export function carregarSeed() {
   if (process.env.VERCEL_ENV === 'production') throw new Error('Seed fictício não pode rodar em produção.');
-  const c = await pool.connect();
+  return comoDono(semear);
+}
+
+async function semear(c: Cliente) {
   // O dono do banco também está sujeito à Row-Level Security (FORCE): cada linha
   // é gravada com a sua rede informada, como a aplicação faz.
   let redeAtual = '';
@@ -123,7 +126,5 @@ export async function carregarSeed(pool: pg.Pool) {
   } catch (e) {
     await c.query('rollback');
     throw e;
-  } finally {
-    c.release();
   }
 }

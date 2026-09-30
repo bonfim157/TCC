@@ -17,12 +17,15 @@ Documentos relacionados:
 - B3: registro e acompanhamento (pessoas, ocorrências, semelhantes, adendos, prazos)
 - B4: Central de Gestão inteira e a página pública de ciência, com token guardado só como hash
 - B5: busca, relatórios com supressão, exportação com motivo, auditoria e administração gravada no banco
-- **Todas as rotas do contrato respondem pelo servidor real.** Os 7 roteiros do front passam em modo real, com o banco restaurado ao seed antes de cada um; 80 testes do servidor
+- **Todas as rotas do contrato respondem pelo servidor real.** Os 7 roteiros do front passam em modo real, com o banco restaurado ao seed antes de cada um; 83 testes do servidor
 
 **Falta, em ordem**
 
 1. **B0, publicação**: fazer `vercel login` (digite `! npx vercel login` no Claude Code), criar o projeto na Vercel ligado ao repositório e decidir como publicar a demonstração (ver Decisões pendentes)
-2. **B1, banco na nuvem**: criar o banco Neon em São Paulo pela Vercel Marketplace, definir `DATABASE_URL`, rodar migrações e seed num preview e repetir os testes contra a Neon. O banco local já usa um dono sem superusuário, como a Neon, o que reduz as surpresas
+2. **B1, banco na nuvem**: criar o banco Neon em São Paulo pela Vercel Marketplace e definir **duas** conexões:
+   - `DATABASE_URL`: a que a API usa. Precisa ser de um papel com login que **não é dono** das tabelas e é membro de `app_tcc` (criar na Neon: `create role app_login login password '...' in role app_tcc`). É a única definida em produção
+   - `DATABASE_URL_DONO`: a do dono do banco, usada só para migrações e seed. Definida em previews e na integração contínua; em produção, só no passo de migração, nunca nas funções da API
+   - depois, rodar migrações e seed num preview e repetir os testes contra a Neon
 3. **B2, login e acesso** (3 semanas): senha com Argon2id, segundo fator (TOTP), sessão em cookie `HttpOnly`, telas de login no front, matriz de permissões vinda do banco e editável (pendência 25), tabela de testes perfil × rota. Hoje o servidor só tem o login de demonstração, que não existe em produção: **sem a B2 ninguém entra no ambiente de produção**
 4. **O que ficou das fases B3 a B5**, tudo dependente de contas ou decisões:
    - envio real de anexos (Vercel Blob privado) e a tela de envio no front
@@ -132,6 +135,7 @@ Toda tabela de dados de escola tem `rede_id`. Identificadores são texto (UUID g
 
 ### Regras garantidas pelo banco
 
+- **A aplicação não conecta como dona.** A API usa uma conexão de um papel sem posse das tabelas (`DATABASE_URL`); o dono (`DATABASE_URL_DONO`) só é usado por migrações e seed. Assim, mesmo um erro de código que consulte fora de uma transação com rede não enxerga nenhuma linha, não altera a auditoria, não lê hash de senha e não muda a estrutura. Há testes para cada um desses casos.
 - **Row-Level Security** em todas as tabelas com `rede_id`. Cada requisição abre uma transação e informa a rede ativa. Uma consulta sem esse valor não enxerga nada. Três detalhes que, se errados, desligam a proteção sem aviso, e por isso são verificados em teste na B1:
   - a aplicação conecta com um usuário do banco que **não é dono** das tabelas, e as tabelas usam `FORCE ROW LEVEL SECURITY`;
   - a rede é informada com `set_config('app.rede_id', …, true)`, que vale só para a transação, por causa do reaproveitamento de conexões;
@@ -278,6 +282,8 @@ Todas as pendências abertas em [Pendências](pendencias.md), com a fase que res
 | 29/09/2026 | Arquitetura deste plano aprovada para execução | Usuário: "vamos implementar o plano de back-end agora mesmo, pode começar" |
 | 29/09/2026 | SQL direto com `pg` no lugar do Drizzle | Segurança do banco é toda em SQL; menos dependências |
 | 29/09/2026 | PGlite para desenvolvimento e testes, no lugar de Docker | Máquina com pouca memória livre; teste prévio confirmou papéis, Row-Level Security, `set_config` local e permissões |
+| 30/09/2026 | Conexões separadas: a API como papel restrito, migrações e seed como dono | Na B1 a aplicação conectava como dona e só trocava de papel dentro das transações; código fora delas teria poder de dono. Corrigido antes do login real, que depende de a aplicação não ler o hash de senha |
+| 30/09/2026 | Protocolo numerado por rede e por ano, também na simulação | O servidor recomeça de 1 a cada ano; a simulação continuava a contagem |
 | 30/09/2026 | Banco local com dono sem superusuário | O superusuário ignora a Row-Level Security e escondia dois erros que só apareceriam na Neon (seed e busca do token de ciência) |
 | 30/09/2026 | Caso de outra rede responde 404, e não 403 | O banco nem mostra a linha; responder 403 revelaria que o id existe |
 | 30/09/2026 | Ciência da família só pode ser confirmada uma vez (409 na segunda) | O registro de quem confirmou não pode ser trocado depois |

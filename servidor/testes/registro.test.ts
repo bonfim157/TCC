@@ -64,7 +64,9 @@ describe('registrar', () => {
     const r = await registrar(ana, novo());
     expect(r.status).toBe(201);
     const caso = (await r.json()) as Ocorrencia;
-    expect(caso.protocolo).toBe(`${hoje().slice(0, 4)}-000485`);
+    // O seed vai até 2026-000484; em outro ano a numeração recomeça de 1
+    const ano = hoje().slice(0, 4);
+    expect(caso.protocolo).toBe(`${ano}-${ano === '2026' ? '000485' : '000001'}`);
     expect(caso).toMatchObject({ status: 'recebido', prioridade: 'media', criadoPorNome: 'Ana Ribeiro', responsavelId: null });
     expect(caso.eventos.map((e) => e.tipo)).toEqual(['registro']);
     // A autora vê os nomes que escreveu, mas não as providências da gestão

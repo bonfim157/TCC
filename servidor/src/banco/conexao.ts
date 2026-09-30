@@ -15,14 +15,29 @@ const lerDataHora = pg.types.getTypeParser(1184) as (v: string) => Date;
 pg.types.setTypeParser(1184, (v) => `${new Date(lerDataHora(v).getTime() - 3 * 3600_000).toISOString().slice(0, 19)}-03:00`);
 pg.types.setTypeParser(20, (v) => Number(v));
 
+/*
+ * Dois acessos ao banco, com poderes diferentes:
+ *
+ * - A aplicação (DATABASE_URL) conecta como um papel que NÃO é dono das
+ *   tabelas. Mesmo uma consulta feita por engano fora de `naRede` não enxerga
+ *   linhas de nenhuma rede, não altera a auditoria e não lê hash de senha.
+ * - O dono (DATABASE_URL_DONO) só é usado por migrações e pelo seed. Em
+ *   produção essa variável não é definida para as funções da API.
+ *
+ * No banco local (PGlite) existe uma conexão só, que entra como superusuário:
+ * ela fica no papel da aplicação e troca para o dono apenas durante `comoDono`.
+ */
 let pool: pg.Pool | null = null;
+let poolDono: pg.Pool | null = null;
+let donoLocal: string | null = null;
 
-export function configurarBanco(url: string, opcoes: { max?: number; papel?: string } = {}) {
+const PAPEL_DA_APLICACAO = 'app_tcc';
+
+export function configurarBanco(url: string, opcoes: { max?: number; urlDono?: string; donoLocal?: string } = {}) {
   pool = new pg.Pool({ connectionString: url, max: opcoes.max ?? 5 });
-  // Banco local: a conexão entra como superusuário; trocamos para um dono comum,
-  // como o da Neon, para a Row-Level Security valer também para o dono.
-  const papel = opcoes.papel;
-  if (papel) pool.on('connect', (c) => { c.query(`set role ${papel}`).catch(() => {}); });
+  donoLocal = opcoes.donoLocal ?? null;
+  if (donoLocal) pool.on('connect', (c) => { c.query(`set role ${PAPEL_DA_APLICACAO}`).catch(() => {}); });
+  poolDono = opcoes.urlDono ? new pg.Pool({ connectionString: opcoes.urlDono, max: 1 }) : null;
   return pool;
 }
 
@@ -30,17 +45,49 @@ export function banco(): pg.Pool {
   if (!pool) {
     const url = process.env.DATABASE_URL;
     if (!url) throw new Error('DATABASE_URL não definida');
-    configurarBanco(url);
+    configurarBanco(url, { urlDono: process.env.DATABASE_URL_DONO });
   }
   return pool!;
 }
 
 export async function fecharBanco() {
   await pool?.end();
+  await poolDono?.end();
   pool = null;
+  poolDono = null;
+  donoLocal = null;
 }
 
 export type Cliente = pg.PoolClient;
+
+/** Este ambiente tem acesso de dono (migrações, seed)? Em produção, a API não tem. */
+export function temDono() {
+  banco();
+  return Boolean(poolDono || donoLocal);
+}
+
+/** Executa como dono do banco. Só para migrações e seed; nunca para atender requisições. */
+export async function comoDono<T>(fn: (c: Cliente) => Promise<T>): Promise<T> {
+  banco();
+  if (poolDono) {
+    const c = await poolDono.connect();
+    try {
+      return await fn(c);
+    } finally {
+      c.release();
+    }
+  }
+  if (!donoLocal) throw new Error('Este ambiente não tem acesso de dono ao banco.');
+  const c = await pool!.connect();
+  try {
+    await c.query(`set role ${donoLocal}`);
+    return await fn(c);
+  } finally {
+    await c.query('rollback').catch(() => {});
+    await c.query(`set role ${PAPEL_DA_APLICACAO}`);
+    c.release();
+  }
+}
 
 /**
  * Executa `fn` numa transação como o papel da aplicação, com a rede (e a

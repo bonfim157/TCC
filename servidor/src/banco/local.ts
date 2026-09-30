@@ -22,9 +22,14 @@ export async function iniciarBancoLocal(opcoes: { pasta?: string; porta?: number
       if not exists (select 1 from pg_roles where rolname = '${DONO_LOCAL}') then
         create role ${DONO_LOCAL} nologin createrole;
       end if;
+      -- O papel da aplicação precisa existir antes das migrações: a conexão já entra nele.
+      if not exists (select 1 from pg_roles where rolname = 'app_tcc') then
+        create role app_tcc nologin;
+      end if;
     end $$;
     grant all on database postgres to ${DONO_LOCAL};
     grant all on schema public to ${DONO_LOCAL};
+    grant app_tcc to ${DONO_LOCAL} with admin option;
   `);
   const servidor = new PGLiteSocketServer({ db, port: opcoes.porta ?? 0, host: '127.0.0.1' });
   await servidor.start();
