@@ -31,3 +31,8 @@
 .matriz-sim { color: var(--ok); font-weight: 600; background: var(--okSoft); }
 .matriz-nao { color: var(--inkSoft); }
 .tabela td .marcar { padding-top: 0; min-height: 0; }
+/* A matriz é de duas entradas: no celular ela rola de lado, com o perfil sempre visível. */
+.matriz th[scope='row'] { position: sticky; left: 0; background: var(--surface); z-index: 1; box-shadow: 1px 0 0 var(--line); }
+@media (max-width: 600px) {
+  .barras th { width: 50%; }
+}

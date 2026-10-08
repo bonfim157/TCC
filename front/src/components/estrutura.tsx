@@ -26,15 +26,17 @@ export function Tabela<T>({ legenda, colunas, linhas, chaveLinha }: {
   chaveLinha: (l: T) => string;
 }) {
   return (
-    <div className="tabela-rolagem" tabIndex={0} role="region" aria-label={legenda}>
-      <table className="tabela">
+    <div className="tabela-rolagem tabela-responsiva" tabIndex={0} role="region" aria-label={legenda}>
+      {/* Papéis explícitos: no celular a tabela muda de display, e alguns navegadores
+          perderiam a semântica de tabela sem eles. */}
+      <table className="tabela" role="table">
         <caption className="visualmente-oculto">{legenda}</caption>
-        <thead>
-          <tr>{colunas.map((c) => <th key={c.chave} scope="col">{c.titulo}</th>)}</tr>
+        <thead role="rowgroup">
+          <tr role="row">{colunas.map((c) => <th key={c.chave} scope="col" role="columnheader">{c.titulo}</th>)}</tr>
         </thead>
-        <tbody>
+        <tbody role="rowgroup">
           {linhas.map((l) => (
-            <tr key={chaveLinha(l)}>{colunas.map((c) => <td key={c.chave}>{c.celula(l)}</td>)}</tr>
+            <tr key={chaveLinha(l)} role="row">{colunas.map((c) => <td key={c.chave} role="cell" data-rotulo={c.titulo}>{c.celula(l)}</td>)}</tr>
           ))}
         </tbody>
       </table>

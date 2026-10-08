@@ -184,3 +184,7 @@
   padding-top: var(--e3); border-top: 1px solid var(--line); font-size: var(--t-pequeno); color: var(--inkSoft);
 }
 .cartao-registro-abrir { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; font-weight: 500; text-decoration: none; }
+@media (max-width: 600px) {
+  .inicio-cabeca > .btn { width: 100%; padding: var(--e2) var(--e4); }
+  .btn-grande { min-height: 52px; }
+}

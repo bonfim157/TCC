@@ -128,55 +128,19 @@ main { flex: 1; width: 100%; max-width: 1280px; margin: 0 auto; padding: var(--e
   background: var(--faixa); color: var(--onFaixa); font-size: var(--t-pequeno); text-align: center; line-height: 1.45;
 }
 
-/* ---------- Menu do celular ---------- */
-.nav-movel { display: none; background: var(--surface); border-top: 1px solid var(--line); }
-.nav-movel summary {
-  display: flex; align-items: center; gap: var(--e3); min-height: var(--alvo); padding: 0 var(--e4);
-  font-weight: 600; cursor: pointer; list-style: none;
-}
-.nav-movel summary::-webkit-details-marker { display: none; }
-.nav-movel summary::before {
-  content: ''; width: 18px; height: 12px; flex: none;
-  border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink);
-  background: linear-gradient(var(--ink), var(--ink)) center / 100% 2px no-repeat;
-}
-.nav-movel details[open] summary::before { height: 2px; border: 0; }
-.nav-movel-atual { font-weight: 400; color: var(--inkSoft); }
-.nav-movel ul { list-style: none; margin: 0; padding: 0 0 var(--e3); }
-.nav-movel a {
-  display: flex; align-items: center; gap: var(--e3); min-height: var(--alvo); padding: 0 var(--e4);
-  color: var(--ink); text-decoration: none; font-weight: 500; border-left: 4px solid transparent;
-}
-.nav-movel a[aria-current='page'] { border-left-color: var(--accent); color: var(--accent-ink); font-weight: 600; background: var(--paper); }
-
-/* ---------- Telas médias: a navegação em linha não cabe ---------- */
+/* ---------- Telas médias: a navegação em linha aperta ---------- */
 @media (max-width: 1100px) {
   .navegacao a:not(.btn) { padding: 0 var(--e3); }
 }
-@media (max-width: 980px) {
-  .timbre-linha { grid-template-columns: 1fr auto; padding: var(--e3) var(--e4); }
-  .timbre-linha > .timbre-lado:first-child { grid-column: 1 / -1; order: 3; }
-  .timbre-identidade { order: 1; }
-  .timbre-lado-fim { order: 2; }
-  .timbre-usuario p { display: none; }
-  .navegacao { display: none; }
-  .nav-movel { display: block; }
-  .contexto { padding-left: var(--e4); padding-right: var(--e4); }
-  main { padding: var(--e5) var(--e4) var(--e8); }
-}
 
-/* ---------- Celular ---------- */
-@media (max-width: 600px) {
-  .timbre-linha { grid-template-columns: 1fr; gap: var(--e3); }
-  .timbre-lado-fim { justify-content: flex-start; }
-  .timbre-usuario { width: 100%; }
-  .timbre-usuario p { display: grid; text-align: left; margin-right: auto; min-width: 0; order: 1; }
-  .avatar { display: none; }
-  .timbre-produto { font-size: var(--t-destaque); }
-  .contexto-item, .contexto-escola .entrada { width: 100%; min-width: 0; }
-  .contexto-demo { margin-left: 0; }
-  .rodape-contatos strong { font-size: 1.75rem; }
-  .rodape-contatos ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+/* Cabeçalho completo em tela estreita (página da família, que não tem menu) */
+@media (max-width: 980px) {
+  .timbre:not(.timbre-celular) .faixa-topo { display: none; }
+  .timbre:not(.timbre-celular) .timbre-linha { display: flex; flex-wrap: wrap; justify-content: space-between; padding: var(--e3) var(--e4); }
+  .timbre:not(.timbre-celular) .timbre-lado:first-child { order: 2; width: 100%; }
+  .timbre:not(.timbre-celular) .timbre-lado:first-child:empty { display: none; }
+  .timbre:not(.timbre-celular) .timbre-lado-fim:empty { display: none; }
+  .contexto { padding-left: var(--e4); padding-right: var(--e4); }
 }
 
 /* ---------- Telas fora da estrutura (entrar, erros, família) ---------- */
@@ -219,4 +183,98 @@ main:focus, main:focus-visible { outline: none; }
   margin: 0; max-width: none; padding: var(--e2) var(--e4); text-align: center;
   font-size: var(--t-pequeno); font-weight: 500; line-height: 1.35;
   background: var(--warnSoft); color: var(--ink); border-bottom: 1px solid var(--warn);
+}
+
+/* =========================================================================
+ * Celular e tablet (até 980px)
+ * O topo cabe numa linha (marca e botão de menu); pessoa, navegação, atalhos
+ * e Sair ficam no menu; o contexto recolhe numa linha. O conteúdo começa
+ * logo abaixo, sem ocupar a primeira tela com cabeçalho.
+ * ========================================================================= */
+.timbre-celular { position: sticky; top: 0; z-index: 40; border-bottom: 1px solid var(--line); }
+.timbre-celular .timbre-linha {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--e3);
+  padding: var(--e2) var(--e4); padding-top: calc(var(--e2) + env(safe-area-inset-top, 0px));
+}
+.timbre-celular .timbre-identidade { gap: var(--e2); min-width: 0; }
+.timbre-celular .brasao { width: 32px; height: 37px; }
+.timbre-celular .timbre-identidade > div { min-width: 0; }
+.timbre-celular .timbre-produto { font-size: var(--t-corpo); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.timbre-celular .timbre-rede { font-size: .6875rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.botao-menu { flex: none; min-height: 44px; padding: 0 var(--e4); gap: var(--e2); }
+.botao-menu svg { width: 20px; height: 20px; }
+
+.menu-celular {
+  position: absolute; left: 0; right: 0; top: 100%;
+  max-height: calc(100dvh - 100%); overflow-y: auto; overscroll-behavior: contain;
+  display: grid; gap: var(--e4); padding: var(--e4) var(--e4) var(--e5);
+  background: var(--surface); border-bottom: 1px solid var(--line); box-shadow: 0 16px 32px rgb(0 0 0 / .18);
+}
+.menu-celular[hidden] { display: none; }
+.menu-celular-pessoa { display: flex; align-items: center; gap: var(--e3); }
+.menu-celular-pessoa .avatar { order: 0; }
+.menu-celular-pessoa p { display: grid; line-height: 1.3; }
+.menu-celular-pessoa p span { font-size: var(--t-pequeno); color: var(--inkSoft); }
+.menu-celular-links ul { list-style: none; margin: 0; padding: 0; display: grid; }
+.menu-celular-links li + li { border-top: 1px solid var(--line); }
+.menu-celular-links a {
+  display: flex; align-items: center; gap: var(--e3); min-height: 52px; padding: 0 var(--e2);
+  color: var(--ink); text-decoration: none; font-weight: 500;
+}
+.menu-celular-links a svg { flex: none; color: var(--inkSoft); }
+.menu-celular-links a[aria-current='page'] { color: var(--accent-ink); font-weight: 600; }
+.menu-celular-links a[aria-current='page'] svg { color: var(--accent-ink); }
+.menu-celular .acessibilidade-rapida { flex-wrap: wrap; }
+.menu-celular .aparencia-painel { position: static; width: auto; margin-top: var(--e2); box-shadow: none; }
+.menu-celular .aparencia { flex: 1; }
+
+/* Contexto recolhido */
+.contexto-celular { display: block; padding: 0; }
+.contexto-celular summary, .contexto-linha {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--e3);
+  min-height: 48px; padding: var(--e1) var(--e4); cursor: pointer; list-style: none;
+}
+.contexto-linha { cursor: default; max-width: none; }
+.contexto-celular summary::-webkit-details-marker { display: none; }
+.contexto-resumo { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--e2); min-width: 0; font-size: var(--t-pequeno); }
+.contexto-resumo strong { font-size: var(--t-corpo); font-weight: 600; }
+.contexto-resumo span { color: var(--inkSoft); }
+.contexto-trocar { flex: none; display: inline-flex; align-items: center; gap: var(--e1); font-size: var(--t-pequeno); font-weight: 600; color: var(--accent-ink); }
+.contexto-trocar::after { content: ''; width: 7px; height: 7px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg) translateY(-2px); }
+.contexto-celular[open] .contexto-trocar::after { transform: rotate(-135deg) translateY(-2px); }
+.contexto-campos { display: grid; gap: var(--e3); padding: 0 var(--e4) var(--e4); }
+.contexto-campos .contexto-item, .contexto-campos .entrada { width: 100%; min-width: 0; }
+.contexto-campos .contexto-demo { margin-left: 0; }
+
+@media (max-width: 980px) {
+  main { padding: var(--e5) var(--e4) var(--e7); }
+  .pagina { gap: var(--e5); }
+  /* Rodapé enxuto: telefones em grade, colunas de links mais curtas */
+  .rodape-contatos { padding: var(--e5) var(--e4); gap: var(--e3); }
+  .rodape-contatos h2 { font-size: var(--t-destaque); }
+  .rodape-colunas { padding: var(--e5) var(--e4); gap: var(--e4); }
+}
+
+@media (max-width: 600px) {
+  h1 { font-size: 1.75rem; }
+  .pagina-cabeca p { font-size: var(--t-corpo); }
+  .faixa-demo { padding: 6px var(--e3); font-size: .75rem; }
+  .rodape-contatos ul { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--e3) var(--e2); }
+  .rodape-contatos strong { font-size: 1.5rem; }
+  .rodape-contatos span { font-size: .75rem; line-height: 1.3; }
+  .rodape-colunas { grid-template-columns: 1fr; }
+  .rodape-colunas > div:first-child { display: none; }
+  .tela-avulsa main { padding: var(--e5) var(--e4); }
+  .acesso-coluna { gap: var(--e4); }
+  .marca .brasao { width: 48px; height: 55px; }
+}
+
+/* Campos com menos de 16px fazem o Safari do iPhone dar zoom ao tocar. */
+@media (max-width: 980px) {
+  input.entrada, select.entrada, textarea.entrada, .contexto-demo .entrada { font-size: max(1rem, 16px); }
+}
+.faixa-demo-curta { display: none; }
+@media (max-width: 600px) {
+  .faixa-demo-longa { display: none; }
+  .faixa-demo-curta { display: inline; }
 }

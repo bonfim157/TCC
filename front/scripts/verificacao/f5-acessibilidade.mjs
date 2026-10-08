@@ -75,6 +75,14 @@ for (const esquema of ['light', 'dark']) {
     // Professora: início, registro (com erros e nos três passos), meus registros, caso próprio
     const ana = await entrar(ctx, 'Ana Ribeiro');
     await auditar(ana, 'início (professora)');
+    // No celular, o menu e o contexto ficam recolhidos: abre cada um e audita o conteúdo
+    if (largura < 980) {
+      await ana.locator('.botao-menu').click();
+      await auditar(ana, 'menu do celular aberto');
+      await ana.keyboard.press('Escape');
+      await ana.locator('.contexto-celular summary').click();
+      await auditar(ana, 'contexto do celular aberto');
+    }
     await visitar(ana, '/registrar', 'registrar passo 1');
     await ana.getByRole('button', { name: /Continuar/ }).click();
     await auditar(ana, 'registrar com erros');

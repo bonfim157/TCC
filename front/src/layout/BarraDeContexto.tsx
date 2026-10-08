@@ -4,6 +4,7 @@ import { DialogoConfirmacao } from '../components/estrutura';
 import { nomePerfil } from '../state/perfis';
 import { useGuardaDeRascunho } from '../state/rascunhos';
 import { useSessao } from '../state/sessao';
+import { CELULAR, useMidia } from '../state/useMidia';
 
 type Troca = { tipo: 'rede' | 'escola'; valor: string } | null;
 
@@ -16,6 +17,7 @@ export function BarraDeContexto() {
   const { haRascunho } = useGuardaDeRascunho();
   const [pendente, setPendente] = useState<Troca>(null);
   const id = useId();
+  const celular = useMidia(CELULAR);
 
   if (!s.sessao || !s.rede) return null;
 
@@ -28,8 +30,8 @@ export function BarraDeContexto() {
       ? s.redes.find((r) => r.id === pendente.valor)?.nome
       : s.escolas.find((e) => e.id === pendente?.valor)?.nome;
 
-  return (
-    <div className="contexto" role="group" aria-label="Onde você está atuando">
+  const campos = (
+    <>
       {redesDoUsuario.length > 1 ? (
         <div className="contexto-item">
           <label htmlFor={`${id}-rede`}>Rede</label>
@@ -67,6 +69,36 @@ export function BarraDeContexto() {
         </select>
       </div>
       )}
+    </>
+  );
+
+  // No celular, o contexto recolhe numa linha com escola e perfil; os seletores abrem sob demanda.
+  const resumo = (
+    <span className="contexto-resumo">
+      <strong>{s.escola?.sigla ?? s.escola?.nome ?? s.rede.nome}</strong>
+      <span>{s.perfil ? nomePerfil[s.perfil] : ''}{s.perfilDemo ? ' (vendo como)' : ''}</span>
+    </span>
+  );
+  const podeTrocar = redesDoUsuario.length > 1 || s.escolas.length > 1 || s.demonstracao;
+  const barra = celular ? (
+    podeTrocar ? (
+      <details className="contexto contexto-celular">
+        <summary>
+          {resumo}
+          <span className="contexto-trocar">Trocar</span>
+        </summary>
+        <div className="contexto-campos" role="group" aria-label="Onde você está atuando">{campos}</div>
+      </details>
+    ) : (
+      <div className="contexto contexto-celular"><p className="contexto-linha">{resumo}</p></div>
+    )
+  ) : (
+    <div className="contexto" role="group" aria-label="Onde você está atuando">{campos}</div>
+  );
+
+  return (
+    <>
+      {barra}
 
       <DialogoConfirmacao
         aberto={pendente !== null}
@@ -85,6 +117,6 @@ export function BarraDeContexto() {
           alterações serão descartadas.
         </p>
       </DialogoConfirmacao>
-    </div>
+    </>
   );
 }
