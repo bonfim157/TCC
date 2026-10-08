@@ -75,12 +75,24 @@ for (const esquema of ['light', 'dark']) {
     // Professora: início, registro (com erros e nos três passos), meus registros, caso próprio
     const ana = await entrar(ctx, 'Ana Ribeiro');
     await auditar(ana, 'início (professora)');
+    // No celular, o menu e o contexto ficam recolhidos: abre cada um e audita o conteúdo
+    if (largura < 980) {
+      await ana.locator('.botao-menu').click();
+      await auditar(ana, 'menu do celular aberto');
+      await ana.keyboard.press('Escape');
+      await ana.locator('.contexto-celular summary').click();
+      await auditar(ana, 'contexto do celular aberto');
+    }
     await visitar(ana, '/registrar', 'registrar passo 1');
     await ana.getByRole('button', { name: /Continuar/ }).click();
     await auditar(ana, 'registrar com erros');
     await visitar(ana, '/meus-registros');
     await visitar(ana, '/casos/oc-sp-482', 'caso (autora)');
     await visitar(ana, '/guia');
+    await visitar(ana, '/duvidas', 'dúvidas (com sessão)');
+    await ana.locator('.sanfona summary').first().click();
+    await auditar(ana, 'dúvidas com uma resposta aberta');
+    await visitar(ana, '/acessibilidade', 'acessibilidade (com sessão)');
     await visitar(ana, '/pagina-inexistente', 'não encontrada');
     await visitar(ana, '/central', 'sem permissão');
     await ana.close();
@@ -119,12 +131,17 @@ for (const esquema of ['light', 'dark']) {
     await visitar(rita, '/relatorios', 'relatórios (regional, duas escolas)');
     await rita.close();
 
-    // Família: página pública de ciência
-    const pub = await ctx.newPage();
-    await visitar(pub, '/ciencia/demo-482-gabriel', 'ciência (família)');
-    await pub.close();
-
     await ctx.close();
+
+    // Páginas públicas, sem sessão: família, dúvidas e acessibilidade
+    const ctxPublico = await b.newContext({ viewport: { width: largura, height: 900 }, colorScheme: esquema });
+    const pub = await ctxPublico.newPage();
+    await visitar(pub, '/ciencia/demo-482-gabriel', 'ciência (família)');
+    await visitar(pub, '/duvidas', 'dúvidas (sem sessão)');
+    await pub.locator('.sanfona summary').first().click();
+    await auditar(pub, 'dúvidas sem sessão, resposta aberta');
+    await visitar(pub, '/acessibilidade', 'acessibilidade (sem sessão)');
+    await ctxPublico.close();
   }
 }
 await b.close();

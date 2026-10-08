@@ -86,5 +86,7 @@ export function useTemaDaRede(redeId: string | null) {
     raiz.setProperty('--on-accent', p.onAccent);
     raiz.setProperty('--accent-ink', p.accentInk);
     raiz.setProperty('--accent-soft', p.accentSoft);
+    raiz.setProperty('--decor', p.decor);
+    raiz.setProperty('--on-decor', p.onDecor);
   }, [redeId, modoEfetivo]);
 }

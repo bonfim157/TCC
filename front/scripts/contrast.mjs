@@ -14,12 +14,13 @@ for (const mode of ['light', 'dark']) {
   check('urgente / superfície', b.urgent, b.surface); check('urgente / fundo suave', b.urgent, b.urgentSoft);
   check('ok / fundo suave', b.ok, b.okSoft); check('aviso / fundo suave', b.warn, b.warnSoft); check('neutro / fundo suave', b.neutral, b.neutralSoft);
   check('borda forte / superfície (não-texto)', b.lineStrong, b.surface, 3);
+  check('texto da faixa escura', b.onFaixa, b.faixa);
   for (const [id, t] of Object.entries(redeThemes)) {
     const p = t[mode];
     console.log(`-- ${id} ${mode}`);
     check('texto sobre acento', p.onAccent, p.accent); check('acento-texto / superfície', p.accentInk, b.surface);
     check('acento-texto / papel', p.accentInk, b.paper); check('acento-texto / fundo suave', p.accentInk, p.accentSoft);
-    check('tinta / fundo suave', b.ink, p.accentSoft); check('acento / papel (foco, não-texto)', p.accent, b.paper, 3);
+    check('tinta / fundo suave', b.ink, p.accentSoft); check('ícone sobre decoração', p.onDecor, p.decor); check('acento / papel (foco, não-texto)', p.accent, b.paper, 3);
   }
 }
 console.log(fail ? `\n${fail} par(es) abaixo do mínimo.` : '\nTodos os pares atendem WCAG AA.');

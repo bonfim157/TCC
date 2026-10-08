@@ -4,7 +4,8 @@ import { api, ErroDaApi, FalhaDeRede } from '../api/client';
 import { rotas, type CienciaPublica } from '../api/contract';
 import { Botao, CampoTexto } from '../components/controles';
 import { Aviso, EstadoDaCarga } from '../components/feedback';
-import { Timbre } from '../layout/Estrutura';
+import { Rodape, Timbre } from '../layout/Estrutura';
+import { ControlesDeAcessibilidade } from '../layout/MenuAparencia';
 import { useSessao } from '../state/sessao';
 import { useApi } from '../state/useApi';
 import { dataHoraPorExtenso } from '../util/formato';
@@ -46,7 +47,7 @@ export function Ciencia() {
 
   return (
     <div className="tela-avulsa">
-      <Timbre />
+      <Timbre esquerda={<ControlesDeAcessibilidade />} />
       <main id="conteudo">
         <div className="pagina ciencia">
           <EstadoDaCarga estado={carga.estado} tentarDeNovo={carga.tentarDeNovo} rotulo="Carregando a comunicação">
@@ -76,7 +77,7 @@ export function Ciencia() {
           </EstadoDaCarga>
         </div>
       </main>
-      <footer className="rodape">Protótipo acadêmico (TCC), sem vínculo oficial com a Secretaria da Educação. Pessoas e casos são fictícios.</footer>
+      <Rodape links={false} />
     </div>
   );
 }

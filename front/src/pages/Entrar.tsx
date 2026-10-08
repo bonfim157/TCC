@@ -4,8 +4,8 @@ import { api, apiReal, ErroDaApi, FalhaDeRede } from '../api/client';
 import { rotas, type Usuario } from '../api/contract';
 import { Botao, GrupoOpcoes } from '../components/controles';
 import { Aviso, Esqueleto } from '../components/feedback';
-import { Timbre } from '../layout/Estrutura';
-import { MenuAparencia } from '../layout/MenuAparencia';
+import { MarcaDaRede, Rodape } from '../layout/Estrutura';
+import { ControlesDeAcessibilidade } from '../layout/MenuAparencia';
 import { nomePerfil } from '../state/perfis';
 import { useSessao } from '../state/sessao';
 import { EntrarComSenha } from './EntrarComSenha';
@@ -20,11 +20,12 @@ export function Entrar() {
   const [parametros] = useSearchParams();
   const porSenha = apiReal && (!s.demonstracao || parametros.get('modo') === 'senha');
   return (
-    <div className="tela-avulsa">
-      <Timbre>
-        <MenuAparencia />
-      </Timbre>
+    <div className="tela-avulsa tela-acesso">
+      <div className="acesso-topo"><ControlesDeAcessibilidade /></div>
       <main id="conteudo">
+        <div className="acesso-coluna">
+        <MarcaDaRede />
+        <div className="acesso-cartao">
         {s.conferindoSessao ? (
           <div className="pagina entrar"><Esqueleto rotulo="Conferindo seu acesso" /></div>
         ) : porSenha ? (
@@ -32,10 +33,13 @@ export function Entrar() {
         ) : (
           <EntrarDemonstracao />
         )}
+        </div>
+        <p className="acesso-ajuda">
+          Primeira vez por aqui? <Link to="/duvidas">Veja as dúvidas frequentes</Link>
+        </p>
+        </div>
       </main>
-      <footer className="rodape">
-        Protótipo acadêmico (TCC), sem vínculo oficial com a Secretaria da Educação.{s.demonstracao ? ' Pessoas e casos são fictícios.' : ''}
-      </footer>
+      <Rodape links={false} />
     </div>
   );
 }
@@ -104,7 +108,7 @@ function EntrarDemonstracao() {
         <form className="pagina entrar" onSubmit={enviar} noValidate>
           <div className="pagina-cabeca">
             <h1>Entrar</h1>
-            <p>Registro e acompanhamento de ocorrências escolares.</p>
+            <p>Registre e acompanhe as ocorrências da sua escola.</p>
           </div>
 
           <Aviso tipo="atencao" titulo="Ambiente de demonstração">
@@ -154,9 +158,7 @@ function EntrarDemonstracao() {
             )
           )}
 
-          <div>
-            <Botao type="submit" carregando={enviando}>Entrar</Botao>
-          </div>
+          <Botao type="submit" carregando={enviando} className="btn-largo">Entrar</Botao>
           {apiReal && (
             <p className="nota-rodape"><Link to="/entrar?modo=senha">Entrar com e-mail e senha</Link></p>
           )}

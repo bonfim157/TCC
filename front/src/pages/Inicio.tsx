@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { rotas, type OcorrenciaResumo, type Perfil, type PrazoProximo } from '../api/contract';
 import { Painel } from '../components/estrutura';
 import { Aviso, Etiqueta, EstadoDaCarga, EtiquetaStatus } from '../components/feedback';
+import { IconeMais } from '../components/icones';
+import { IlustracaoBoasVindas } from '../components/ilustracoes';
 import { nomePerfil, perfisDeEscola, podeAcessar } from '../state/perfis';
 import { useRascunhosLocais } from '../state/rascunhosLocais';
 import { useDono } from '../state/useDono';
@@ -17,6 +20,34 @@ function quandoVence(prazo: string) {
   if (d === 0) return { texto: 'Vence hoje', tipo: 'atencao' as const };
   if (d === 1) return { texto: 'Vence amanhã', tipo: 'atencao' as const };
   return { texto: `Em ${d} dias`, tipo: 'neutra' as const };
+}
+
+const CHAVE_TOUR = 'pref.tourVisto';
+function lerTourVisto() {
+  try { return localStorage.getItem(CHAVE_TOUR) === '1'; } catch { return false; }
+}
+
+/** Cartão de boas-vindas: aponta o guia até a pessoa dispensar. */
+function ConhecaOSistema() {
+  const [visto, setVisto] = useState(lerTourVisto);
+  if (visto) return null;
+  const dispensar = () => {
+    setVisto(true);
+    try { localStorage.setItem(CHAVE_TOUR, '1'); } catch { /* vale só nesta visita */ }
+  };
+  return (
+    <section className="boas-vindas" aria-labelledby="t-boas-vindas">
+      <div className="boas-vindas-texto">
+        <h2 id="t-boas-vindas">Conheça o sistema</h2>
+        <p>Veja em poucos minutos como registrar uma ocorrência, acompanhar o caso e quem pode ver cada informação.</p>
+        <div className="acoes-linha">
+          <button type="button" className="btn btn-secundario" onClick={dispensar}>Agora não</button>
+          <Link className="btn btn-primario" to="/guia" onClick={dispensar}>Ver o guia</Link>
+        </div>
+      </div>
+      <IlustracaoBoasVindas />
+    </section>
+  );
 }
 
 /** Tela 3: início. Mostra o que pede ação agora, conforme o perfil. */
@@ -40,13 +71,20 @@ export function Inicio() {
 
   return (
     <div className="pagina">
-      <div className="pagina-cabeca">
-        <h1>{saudacao}, {primeiroNome}.</h1>
-        <p>
-          {nomePerfil[perfil]}
-          {deEscola && s.escola ? <>, {s.escola.nome}</> : <>, {s.rede.nome}</>}.
-        </p>
+      <div className="inicio-cabeca">
+        <div className="pagina-cabeca">
+          <h1>{saudacao}, {primeiroNome}!</h1>
+          <p>
+            {nomePerfil[perfil]}
+            {deEscola && s.escola ? <>, {s.escola.nome}</> : <>, {s.rede.nome}</>}.
+          </p>
+        </div>
+        {registra && (
+          <Link className="btn btn-primario btn-grande" to="/registrar"><IconeMais />Registrar ocorrência</Link>
+        )}
       </div>
+
+      <ConhecaOSistema />
 
       {s.perfilDemo && (
         <Aviso tipo="atencao" titulo="Você está vendo como outro perfil">
@@ -56,17 +94,13 @@ export function Inicio() {
         </Aviso>
       )}
 
-      {registra && (
-        <div className="inicio-acao">
-          <Link className="btn btn-primario btn-grande" to="/registrar">Registrar ocorrência</Link>
-          {rascunhos.length > 0 && (
-            <p>
-              Você tem {rascunhos.length === 1 ? '1 rascunho não enviado' : `${rascunhos.length} rascunhos não enviados`}.{' '}
-              <Link to={`/registrar/${rascunhos[0].id}`}>Continuar o último</Link>
-              {rascunhos.length > 1 && <> ou <Link to="/meus-registros">ver todos</Link></>}.
-            </p>
-          )}
-        </div>
+      {registra && rascunhos.length > 0 && (
+        <Aviso tipo="info" titulo={rascunhos.length === 1 ? 'Você tem 1 rascunho não enviado' : `Você tem ${rascunhos.length} rascunhos não enviados`}>
+          <p>
+            <Link to={`/registrar/${rascunhos[0].id}`}>Continuar o último</Link>
+            {rascunhos.length > 1 && <> ou <Link to="/meus-registros">ver todos</Link></>}.
+          </p>
+        </Aviso>
       )}
 
       <div className="inicio-grade">

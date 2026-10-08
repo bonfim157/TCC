@@ -126,7 +126,7 @@ export function CampoSelecao({
 }
 
 /* ---------- Grupo de opções (rádio) ---------- */
-export type Opcao = { valor: string; rotulo: string; desativada?: boolean };
+export type Opcao = { valor: string; rotulo: string; desativada?: boolean; icone?: ReactNode };
 
 export function GrupoOpcoes({
   rotulo, ajuda, erro, opcional, opcoes, valor, aoMudar, nome, estilo = 'livre', id: idExterno,
@@ -136,7 +136,7 @@ export function GrupoOpcoes({
   valor: string | null;
   aoMudar: (v: string) => void;
   nome?: string;
-  estilo?: 'livre' | 'sim-nao';
+  estilo?: 'livre' | 'sim-nao' | 'cartoes';
 }) {
   const gerado = useId();
   const id = idExterno ?? gerado;
@@ -145,7 +145,7 @@ export function GrupoOpcoes({
     <fieldset className="campo" id={id} tabIndex={-1} aria-describedby={descritores(`${id}-ajuda`, `${id}-erro`, ajuda, erro)}>
       <legend><Rotulo rotulo={rotulo} opcional={opcional} /></legend>
       {ajuda && <p className="campo-ajuda" id={`${id}-ajuda`}>{ajuda}</p>}
-      <div className={estilo === 'sim-nao' ? 'opcoes sim-nao' : 'opcoes'} aria-invalid={erro ? true : undefined}>
+      <div className={estilo === 'sim-nao' ? 'opcoes sim-nao' : estilo === 'cartoes' ? 'opcoes opcoes-cartoes' : 'opcoes'} aria-invalid={erro ? true : undefined}>
         {opcoes.map((o) => (
           <label className="opcao" key={o.valor}>
             <input
@@ -156,7 +156,7 @@ export function GrupoOpcoes({
               disabled={o.desativada}
               onChange={() => aoMudar(o.valor)}
             />
-            <span>{o.rotulo}</span>
+            <span>{o.icone && <span className="opcao-icone" aria-hidden="true">{o.icone}</span>}{o.rotulo}</span>
           </label>
         ))}
       </div>

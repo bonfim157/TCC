@@ -5,28 +5,33 @@
  * abaixo são o fallback do tema claro, usados antes do JS rodar.
  */
 :root {
-  --paper: #F4F5F6; --surface: #FFFFFF; --ink: #14181C; --inkSoft: #45505A; --line: #C7CDD3; --lineStrong: #8A949E;
+  --paper: #F7F7F9; --surface: #FFFFFF; --ink: #1E1F2E; --inkSoft: #4B4D63; --line: #E1E2E9; --lineStrong: #878A9E;
   --urgent: #9A3412; --urgentSoft: #F7E6DD; --ok: #1E6B3A; --okSoft: #E1F0E6; --warn: #7A4F00; --warnSoft: #FBF1D9;
   --neutral: #4F5864; --neutralSoft: #E7E9EC;
-  --accent: #1B4B73; --on-accent: #FFFFFF; --accent-ink: #1B4B73; --accent-soft: #E4ECF3;
+  --faixa: #16171F; --onFaixa: #FFFFFF;
+  --accent: #8A6B1F; --on-accent: #FFFFFF; --accent-ink: #7A5E17; --accent-soft: #F6EFDC;
+  --decor: #C9AE5F; --on-decor: #1E1F2E;
 
-  --serif: 'Source Serif 4', Georgia, 'Times New Roman', serif;
-  --sans: 'Source Sans 3', 'Segoe UI', Arial, sans-serif;
+  /* Poppins em toda a interface; os títulos ganham peso, não outra família. */
+  --sans: 'Poppins', 'Segoe UI', Arial, sans-serif;
+  --titulo: var(--sans);
 
-  /* Escala tipográfica sobre 17px: 14 · 17 · 20 · 22 · 28 · 36 */
-  --t-pequeno: 0.8235rem;
+  /* Escala tipográfica sobre 16px: 13 · 16 · 18 · 20 · 26 · 34 */
+  --t-pequeno: 0.8125rem;
   --t-corpo: 1rem;
-  --t-destaque: 1.1765rem;
-  --t-h3: 1.2941rem;
-  --t-h2: 1.6471rem;
-  --t-h1: 2.1176rem;
+  --t-destaque: 1.125rem;
+  --t-h3: 1.25rem;
+  --t-h2: 1.625rem;
+  --t-h1: 2.125rem;
 
   /* Espaçamento em múltiplos de 4px */
   --e1: 4px; --e2: 8px; --e3: 12px; --e4: 16px; --e5: 24px; --e6: 32px; --e7: 48px; --e8: 64px;
 
-  /* Raios por hierarquia: controles pequenos, superfícies médias */
-  --r-controle: 6px;
-  --r-superficie: 10px;
+  /* Raios por hierarquia: campos, superfícies e botões em pílula */
+  --r-controle: 10px;
+  --r-superficie: 16px;
+  --r-pilula: 999px;
+  --sombra: 0 1px 2px rgb(30 31 46 / .06), 0 4px 16px rgb(30 31 46 / .06);
 
   --alvo: 48px;       /* altura mínima de controles */
   --medida: 68ch;     /* largura máxima de texto corrido */
@@ -37,7 +42,7 @@
 [hidden] { display: none !important; }
 
 html {
-  font-size: calc(106.25% * var(--escala));
+  font-size: calc(100% * var(--escala));
   -webkit-text-size-adjust: 100%;
 }
 
@@ -47,25 +52,27 @@ body {
   color: var(--ink);
   font-family: var(--sans);
   font-size: var(--t-corpo);
-  line-height: 1.55;
+  line-height: 1.6;
   font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
 
 h1, h2, h3 {
-  font-family: var(--serif);
+  font-family: var(--titulo);
   font-weight: 600;
-  line-height: 1.2;
+  line-height: 1.25;
   margin: 0;
   text-wrap: balance;
 }
-h1 { font-size: var(--t-h1); letter-spacing: -0.01em; }
+h1 { font-size: var(--t-h1); letter-spacing: -0.02em; }
+h2 { letter-spacing: -0.01em; }
 h2 { font-size: var(--t-h2); }
 h3 { font-size: var(--t-h3); }
-h4 { font-size: var(--t-corpo); font-weight: 700; margin: 0; }
+h4 { font-size: var(--t-corpo); font-weight: 600; margin: 0; }
 
 p { margin: 0; max-width: var(--medida); }
-a { color: var(--accent-ink); text-underline-offset: 3px; }
+a { color: var(--accent-ink); font-weight: 500; text-underline-offset: 3px; }
 a:hover { text-decoration-thickness: 2px; }
 small { font-size: var(--t-pequeno); }
 
@@ -83,7 +90,7 @@ small { font-size: var(--t-pequeno); }
 .pular-conteudo {
   position: absolute; left: var(--e4); top: -100px; z-index: 100;
   background: var(--surface); color: var(--ink); padding: var(--e3) var(--e4);
-  border: 2px solid var(--accent); border-radius: var(--r-controle); font-weight: 700;
+  border: 2px solid var(--accent); border-radius: var(--r-controle); font-weight: 600;
 }
 .pular-conteudo:focus { top: var(--e4); }
 

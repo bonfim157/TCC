@@ -119,7 +119,7 @@ await p.screenshot({ path: `${out}/35-caso.png`, fullPage: true });
 // Meus registros
 await p.goto(`${B}/meus-registros`);
 await p.waitForTimeout(1200);
-log('meus enviados:', await p.locator('tbody tr').count());
+log('meus enviados:', await p.locator('.cartao-registro').count());
 
 // 6. Professora não abre caso de outra pessoa
 await p.goto(`${B}/casos/oc-sp-483`);

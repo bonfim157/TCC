@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
+import { IconeLua } from '../components/icones';
 import { usePreferencias, type Fonte, type Tema } from '../state/preferencias';
 
 /** Tema e tamanho do texto. Guardados só neste aparelho. */
@@ -35,11 +36,12 @@ export function MenuAparencia() {
       <button
         ref={botao}
         type="button"
-        className="btn btn-secundario"
+        className="btn btn-secundario btn-aparencia"
         aria-expanded={aberto}
         aria-controls={`${id}-painel`}
         onClick={() => setAberto((a) => !a)}
       >
+        <IconeLua width={18} height={18} />
         Aparência
       </button>
       <div className="aparencia-painel" id={`${id}-painel`} hidden={!aberto}>
@@ -66,6 +68,27 @@ export function MenuAparencia() {
           </div>
         </fieldset>
       </div>
+    </div>
+  );
+}
+
+const tamanhos: Fonte[] = [100, 115, 130];
+
+/** Atalhos visíveis no topo, como nos portais de serviço público: aumentar e diminuir o texto, e a aparência. */
+export function ControlesDeAcessibilidade() {
+  const { fonte, definirFonte } = usePreferencias();
+  const i = tamanhos.indexOf(fonte);
+  return (
+    <div className="acessibilidade-rapida">
+      <div className="acessibilidade-texto" role="group" aria-label="Tamanho do texto">
+        <button type="button" aria-label="Aumentar o texto" disabled={i === tamanhos.length - 1} onClick={() => definirFonte(tamanhos[i + 1])}>
+          A<sup aria-hidden="true">+</sup>
+        </button>
+        <button type="button" aria-label="Diminuir o texto" disabled={i === 0} onClick={() => definirFonte(tamanhos[i - 1])}>
+          A<sup aria-hidden="true">−</sup>
+        </button>
+      </div>
+      <MenuAparencia />
     </div>
   );
 }

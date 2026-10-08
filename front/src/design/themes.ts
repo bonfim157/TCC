@@ -8,33 +8,38 @@ export type ModePalette = {
   onAccent: string;     // texto sobre accent
   accentInk: string;    // texto/ícone colorido sobre superfície
   accentSoft: string;   // fundo suave (seleção, aviso informativo)
+  decor: string;        // tom decorativo (círculos de ícone, filetes); nunca leva texto nem foco
+  onDecor: string;      // ícone sobre decor
 };
 
 export type RedeTheme = { light: ModePalette; dark: ModePalette };
 
 export const redeThemes: Record<string, RedeTheme> = {
-  // Rede estadual de São Paulo (piloto: IMSIL, Limeira) — azul institucional documentado
+  // Rede estadual de São Paulo (piloto: IMSIL, Limeira). Dourado de serviço público,
+  // escurecido para o texto branco passar de 4,5:1; o dourado claro fica só como decoração.
   'rede-sp': {
-    light: { accent: '#1B4B73', onAccent: '#FFFFFF', accentInk: '#1B4B73', accentSoft: '#E4ECF3' },
-    dark: { accent: '#8FBEE4', onAccent: '#0B1822', accentInk: '#A9CDEB', accentSoft: '#1C2C3A' },
+    light: { accent: '#8A6B1F', onAccent: '#FFFFFF', accentInk: '#7A5E17', accentSoft: '#F6EFDC', decor: '#C9AE5F', onDecor: '#1E1F2E' },
+    dark: { accent: '#D9BD6C', onAccent: '#16130B', accentInk: '#E5CB7E', accentSoft: '#2B2516', decor: '#D9BD6C', onDecor: '#16130B' },
   },
   // Rede fictícia de testes — verde
   'rede-teste': {
-    light: { accent: '#2F5D3A', onAccent: '#FFFFFF', accentInk: '#2F5D3A', accentSoft: '#E3EEE5' },
-    dark: { accent: '#8CC79A', onAccent: '#0C1A10', accentInk: '#A6D6B1', accentSoft: '#1B2B1F' },
+    light: { accent: '#2F5D3A', onAccent: '#FFFFFF', accentInk: '#2F5D3A', accentSoft: '#E3EEE5', decor: '#8DBB97', onDecor: '#14181C' },
+    dark: { accent: '#8CC79A', onAccent: '#0C1A10', accentInk: '#A6D6B1', accentSoft: '#1B2B1F', decor: '#8CC79A', onDecor: '#0C1A10' },
   },
 };
 
 /** Base neutra e cores de estado, iguais para todas as redes. */
 export const base = {
   light: {
-    paper: '#F4F5F6', surface: '#FFFFFF', ink: '#14181C', inkSoft: '#45505A', line: '#C7CDD3', lineStrong: '#8A949E',
+    paper: '#F7F7F9', surface: '#FFFFFF', ink: '#1E1F2E', inkSoft: '#4B4D63', line: '#E1E2E9', lineStrong: '#878A9E',
     urgent: '#9A3412', urgentSoft: '#F7E6DD', ok: '#1E6B3A', okSoft: '#E1F0E6', warn: '#7A4F00', warnSoft: '#FBF1D9',
     neutral: '#4F5864', neutralSoft: '#E7E9EC',
+    faixa: '#16171F', onFaixa: '#FFFFFF',
   },
   dark: {
     paper: '#12161A', surface: '#1B2126', ink: '#F2F4F5', inkSoft: '#C3CBD1', line: '#3C454E', lineStrong: '#7D8892',
     urgent: '#F0A27A', urgentSoft: '#3A2419', ok: '#8FD3A6', okSoft: '#17301F', warn: '#F2C66D', warnSoft: '#33290F',
     neutral: '#B4BCC3', neutralSoft: '#262D34',
+    faixa: '#07090B', onFaixa: '#F2F4F5',
   },
 } as const;

@@ -115,15 +115,15 @@ function Cores() {
 /* ---------- Tipografia e espaço ---------- */
 function Tipografia() {
   return (
-    <Secao id="tipografia" titulo="Tipografia" intro="Serifada nos títulos, com o tom de documento oficial; sem serifa em toda a interface. O texto-base tem 17px e cresce com a opção de tamanho em Aparência.">
+    <Secao id="tipografia" titulo="Tipografia" intro="Poppins em toda a interface, como nos portais de serviço público; os títulos se distinguem pelo peso, não por outra família. O texto-base tem 16px e cresce com os botões A+ e A− e com a opção de tamanho em Aparência.">
       <Painel>
         <dl className="escala">
-          <div><dt>Título de página, Source Serif 4, 36px</dt><dd><span style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 'var(--t-h1)' }}>Registro de ocorrência</span></dd></div>
-          <div><dt>Título de seção, Source Serif 4, 28px</dt><dd><span style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 'var(--t-h2)' }}>Quem esteve envolvido?</span></dd></div>
-          <div><dt>Subtítulo, Source Serif 4, 22px</dt><dd><span style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 'var(--t-h3)' }}>Plano de apoio</span></dd></div>
-          <div><dt>Destaque, Source Sans 3, 20px</dt><dd><span style={{ fontSize: 'var(--t-destaque)' }}>Descreva o fato, não a pessoa.</span></dd></div>
-          <div><dt>Corpo, Source Sans 3, 17px</dt><dd>Durante o intervalo, houve discussão entre dois estudantes no pátio; ambos foram separados e acolhidos.</dd></div>
-          <div><dt>Apoio, Source Sans 3, 14px</dt><dd><small>Registrado por Coordenação, 25 de setembro, 11h15</small></dd></div>
+          <div><dt>Título de página, Poppins semibold, 34px</dt><dd><span style={{ fontFamily: 'var(--titulo)', fontWeight: 600, fontSize: 'var(--t-h1)' }}>Registro de ocorrência</span></dd></div>
+          <div><dt>Título de seção, Poppins semibold, 26px</dt><dd><span style={{ fontFamily: 'var(--titulo)', fontWeight: 600, fontSize: 'var(--t-h2)' }}>Quem esteve envolvido?</span></dd></div>
+          <div><dt>Subtítulo, Poppins semibold, 20px</dt><dd><span style={{ fontFamily: 'var(--titulo)', fontWeight: 600, fontSize: 'var(--t-h3)' }}>Plano de apoio</span></dd></div>
+          <div><dt>Destaque, Poppins, 18px</dt><dd><span style={{ fontSize: 'var(--t-destaque)' }}>Descreva o fato, não a pessoa.</span></dd></div>
+          <div><dt>Corpo, Poppins, 16px</dt><dd>Durante o intervalo, houve discussão entre dois estudantes no pátio; ambos foram separados e acolhidos.</dd></div>
+          <div><dt>Apoio, Poppins, 13px</dt><dd><small>Registrado por Coordenação, 25 de setembro, 11h15</small></dd></div>
         </dl>
       </Painel>
     </Secao>
@@ -143,8 +143,9 @@ function Espaco() {
         </Painel>
         <Painel titulo="Cantos e bordas">
           <ul className="formas">
-            <li><span style={{ borderRadius: 'var(--r-controle)' }} aria-hidden="true" />Controles: 6px</li>
-            <li><span style={{ borderRadius: 'var(--r-superficie)' }} aria-hidden="true" />Superfícies: 10px</li>
+            <li><span style={{ borderRadius: 'var(--r-pilula)' }} aria-hidden="true" />Botões: pílula</li>
+            <li><span style={{ borderRadius: 'var(--r-controle)' }} aria-hidden="true" />Campos: 10px</li>
+            <li><span style={{ borderRadius: 'var(--r-superficie)' }} aria-hidden="true" />Superfícies: 16px</li>
             <li><span style={{ borderRadius: 999 }} aria-hidden="true" />Etiquetas: arredondadas</li>
           </ul>
         </Painel>

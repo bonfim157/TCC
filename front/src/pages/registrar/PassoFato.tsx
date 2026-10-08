@@ -1,6 +1,9 @@
 import type { Categoria, DadosDoFato } from '../../api/contract';
 import { CampoAreaTexto, CampoTexto, GrupoOpcoes } from '../../components/controles';
 import { Aviso } from '../../components/feedback';
+import {
+  IconeAtencao, IconeCalendario, IconeCelular, IconeConversa, IconeCoracao, IconeEscudo, IconeMartelo, IconePessoas, IconeRegra,
+} from '../../components/icones';
 import type { RascunhoRegistro } from '../../state/rascunhosLocais';
 import { hojeISO } from '../../util/formato';
 import type { Erros } from './Registrar';
@@ -20,6 +23,20 @@ export function validarFato(r: RascunhoRegistro): Erros {
   return e;
 }
 
+/** Ícone de cada tipo, pelo nome: as redes podem criar tipos novos, que caem no ícone genérico. */
+function iconeDoTipo(nome: string) {
+  const n = nome.toLowerCase();
+  if (/bullying/.test(n)) return <IconeCelular />;
+  if (/convivência|conflito/.test(n)) return <IconeConversa />;
+  if (/patrimônio|dano/.test(n)) return <IconeMartelo />;
+  if (/discrimina/.test(n)) return <IconePessoas />;
+  if (/saúde|cuidado/.test(n)) return <IconeCoracao />;
+  if (/frequência|atraso/.test(n)) return <IconeCalendario />;
+  if (/regra/.test(n)) return <IconeRegra />;
+  if (/prote|vulnerab/.test(n)) return <IconeEscudo />;
+  return <IconeAtencao />;
+}
+
 const eSensivel = (nome?: string) => !!nome && /prote|vulnerab|discrimina/i.test(nome);
 
 export function PassoFato({ r, categorias, erros, atualizar }: {
@@ -37,7 +54,8 @@ export function PassoFato({ r, categorias, erros, atualizar }: {
       <GrupoOpcoes
         id="campo-categoria"
         rotulo="Tipo de ocorrência"
-        opcoes={categorias.filter((c) => c.ativa).map((c) => ({ valor: c.id, rotulo: c.nome }))}
+        estilo="cartoes"
+        opcoes={categorias.filter((c) => c.ativa).map((c) => ({ valor: c.id, rotulo: c.nome, icone: iconeDoTipo(c.nome) }))}
         valor={f.categoriaId || null}
         aoMudar={(v) => muda({ categoriaId: v })}
         erro={erros.categoria}

@@ -6,7 +6,7 @@
 /* Relatório */
 .relatorio-resumo { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--e2) var(--e4); }
 .relatorio-total { font-size: var(--t-destaque); }
-.relatorio-total strong { font-family: var(--serif); font-size: var(--t-h1); line-height: 1; }
+.relatorio-total strong { font-family: var(--titulo); font-size: var(--t-h1); line-height: 1; }
 .relatorio-grade { display: grid; gap: var(--e4); grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); align-items: start; }
 
 /* Barras horizontais de uma série: marca fina, ponta arredondada, valor escrito ao lado */
@@ -16,7 +16,7 @@
 .barras tr + tr th, .barras tr + tr td { border-top: 1px solid var(--line); }
 .barra-trilho { display: flex; align-items: center; gap: var(--e2); min-height: 28px; }
 .barra { display: block; height: 14px; min-width: 4px; background: var(--accent); border-radius: 0 4px 4px 0; }
-.barra-valor { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.barra-valor { font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .barra-suprimida { font-weight: 400; font-style: italic; color: var(--inkSoft); }
 
 /* Administração */
@@ -28,6 +28,11 @@
 .modelo-texto { font-size: var(--t-pequeno); }
 .matriz th, .matriz td { text-align: center; white-space: nowrap; }
 .matriz th[scope='row'] { text-align: left; }
-.matriz-sim { color: var(--ok); font-weight: 700; background: var(--okSoft); }
+.matriz-sim { color: var(--ok); font-weight: 600; background: var(--okSoft); }
 .matriz-nao { color: var(--inkSoft); }
 .tabela td .marcar { padding-top: 0; min-height: 0; }
+/* A matriz é de duas entradas: no celular ela rola de lado, com o perfil sempre visível. */
+.matriz th[scope='row'] { position: sticky; left: 0; background: var(--surface); z-index: 1; box-shadow: 1px 0 0 var(--line); }
+@media (max-width: 600px) {
+  .barras th { width: 50%; }
+}
