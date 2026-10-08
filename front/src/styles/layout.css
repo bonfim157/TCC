@@ -86,8 +86,9 @@
 .contexto-item .entrada { min-height: 44px; padding-top: 6px; padding-bottom: 6px; font-weight: 500; max-width: 100%; border-radius: var(--r-pilula); padding-left: var(--e4); }
 .contexto-escola .entrada { min-width: 260px; }
 .contexto-fixo { display: flex; align-items: center; min-height: 44px; font-weight: 600; }
+/* "Ver como" é ferramenta da demonstração: fica pequeno, no canto, sem disputar atenção. */
 .contexto-demo { margin-left: auto; }
-.contexto-demo .entrada { background-color: var(--warnSoft); border-color: var(--warn); border-style: dashed; }
+.contexto-demo .entrada { min-height: 40px; font-size: var(--t-pequeno); font-weight: 400; border-style: dashed; border-color: var(--lineStrong); background-color: var(--surface); }
 
 /* ---------- Sem conexão ---------- */
 .faixa-offline {

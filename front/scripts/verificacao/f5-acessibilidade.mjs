@@ -81,6 +81,10 @@ for (const esquema of ['light', 'dark']) {
     await visitar(ana, '/meus-registros');
     await visitar(ana, '/casos/oc-sp-482', 'caso (autora)');
     await visitar(ana, '/guia');
+    await visitar(ana, '/duvidas', 'dúvidas (com sessão)');
+    await ana.locator('.sanfona summary').first().click();
+    await auditar(ana, 'dúvidas com uma resposta aberta');
+    await visitar(ana, '/acessibilidade', 'acessibilidade (com sessão)');
     await visitar(ana, '/pagina-inexistente', 'não encontrada');
     await visitar(ana, '/central', 'sem permissão');
     await ana.close();
@@ -119,12 +123,17 @@ for (const esquema of ['light', 'dark']) {
     await visitar(rita, '/relatorios', 'relatórios (regional, duas escolas)');
     await rita.close();
 
-    // Família: página pública de ciência
-    const pub = await ctx.newPage();
-    await visitar(pub, '/ciencia/demo-482-gabriel', 'ciência (família)');
-    await pub.close();
-
     await ctx.close();
+
+    // Páginas públicas, sem sessão: família, dúvidas e acessibilidade
+    const ctxPublico = await b.newContext({ viewport: { width: largura, height: 900 }, colorScheme: esquema });
+    const pub = await ctxPublico.newPage();
+    await visitar(pub, '/ciencia/demo-482-gabriel', 'ciência (família)');
+    await visitar(pub, '/duvidas', 'dúvidas (sem sessão)');
+    await pub.locator('.sanfona summary').first().click();
+    await auditar(pub, 'dúvidas sem sessão, resposta aberta');
+    await visitar(pub, '/acessibilidade', 'acessibilidade (sem sessão)');
+    await ctxPublico.close();
   }
 }
 await b.close();
