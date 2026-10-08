@@ -14,7 +14,7 @@
 .registrar h1:focus { outline: none; }
 .resumo-erros:focus { outline: none; }
 .resumo-erros ul { margin: var(--e2) 0 0; padding-left: 1.2em; }
-.resumo-erros a { color: var(--urgent); font-weight: 700; }
+.resumo-erros a { color: var(--urgent); font-weight: 600; }
 .bloco-risco {
   display: grid; gap: var(--e4); padding: var(--e5);
   background: var(--surface); border: 2px solid var(--lineStrong); border-radius: var(--r-superficie);
@@ -26,7 +26,7 @@
 .lista-envolvidos { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--e3); }
 .lista-envolvidos .painel, .anexo { display: grid; gap: var(--e4); padding: var(--e4) var(--e5); }
 .envolvido-cabeca { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--e3); }
-.envolvido-cabeca h3 { font-family: var(--sans); font-size: var(--t-destaque); font-weight: 700; }
+.envolvido-cabeca h3 { font-family: var(--sans); font-size: var(--t-destaque); font-weight: 600; }
 .envolvido-cabeca p { color: var(--inkSoft); font-size: var(--t-pequeno); }
 .busca-pessoas { display: grid; gap: var(--e3); }
 .resultados-busca { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: var(--r-superficie); background: var(--surface); }
@@ -45,7 +45,7 @@
 .revisao-cabeca { display: flex; justify-content: space-between; align-items: baseline; gap: var(--e3); }
 .resumo { margin: 0; display: grid; gap: var(--e3); }
 .resumo div { display: grid; grid-template-columns: minmax(120px, 190px) 1fr; gap: var(--e3); }
-.resumo dt { font-weight: 700; color: var(--inkSoft); font-size: var(--t-pequeno); padding-top: 2px; }
+.resumo dt { font-weight: 600; color: var(--inkSoft); font-size: var(--t-pequeno); padding-top: 2px; }
 .resumo dd { margin: 0; }
 @media (max-width: 560px) { .resumo div { grid-template-columns: 1fr; gap: 0; } }
 .texto-relato { white-space: pre-wrap; max-width: var(--medida); }
@@ -64,8 +64,8 @@
 }
 .protocolo h1 { font-size: var(--t-h2); }
 .protocolo h1:focus { outline: none; }
-.protocolo-rotulo { font-size: var(--t-pequeno); color: var(--inkSoft); font-weight: 700; margin-top: var(--e3); }
-.protocolo-numero { font-family: var(--serif); font-weight: 700; font-size: 2.6rem; line-height: 1; letter-spacing: .02em; color: var(--accent-ink); }
+.protocolo-rotulo { font-size: var(--t-pequeno); color: var(--inkSoft); font-weight: 600; margin-top: var(--e3); }
+.protocolo-numero { font-family: var(--titulo); font-weight: 600; font-size: 2.6rem; line-height: 1; letter-spacing: .02em; color: var(--accent-ink); }
 
 /* ---------- Caso ---------- */
 .caso { gap: var(--e5); }
@@ -73,7 +73,7 @@
   display: flex; justify-content: space-between; align-items: flex-end; gap: var(--e4); flex-wrap: wrap;
   padding-bottom: var(--e4); border-bottom: 2px solid var(--line);
 }
-.caso-rotulo { font-size: var(--t-pequeno); color: var(--inkSoft); font-weight: 700; }
+.caso-rotulo { font-size: var(--t-pequeno); color: var(--inkSoft); font-weight: 600; }
 .caso-cabeca h1 { font-size: 2.4rem; letter-spacing: .01em; }
 .caso-meta { color: var(--inkSoft); }
 .caso-grade { display: grid; gap: var(--e5); grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); align-items: start; }
@@ -86,7 +86,7 @@
 .evento:first-child { border-top: 0; padding-top: 0; }
 .evento-quando { font-size: var(--t-pequeno); color: var(--inkSoft); font-weight: 600; padding-right: var(--e3); border-right: 2px solid var(--accent); }
 .evento-corpo { display: grid; gap: 2px; }
-.evento-corpo h3 { font-family: var(--sans); font-size: var(--t-corpo); font-weight: 700; }
+.evento-corpo h3 { font-family: var(--sans); font-size: var(--t-corpo); font-weight: 600; }
 .evento-autor { font-size: var(--t-pequeno); color: var(--inkSoft); }
 .evento-adendo .evento-quando { border-right-style: dashed; border-right-color: var(--warn); }
 .evento-adendo .evento-corpo { background: var(--warnSoft); border-radius: 4px; padding: var(--e2) var(--e3); }
@@ -105,7 +105,7 @@
   display: grid; align-content: start; padding: var(--e3) var(--e4);
   border: 1px solid var(--line); border-radius: var(--r-controle); color: var(--inkSoft); font-size: var(--t-pequeno);
 }
-.contagem strong { font-family: var(--serif); font-size: var(--t-h2); color: var(--ink); line-height: 1.1; }
+.contagem strong { font-family: var(--titulo); font-size: var(--t-h2); color: var(--ink); line-height: 1.1; }
 .contagem-urgente { border-color: var(--urgent); background: var(--urgentSoft); }
 .contagem-urgente strong { color: var(--urgent); }
 .lista-prazos, .lista-rascunhos { list-style: none; margin: 0; padding: 0; display: grid; }

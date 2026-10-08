@@ -8,7 +8,7 @@ code { font-size: .92em; background: var(--neutralSoft); padding: 1px 6px; borde
 .lista-areas { list-style: none; margin: 0; padding: 0; display: grid; }
 .lista-areas li { display: grid; gap: 2px; padding: var(--e3) 0; border-top: 1px solid var(--line); }
 .lista-areas li:first-child { border-top: 0; padding-top: 0; }
-.lista-areas a { font-weight: 700; font-size: var(--t-destaque); }
+.lista-areas a { font-weight: 600; font-size: var(--t-destaque); }
 .lista-areas span { color: var(--inkSoft); }
 .nota-rodape { color: var(--inkSoft); font-size: var(--t-pequeno); }
 
@@ -67,7 +67,7 @@ code { font-size: .92em; background: var(--neutralSoft); padding: 1px 6px; borde
 .passos-mfa a { display: inline-block; margin-top: var(--e2); }
 .segredo-mfa {
   display: block; margin-top: var(--e2); padding: var(--e3) var(--e4);
-  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace; font-size: var(--t-destaque); font-weight: 700;
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace; font-size: var(--t-destaque); font-weight: 600;
   letter-spacing: .06em; overflow-wrap: anywhere; user-select: all;
   background: var(--surface); border: 1px solid var(--lineStrong); border-radius: var(--r-controle, 6px);
 }

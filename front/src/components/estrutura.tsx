@@ -224,7 +224,7 @@ export function Brasao({ sigla, tamanho = 44 }: { sigla: string; tamanho?: numbe
     <svg className="brasao" width={tamanho} height={tamanho * 1.15} viewBox="0 0 40 46" aria-hidden="true" focusable="false">
       <path d="M20 1.5 37.5 7v15.5c0 11-7.4 18.6-17.5 22-10.1-3.4-17.5-11-17.5-22V7L20 1.5Z" fill="var(--accent)" />
       <path d="M20 5.2 34 9.6v12.9c0 9-5.8 15.3-14 18.3-8.2-3-14-9.3-14-18.3V9.6l14-4.4Z" fill="none" stroke="var(--on-accent)" strokeWidth="1.2" opacity=".7" />
-      <text x="20" y="27.5" textAnchor="middle" fontFamily="var(--serif)" fontWeight="700" fontSize="13" fill="var(--on-accent)">{sigla}</text>
+      <text x="20" y="27.5" textAnchor="middle" fontFamily="var(--titulo)" fontWeight="700" fontSize="13" fill="var(--on-accent)">{sigla}</text>
     </svg>
   );
 }

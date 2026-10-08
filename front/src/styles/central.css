@@ -10,7 +10,7 @@
   font: inherit; text-align: left; color: var(--inkSoft); cursor: pointer;
   background: var(--surface); border: 2px solid var(--line); border-radius: var(--r-superficie);
 }
-.indicador strong { font-family: var(--serif); font-size: var(--t-h2); line-height: 1.1; color: var(--ink); }
+.indicador strong { font-family: var(--titulo); font-size: var(--t-h2); line-height: 1.1; color: var(--ink); }
 .indicador span { font-size: var(--t-pequeno); font-weight: 600; }
 .indicador:hover { border-color: var(--lineStrong); }
 .indicador-alerta { border-color: var(--urgent); background: var(--urgentSoft); }
@@ -32,7 +32,7 @@
 .fila-item:hover { border-color: var(--lineStrong); border-left-color: var(--lineStrong); }
 .fila-item[aria-current='true'] { border-color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); }
 .fila-linha { display: flex; justify-content: space-between; align-items: center; gap: var(--e2); flex-wrap: wrap; }
-.fila-linha strong { font-family: var(--serif); font-size: var(--t-destaque); }
+.fila-linha strong { font-family: var(--titulo); font-size: var(--t-destaque); }
 .fila-tipo { font-weight: 600; }
 .fila-meta { font-size: var(--t-pequeno); color: var(--inkSoft); }
 .fila-sinais { display: flex; flex-wrap: wrap; gap: var(--e1) var(--e2); margin-top: var(--e1); }
@@ -81,7 +81,7 @@
 .lista-agenda li:first-child { border-top: 0; }
 .lista-agenda li > span:last-child { display: grid; gap: 2px; }
 .lista-agenda li > span:last-child > span { font-size: var(--t-pequeno); color: var(--inkSoft); }
-.agenda-data { font-weight: 700; }
+.agenda-data { font-weight: 600; }
 .agenda-atrasada .agenda-data { color: var(--urgent); }
 
 dialog.dialogo-largo { width: min(760px, calc(100vw - 32px)); }

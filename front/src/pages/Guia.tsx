@@ -118,9 +118,9 @@ function Tipografia() {
     <Secao id="tipografia" titulo="Tipografia" intro="Serifada nos títulos, com o tom de documento oficial; sem serifa em toda a interface. O texto-base tem 17px e cresce com a opção de tamanho em Aparência.">
       <Painel>
         <dl className="escala">
-          <div><dt>Título de página, Source Serif 4, 36px</dt><dd><span style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 'var(--t-h1)' }}>Registro de ocorrência</span></dd></div>
-          <div><dt>Título de seção, Source Serif 4, 28px</dt><dd><span style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 'var(--t-h2)' }}>Quem esteve envolvido?</span></dd></div>
-          <div><dt>Subtítulo, Source Serif 4, 22px</dt><dd><span style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 'var(--t-h3)' }}>Plano de apoio</span></dd></div>
+          <div><dt>Título de página, Source Serif 4, 36px</dt><dd><span style={{ fontFamily: 'var(--titulo)', fontWeight: 600, fontSize: 'var(--t-h1)' }}>Registro de ocorrência</span></dd></div>
+          <div><dt>Título de seção, Source Serif 4, 28px</dt><dd><span style={{ fontFamily: 'var(--titulo)', fontWeight: 600, fontSize: 'var(--t-h2)' }}>Quem esteve envolvido?</span></dd></div>
+          <div><dt>Subtítulo, Source Serif 4, 22px</dt><dd><span style={{ fontFamily: 'var(--titulo)', fontWeight: 600, fontSize: 'var(--t-h3)' }}>Plano de apoio</span></dd></div>
           <div><dt>Destaque, Source Sans 3, 20px</dt><dd><span style={{ fontSize: 'var(--t-destaque)' }}>Descreva o fato, não a pessoa.</span></dd></div>
           <div><dt>Corpo, Source Sans 3, 17px</dt><dd>Durante o intervalo, houve discussão entre dois estudantes no pátio; ambos foram separados e acolhidos.</dd></div>
           <div><dt>Apoio, Source Sans 3, 14px</dt><dd><small>Registrado por Coordenação, 25 de setembro, 11h15</small></dd></div>
