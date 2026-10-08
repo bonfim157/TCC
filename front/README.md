@@ -57,7 +57,7 @@ Os roteiros ficam em `scripts/verificacao/` e as capturas de tela em `output/ver
 | `src/mocks/` | API simulada: regras de acesso e auditoria (`base.ts`), registro (`handlers.ts`), Central (`central.ts`), busca, relatórios e administração (`gestao.ts`), protocolo de providências e modelos (`protocolo.ts`), dados fictícios (`seed.ts`) |
 | `src/design/themes.ts` | Cores da base e de cada rede; fonte verificada por `npm run contrast` |
 | `src/components/` | Componentes do design system |
-| `src/layout/` | Timbre, barra de contexto (rede, escola, perfil), navegação, aparência |
+| `src/layout/` | Cabeçalho, barra de contexto (rede, escola, perfil), navegação, rodapé, aparência e atalhos A+/A− |
 | `src/state/` | Sessão, perfis e matriz de acesso, preferências, rascunhos |
 | `src/pages/` | Telas: entrar, início, registrar, meus registros, caso, central, ciência, buscar, relatórios, administração, guia, estados |
 | `scripts/` | Verificação de contraste e roteiros de verificação no navegador |
@@ -66,7 +66,8 @@ Os roteiros ficam em `scripts/verificacao/` e as capturas de tela em `output/ver
 
 - **Multi-rede:** a rede é o inquilino. Toda chamada envia `X-Rede-Id`; a API recusa com 403 qualquer registro de outra rede.
 - **Acento por rede:** cada rede tem sua cor, com par de texto verificado nos modos claro e escuro.
-- **Fontes locais:** Source Serif 4 e Source Sans 3 servidas pelo próprio app, sem chamadas a terceiros.
+- **Fonte local:** Poppins (400 a 700) servida pelo próprio app, sem chamadas a terceiros.
+- **Visual:** linguagem de portal de serviço público de SP (referência: Delegacia Digital da Polícia Civil): faixa escura no topo, marca centralizada, navegação em linha com ícones, botões em pílula e dourado. O dourado de botões é escurecido (`#8A6B1F`, 5:1 com texto branco); o dourado claro só decora.
 - **Permissões na tela não são segurança:** a matriz em `src/state/perfis.ts` só decide o que mostrar; o backend precisa aplicar as regras de `src/mocks/base.ts`.
 
 O **Guia da interface** (`/guia`) reúne cores, tipografia, componentes, estados do sistema e a prova de isolamento entre redes.

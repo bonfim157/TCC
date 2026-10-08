@@ -1,7 +1,9 @@
 import type { ReactNode } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { Esqueleto } from './components/feedback';
-import { Estrutura } from './layout/Estrutura';
+import { Estrutura, EstruturaPublica } from './layout/Estrutura';
+import { Acessibilidade } from './pages/Acessibilidade';
+import { Duvidas } from './pages/Duvidas';
 import { Entrar } from './pages/Entrar';
 import { ErroGeral, NaoEncontrada, SemPermissao } from './pages/Estados';
 import { Guia } from './pages/Guia';
@@ -39,6 +41,11 @@ export function App() {
     <Routes>
       <Route path="/entrar" element={s.sessao ? <Navigate to="/" replace /> : <Entrar />} />
       <Route path="/ciencia/:token" element={<Ciencia />} />
+      {/* Páginas públicas: com sessão, aparecem dentro da estrutura completa. */}
+      <Route element={s.sessao ? <ComSessao><Estrutura /></ComSessao> : <EstruturaPublica />}>
+        <Route path="duvidas" element={<Duvidas />} />
+        <Route path="acessibilidade" element={<Acessibilidade />} />
+      </Route>
       <Route element={<ComSessao><Estrutura /></ComSessao>}>
         <Route index element={<Inicio />} />
         <Route path="registrar/:rascunhoId?" element={<Area_ area="registrar"><Registrar /></Area_>} />

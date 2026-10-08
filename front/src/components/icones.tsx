@@ -90,3 +90,21 @@ export const IconeRelogio = (p: SVGProps<SVGSVGElement>) => (
 export const IconePessoas = (p: SVGProps<SVGSVGElement>) => (
   <svg {...base(p)}><circle cx="9" cy="8" r="3.5" /><path d="M2.5 20a6.5 6.5 0 0 1 13 0" /><circle cx="17" cy="9" r="2.5" /><path d="M17 14.5a5 5 0 0 1 4.5 5" /></svg>
 );
+export const IconeConversa = (p: SVGProps<SVGSVGElement>) => (
+  <svg {...base(p)}><path d="M4 5.5h16v10H9l-5 4v-14Z" /><path d="M8.5 9.5h7M8.5 12.5h4" /></svg>
+);
+export const IconeCelular = (p: SVGProps<SVGSVGElement>) => (
+  <svg {...base(p)}><rect x="6.5" y="2.5" width="11" height="19" rx="2.5" /><path d="M11 18.5h2" /></svg>
+);
+export const IconeMartelo = (p: SVGProps<SVGSVGElement>) => (
+  <svg {...base(p)}><path d="M4 20 13 11" /><path d="m11.5 5.5 3-3 7 7-3 3z" /><path d="m10 7 7 7" /></svg>
+);
+export const IconeCoracao = (p: SVGProps<SVGSVGElement>) => (
+  <svg {...base(p)}><path d="M12 20s-8-4.7-8-10.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 8 2.5C20 15.3 12 20 12 20Z" /><path d="M9 12h2l1-2 1.5 4 1-2H16" /></svg>
+);
+export const IconeCalendario = (p: SVGProps<SVGSVGElement>) => (
+  <svg {...base(p)}><rect x="3.5" y="5" width="17" height="15.5" rx="2" /><path d="M3.5 10h17M8 3v4M16 3v4" /></svg>
+);
+export const IconeRegra = (p: SVGProps<SVGSVGElement>) => (
+  <svg {...base(p)}><circle cx="12" cy="12" r="9.5" /><path d="m5.5 5.5 13 13" /></svg>
+);

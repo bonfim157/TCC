@@ -54,7 +54,7 @@
   background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-superficie);
   box-shadow: 0 12px 32px rgb(0 0 0 / .18);
 }
-.aparencia-painel .opcao span { padding: 0 var(--e3); }
+.aparencia-painel .opcao > span { padding: 0 var(--e3); }
 
 /* ---------- Navegação ---------- */
 .navegacao {

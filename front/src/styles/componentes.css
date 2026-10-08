@@ -10,7 +10,6 @@
 }
 .btn svg { flex: none; }
 .btn-largo { width: 100%; }
-.btn-grande { min-height: 56px; padding: 0 var(--e6); font-size: var(--t-destaque); }
 .btn:disabled { cursor: not-allowed; opacity: .5; }
 .btn-primario { background: var(--accent); color: var(--on-accent); box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 28%, transparent); }
 .btn-primario:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 86%, var(--ink)); }
@@ -60,12 +59,12 @@ select.entrada {
 .opcoes { display: flex; flex-wrap: wrap; gap: var(--e2); }
 .opcao { position: relative; }
 .opcao input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
-.opcao span {
+.opcao > span {
   display: inline-flex; align-items: center; gap: var(--e2); min-height: var(--alvo); padding: 0 var(--e4);
   border: 1.5px solid var(--lineStrong); border-radius: var(--r-pilula); background: var(--surface);
   font-weight: 500; cursor: pointer;
 }
-.opcao span::before {
+.opcao > span::before {
   content: ''; width: 18px; height: 18px; flex: none; border-radius: 50%;
   border: 2px solid var(--lineStrong); background: var(--surface);
 }
@@ -73,11 +72,11 @@ select.entrada {
 .opcao input:checked + span::before { border-color: var(--accent); background: radial-gradient(circle, var(--accent) 0 5px, var(--surface) 6px); }
 .opcao input:focus-visible + span { outline: 3px solid var(--accent); outline-offset: 2px; }
 .opcao input:disabled + span { opacity: .5; cursor: not-allowed; }
-.opcoes[aria-invalid='true'] .opcao span { border-color: var(--urgent); }
+.opcoes[aria-invalid='true'] .opcao > span { border-color: var(--urgent); }
 
 /* Sim / Não: duas opções largas e nomeadas */
 .sim-nao { display: grid; grid-template-columns: 1fr 1fr; gap: var(--e3); max-width: 420px; }
-.sim-nao .opcao span { width: 100%; justify-content: center; }
+.sim-nao .opcao > span { width: 100%; justify-content: center; }
 
 /* ---------- Caixa de seleção ---------- */
 .marcar { display: flex; gap: var(--e3); align-items: flex-start; cursor: pointer; min-height: var(--alvo); padding-top: var(--e3); }
@@ -217,3 +216,19 @@ dialog.dialogo::backdrop { background: rgb(10 14 18 / .55); }
 }
 .sanfona details[open] .sanfona-num { background: var(--on-accent); color: var(--accent-ink); }
 .sanfona-corpo { padding: var(--e4) var(--e5) var(--e5); display: grid; gap: var(--e3); }
+
+/* Opções em cartão: escolha do tipo de ocorrência */
+.opcoes-cartoes { display: grid; gap: var(--e3); grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); }
+.opcoes-cartoes .opcao > span {
+  width: 100%; height: 100%; min-height: 72px; padding: var(--e3) var(--e4); gap: var(--e3);
+  border-radius: var(--r-superficie); line-height: 1.3; align-items: center;
+}
+.opcoes-cartoes .opcao > span::before { display: none; }
+.opcoes-cartoes .opcao-icone {
+  width: 44px; height: 44px; flex: none; display: grid; place-items: center; border-radius: 50%;
+  background: var(--neutralSoft); color: var(--ink); padding: 0; border: 0; min-height: 0;
+}
+.opcoes-cartoes .opcao-icone svg { width: 22px; height: 22px; }
+.opcoes-cartoes .opcao input:checked + span { box-shadow: inset 0 0 0 1px var(--accent); }
+.opcoes-cartoes .opcao input:checked + span .opcao-icone { background: var(--decor); color: var(--on-decor); }
+.opcoes-cartoes .opcao:hover > span { border-color: var(--ink); }

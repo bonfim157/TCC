@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type JSX, type SVGProps } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { Brasao, DialogoConfirmacao } from '../components/estrutura';
 import {
-  IconeAjuda, IconeCasa, IconeDocumento, IconeEngrenagem, IconeGrafico, IconeLapis, IconeLupa, IconePainel,
+  IconeAcessibilidade, IconeAjuda, IconeCasa, IconeDocumento, IconeEngrenagem, IconeGrafico, IconeLapis, IconeLupa, IconePainel,
   IconeSair, IconeSemConexao, IconeTelefone,
 } from '../components/icones';
 import { navegacao, nomePerfil, podeAcessar, type Area } from '../state/perfis';
@@ -113,6 +113,29 @@ export function Rodape({ links = true }: { links?: boolean }) {
         Protótipo acadêmico (TCC), sem vínculo oficial com a Secretaria da Educação.{demonstracao ? ' Pessoas e casos são fictícios.' : ''}
       </p>
     </footer>
+  );
+}
+
+/** Estrutura das páginas públicas (dúvidas, acessibilidade) para quem ainda não entrou. */
+export function EstruturaPublica() {
+  return (
+    <div className="app">
+      <a className="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
+      <Timbre esquerda={<ControlesDeAcessibilidade />}>
+        <Link className="btn btn-primario" to="/entrar">Entrar</Link>
+      </Timbre>
+      <nav className="navegacao" aria-label="Principal">
+        <ul>
+          <li><NavLink to="/entrar"><IconeCasa />Página inicial</NavLink></li>
+          <li><NavLink to="/duvidas"><IconeAjuda />Dúvidas frequentes</NavLink></li>
+          <li><NavLink to="/acessibilidade"><IconeAcessibilidade />Acessibilidade</NavLink></li>
+        </ul>
+      </nav>
+      <main id="conteudo" tabIndex={-1}>
+        <Outlet />
+      </main>
+      <Rodape />
+    </div>
   );
 }
 

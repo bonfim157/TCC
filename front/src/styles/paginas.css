@@ -72,3 +72,36 @@ code { font-size: .92em; background: var(--neutralSoft); padding: 1px 6px; borde
   background: var(--surface); border: 1px solid var(--lineStrong); border-radius: var(--r-controle, 6px);
 }
 .entrada-codigo { max-width: 12ch; font-size: var(--t-destaque); letter-spacing: .2em; font-variant-numeric: tabular-nums; }
+
+/* ---------- Páginas de conteúdo (dúvidas, acessibilidade) ---------- */
+.pagina-conteudo { max-width: 960px; margin: 0 auto; }
+.cabeca-centro {
+  display: grid; gap: var(--e2); justify-items: center; text-align: center;
+  padding-bottom: var(--e5); border-bottom: 1px solid var(--line);
+}
+.cabeca-centro h1 { display: flex; align-items: center; gap: var(--e3); }
+.cabeca-centro h1 svg { width: 36px; height: 36px; color: var(--accent-ink); flex: none; }
+.cabeca-centro p { color: var(--inkSoft); font-size: var(--t-destaque); }
+.busca-centro { justify-self: center; width: 100%; }
+.vazio-centro { justify-items: center; text-align: center; }
+.vazio-centro h2 { font-size: var(--t-destaque); }
+
+.faixa-duvida {
+  display: flex; align-items: center; justify-content: center; gap: var(--e6); flex-wrap: wrap;
+  padding: var(--e6) var(--e5); border-radius: var(--r-superficie);
+  background: var(--faixa); color: var(--onFaixa);
+}
+.faixa-duvida > div { display: grid; gap: var(--e2); }
+.faixa-duvida h2 { font-size: var(--t-h3); }
+.faixa-duvida .ilustracao { --ink: var(--onFaixa); --surface: var(--faixa); --line: transparent; }
+.link-seta { color: var(--onFaixa); font-weight: 600; display: inline-flex; align-items: center; min-height: 44px; }
+.link-seta::after { content: '→'; margin-left: var(--e2); }
+
+.lista-recursos { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--e4); grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); }
+.lista-recursos li {
+  display: flex; gap: var(--e4); align-items: flex-start; padding: var(--e5);
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-superficie); box-shadow: var(--sombra);
+}
+.lista-recursos > li > div { display: grid; gap: var(--e1); }
+.lista-recursos h2 { font-size: var(--t-destaque); }
+.lista-recursos p { color: var(--inkSoft); }
