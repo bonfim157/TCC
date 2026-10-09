@@ -42,6 +42,26 @@ No modo real, o login por e-mail e senha fica em `/entrar?modo=senha` (pessoas f
 
 Detalhes, verificação e estrutura em [`front/README.md`](front/README.md).
 
+## Levar uma branch para a main
+
+Nenhuma mudança vai direto para a `main`: ela entra por pull request, depois dos testes do GitHub e do preview da Vercel. Juntar na `main` publica na hora em https://cuidar-registrar.vercel.app. Exemplo com a branch `front-descomplicado` (PR #3):
+
+1. **Conferir o PR:** em https://github.com/bonfim157/TCC/pull/3, o teste `verificar` precisa estar verde e o comentário da Vercel traz o link do preview (pede login na Vercel). Abra o preview e confira as telas.
+2. **Juntar na main**, por um dos caminhos:
+   - no GitHub: botão **Merge pull request** e depois **Confirm merge**;
+   - no terminal, com a conta que tem acesso de escrita:
+     ```bash
+     GH_TOKEN=$(gh auth token --user bonfim157) gh pr merge 3 --merge
+     ```
+3. **Atualizar o computador:**
+   ```bash
+   git checkout main
+   git pull
+   ```
+4. **Conferir a publicação:** em alguns minutos a Vercel termina o deploy da `main` e o site principal mostra a versão nova.
+
+`git pull` sozinho não leva a branch para a `main`: ele só traz para o computador o que já está na `main` do GitHub. Por isso o passo 2 vem antes.
+
 ## Situação
 
 Front completo em 29/09/2026 (fases F1 a F4 e a parte técnica da F5). Falta o que depende de pessoas, decisões da gestão e backend. Veja a situação atual no [plano de escopo](docs/plano-de-escopo.md) e em [pendências](docs/pendencias.md). Próxima etapa: [plano do back-end](docs/plano-backend.md).

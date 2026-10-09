@@ -10,7 +10,7 @@ const recursos: [string, string][] = [
   ['Celular', 'As telas funcionam a partir de 360 pixels de largura, mesmo com o texto no tamanho maior, sem rolagem para os lados.'],
 ];
 
-/** Recursos de acessibilidade, no formato das páginas de portais de serviço público. */
+/** Recursos de acessibilidade do sistema. */
 export function Acessibilidade() {
   return (
     <div className="pagina pagina-conteudo">

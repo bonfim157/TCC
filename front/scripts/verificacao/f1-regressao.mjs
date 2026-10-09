@@ -13,7 +13,7 @@ const sw = (p) => p.evaluate(() => document.documentElement.scrollWidth - docume
 // 2. Timbre segue a rede escolhida; tema sobrevive à troca claro/escuro
 { const p = await (await b.newContext({ viewport: { width: 1280, height: 800 } })).newPage();
   await p.goto(B + '/entrar?rede=sp'); await p.waitForTimeout(700);
-  await p.getByLabel('Rede Fictícia de Testes').check(); await p.waitForTimeout(300);
+  await p.locator('.entrar-mais > summary').click(); await p.getByLabel('Rede Fictícia de Testes').check(); await p.waitForTimeout(300);
   const acc = () => p.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--accent').trim());
   console.log('timbre após escolher SC:', await p.locator('.timbre-rede').textContent(), '| brasão:', await p.locator('.brasao text').textContent(), '| acento:', await acc());
   await p.getByRole('button', { name: 'Aparência' }).click(); await p.getByLabel('Escuro').check(); await p.waitForTimeout(300);

@@ -68,7 +68,8 @@ Os roteiros ficam em `scripts/verificacao/` e as capturas de tela em `output/ver
 - **Acento por rede:** cada rede tem sua cor, com par de texto verificado nos modos claro e escuro.
 - **Celular:** até 980px o topo vira uma linha (marca e botão Menu) e o contexto recolhe numa linha com escola e perfil; até 820px as tabelas viram cartões com o nome de cada coluna. `node scripts/capturas-celular.mjs <largura>` captura todas as telas e mede rolagem lateral, onde começa o conteúdo e alvos de toque.
 - **Fonte local:** Poppins (400 a 700) servida pelo próprio app, sem chamadas a terceiros.
-- **Visual:** linguagem de portal de serviço público de SP (referência: Delegacia Digital da Polícia Civil): faixa escura no topo, marca centralizada, navegação em linha com ícones, botões em pílula e dourado. O dourado de botões é escurecido (`#8A6B1F`, 5:1 com texto branco); o dourado claro só decora.
+- **Visual:** ferramenta de escola, não boletim de ocorrência: cabeçalho baixo e claro, abas simples com a escola ativa ao lado, um acento só (azul `#1F5AA6` na rede SP, 6,8:1 com texto branco), bordas finas em vez de sombras e rodapé curto com os telefones de emergência. Sem faixas escuras, escudo ou dourado. Os atalhos A+/A− e Aparência ficam sempre no topo.
+- **Entrar na demonstração:** aparecem só professora, coordenação e direção; os outros perfis e a rede de testes ficam em "Outros perfis e redes de teste".
 - **Permissões na tela não são segurança:** a matriz em `src/state/perfis.ts` só decide o que mostrar; o backend precisa aplicar as regras de `src/mocks/base.ts`.
 
 O **Guia da interface** (`/guia`) reúne cores, tipografia, componentes, estados do sistema e a prova de isolamento entre redes.

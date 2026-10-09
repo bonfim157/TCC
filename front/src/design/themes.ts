@@ -15,11 +15,11 @@ export type ModePalette = {
 export type RedeTheme = { light: ModePalette; dark: ModePalette };
 
 export const redeThemes: Record<string, RedeTheme> = {
-  // Rede estadual de São Paulo (piloto: IMSIL, Limeira). Dourado de serviço público,
-  // escurecido para o texto branco passar de 4,5:1; o dourado claro fica só como decoração.
+  // Rede estadual de São Paulo (piloto: IMSIL, Limeira). Azul de escola, calmo,
+  // escuro o bastante para o texto branco passar de 4,5:1; o azul claro fica só como decoração.
   'rede-sp': {
-    light: { accent: '#8A6B1F', onAccent: '#FFFFFF', accentInk: '#7A5E17', accentSoft: '#F6EFDC', decor: '#C9AE5F', onDecor: '#1E1F2E' },
-    dark: { accent: '#D9BD6C', onAccent: '#16130B', accentInk: '#E5CB7E', accentSoft: '#2B2516', decor: '#D9BD6C', onDecor: '#16130B' },
+    light: { accent: '#1F5AA6', onAccent: '#FFFFFF', accentInk: '#1A4F93', accentSoft: '#E7EEF8', decor: '#A9C3E6', onDecor: '#1E1F2E' },
+    dark: { accent: '#8DB8F2', onAccent: '#0B1626', accentInk: '#A9CAF6', accentSoft: '#17253A', decor: '#8DB8F2', onDecor: '#0B1626' },
   },
   // Rede fictícia de testes — verde
   'rede-teste': {

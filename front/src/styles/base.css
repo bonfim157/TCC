@@ -9,31 +9,31 @@
   --urgent: #9A3412; --urgentSoft: #F7E6DD; --ok: #1E6B3A; --okSoft: #E1F0E6; --warn: #7A4F00; --warnSoft: #FBF1D9;
   --neutral: #4F5864; --neutralSoft: #E7E9EC;
   --faixa: #16171F; --onFaixa: #FFFFFF;
-  --accent: #8A6B1F; --on-accent: #FFFFFF; --accent-ink: #7A5E17; --accent-soft: #F6EFDC;
-  --decor: #C9AE5F; --on-decor: #1E1F2E;
+  --accent: #1F5AA6; --on-accent: #FFFFFF; --accent-ink: #1A4F93; --accent-soft: #E7EEF8;
+  --decor: #A9C3E6; --on-decor: #1E1F2E;
 
   /* Poppins em toda a interface; os títulos ganham peso, não outra família. */
   --sans: 'Poppins', 'Segoe UI', Arial, sans-serif;
   --titulo: var(--sans);
 
-  /* Escala tipográfica sobre 16px: 13 · 16 · 18 · 20 · 26 · 34 */
+  /* Escala tipográfica sobre 16px, contida: 13 · 16 · 18 · 18 · 22 · 28 */
   --t-pequeno: 0.8125rem;
   --t-corpo: 1rem;
   --t-destaque: 1.125rem;
-  --t-h3: 1.25rem;
-  --t-h2: 1.625rem;
-  --t-h1: 2.125rem;
+  --t-h3: 1.125rem;
+  --t-h2: 1.375rem;
+  --t-h1: 1.75rem;
 
   /* Espaçamento em múltiplos de 4px */
   --e1: 4px; --e2: 8px; --e3: 12px; --e4: 16px; --e5: 24px; --e6: 32px; --e7: 48px; --e8: 64px;
 
-  /* Raios por hierarquia: campos, superfícies e botões em pílula */
-  --r-controle: 10px;
-  --r-superficie: 16px;
+  /* Raios por hierarquia: campos e botões, superfícies; a pílula fica só para etiquetas */
+  --r-controle: 8px;
+  --r-superficie: 12px;
   --r-pilula: 999px;
-  --sombra: 0 1px 2px rgb(30 31 46 / .06), 0 4px 16px rgb(30 31 46 / .06);
+  --sombra: 0 1px 2px rgb(30 31 46 / .05);
 
-  --alvo: 48px;       /* altura mínima de controles */
+  --alvo: 44px;       /* altura mínima de controles */
   --medida: 68ch;     /* largura máxima de texto corrido */
   --escala: 1;
 }

@@ -4,20 +4,19 @@ import { DialogoConfirmacao } from '../components/estrutura';
 import { nomePerfil } from '../state/perfis';
 import { useGuardaDeRascunho } from '../state/rascunhos';
 import { useSessao } from '../state/sessao';
-import { CELULAR, useMidia } from '../state/useMidia';
 
 type Troca = { tipo: 'rede' | 'escola'; valor: string } | null;
 
 /**
- * Rede e escola ativas, sempre visíveis. Trocar de contexto com um
- * formulário alterado pede confirmação antes.
+ * Rede e escola ativas, sempre visíveis numa linha curta. Os seletores (e o
+ * "ver como" da demonstração) só aparecem ao tocar em "Trocar". Trocar de
+ * contexto com um formulário alterado pede confirmação antes.
  */
 export function BarraDeContexto() {
   const s = useSessao();
   const { haRascunho } = useGuardaDeRascunho();
   const [pendente, setPendente] = useState<Troca>(null);
   const id = useId();
-  const celular = useMidia(CELULAR);
 
   if (!s.sessao || !s.rede) return null;
 
@@ -72,7 +71,7 @@ export function BarraDeContexto() {
     </>
   );
 
-  // No celular, o contexto recolhe numa linha com escola e perfil; os seletores abrem sob demanda.
+  // Recolhido numa linha com escola e perfil; os seletores abrem sob demanda.
   const resumo = (
     <span className="contexto-resumo">
       <strong>{s.escola?.sigla ?? s.escola?.nome ?? s.rede.nome}</strong>
@@ -80,20 +79,16 @@ export function BarraDeContexto() {
     </span>
   );
   const podeTrocar = redesDoUsuario.length > 1 || s.escolas.length > 1 || s.demonstracao;
-  const barra = celular ? (
-    podeTrocar ? (
-      <details className="contexto contexto-celular">
-        <summary>
-          {resumo}
-          <span className="contexto-trocar">Trocar</span>
-        </summary>
-        <div className="contexto-campos" role="group" aria-label="Onde você está atuando">{campos}</div>
-      </details>
-    ) : (
-      <div className="contexto contexto-celular"><p className="contexto-linha">{resumo}</p></div>
-    )
+  const barra = podeTrocar ? (
+    <details className="contexto contexto-celular">
+      <summary>
+        {resumo}
+        <span className="contexto-trocar">Trocar</span>
+      </summary>
+      <div className="contexto-campos" role="group" aria-label="Onde você está atuando">{campos}</div>
+    </details>
   ) : (
-    <div className="contexto" role="group" aria-label="Onde você está atuando">{campos}</div>
+    <div className="contexto contexto-celular"><p className="contexto-linha">{resumo}</p></div>
   );
 
   return (
