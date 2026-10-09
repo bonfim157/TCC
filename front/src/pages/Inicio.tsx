@@ -4,7 +4,6 @@ import { rotas, type OcorrenciaResumo, type Perfil, type PrazoProximo } from '..
 import { Painel } from '../components/estrutura';
 import { Aviso, Etiqueta, EstadoDaCarga, EtiquetaStatus } from '../components/feedback';
 import { IconeMais } from '../components/icones';
-import { IlustracaoBoasVindas } from '../components/ilustracoes';
 import { nomePerfil, perfisDeEscola, podeAcessar } from '../state/perfis';
 import { useRascunhosLocais } from '../state/rascunhosLocais';
 import { useDono } from '../state/useDono';
@@ -27,7 +26,7 @@ function lerTourVisto() {
   try { return localStorage.getItem(CHAVE_TOUR) === '1'; } catch { return false; }
 }
 
-/** Cartão de boas-vindas: aponta o guia até a pessoa dispensar. */
+/** Dica de boas-vindas numa linha: aponta o guia até a pessoa dispensar. */
 function ConhecaOSistema() {
   const [visto, setVisto] = useState(lerTourVisto);
   if (visto) return null;
@@ -37,15 +36,14 @@ function ConhecaOSistema() {
   };
   return (
     <section className="boas-vindas" aria-labelledby="t-boas-vindas">
-      <div className="boas-vindas-texto">
-        <h2 id="t-boas-vindas">Conheça o sistema</h2>
-        <p>Veja em poucos minutos como registrar uma ocorrência, acompanhar o caso e quem pode ver cada informação.</p>
-        <div className="acoes-linha">
-          <button type="button" className="btn btn-secundario" onClick={dispensar}>Agora não</button>
-          <Link className="btn btn-primario" to="/guia" onClick={dispensar}>Ver o guia</Link>
-        </div>
+      <p>
+        <strong id="t-boas-vindas">Primeira vez por aqui?</strong> O guia mostra em poucos minutos como registrar e
+        acompanhar uma ocorrência.
+      </p>
+      <div className="acoes-linha">
+        <Link className="btn btn-secundario" to="/guia" onClick={dispensar}>Ver o guia</Link>
+        <button type="button" className="btn btn-texto" onClick={dispensar}>Agora não</button>
       </div>
-      <IlustracaoBoasVindas />
     </section>
   );
 }

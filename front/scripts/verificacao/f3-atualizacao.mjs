@@ -16,6 +16,8 @@ async function entrar(nome) {
   p.on('pageerror', (e) => log('PAGEERROR', e.message));
   await p.goto(`${B}/entrar?rede=sp`);
   await p.waitForTimeout(700);
+  // Perfis fora do dia a dia da escola ficam recolhidos em "Outros perfis e redes de teste".
+  if (!(await p.getByLabel(nome, { exact: false }).isVisible())) await p.locator(".entrar-mais > summary").click();
   await p.getByLabel(nome, { exact: false }).check();
   await p.getByRole('button', { name: 'Entrar' }).click();
   await p.waitForTimeout(900);

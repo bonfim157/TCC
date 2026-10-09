@@ -14,6 +14,8 @@ const log = (...a) => console.log(...a);
 async function entrar(page, nome) {
   await page.goto(`${B}/entrar?rede=sp`);
   await page.waitForTimeout(700);
+  // Perfis fora do dia a dia da escola ficam recolhidos em "Outros perfis e redes de teste".
+  if (!(await page.getByLabel(nome, { exact: false }).isVisible())) await page.locator(".entrar-mais > summary").click();
   await page.getByLabel(nome, { exact: false }).check();
   await page.getByRole('button', { name: 'Entrar' }).click();
   await page.waitForTimeout(900);

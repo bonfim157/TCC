@@ -115,12 +115,12 @@ function Cores() {
 /* ---------- Tipografia e espaço ---------- */
 function Tipografia() {
   return (
-    <Secao id="tipografia" titulo="Tipografia" intro="Poppins em toda a interface, como nos portais de serviço público; os títulos se distinguem pelo peso, não por outra família. O texto-base tem 16px e cresce com os botões A+ e A− e com a opção de tamanho em Aparência.">
+    <Secao id="tipografia" titulo="Tipografia" intro="Poppins em toda a interface; os títulos se distinguem pelo peso, não por outra família. O texto-base tem 16px e cresce com os botões A+ e A− e com a opção de tamanho em Aparência.">
       <Painel>
         <dl className="escala">
-          <div><dt>Título de página, Poppins semibold, 34px</dt><dd><span style={{ fontFamily: 'var(--titulo)', fontWeight: 600, fontSize: 'var(--t-h1)' }}>Registro de ocorrência</span></dd></div>
-          <div><dt>Título de seção, Poppins semibold, 26px</dt><dd><span style={{ fontFamily: 'var(--titulo)', fontWeight: 600, fontSize: 'var(--t-h2)' }}>Quem esteve envolvido?</span></dd></div>
-          <div><dt>Subtítulo, Poppins semibold, 20px</dt><dd><span style={{ fontFamily: 'var(--titulo)', fontWeight: 600, fontSize: 'var(--t-h3)' }}>Plano de apoio</span></dd></div>
+          <div><dt>Título de página, Poppins semibold, 28px</dt><dd><span style={{ fontFamily: 'var(--titulo)', fontWeight: 600, fontSize: 'var(--t-h1)' }}>Registro de ocorrência</span></dd></div>
+          <div><dt>Título de seção, Poppins semibold, 22px</dt><dd><span style={{ fontFamily: 'var(--titulo)', fontWeight: 600, fontSize: 'var(--t-h2)' }}>Quem esteve envolvido?</span></dd></div>
+          <div><dt>Subtítulo, Poppins semibold, 18px</dt><dd><span style={{ fontFamily: 'var(--titulo)', fontWeight: 600, fontSize: 'var(--t-h3)' }}>Plano de apoio</span></dd></div>
           <div><dt>Destaque, Poppins, 18px</dt><dd><span style={{ fontSize: 'var(--t-destaque)' }}>Descreva o fato, não a pessoa.</span></dd></div>
           <div><dt>Corpo, Poppins, 16px</dt><dd>Durante o intervalo, houve discussão entre dois estudantes no pátio; ambos foram separados e acolhidos.</dd></div>
           <div><dt>Apoio, Poppins, 13px</dt><dd><small>Registrado por Coordenação, 25 de setembro, 11h15</small></dd></div>
@@ -143,9 +143,8 @@ function Espaco() {
         </Painel>
         <Painel titulo="Cantos e bordas">
           <ul className="formas">
-            <li><span style={{ borderRadius: 'var(--r-pilula)' }} aria-hidden="true" />Botões: pílula</li>
-            <li><span style={{ borderRadius: 'var(--r-controle)' }} aria-hidden="true" />Campos: 10px</li>
-            <li><span style={{ borderRadius: 'var(--r-superficie)' }} aria-hidden="true" />Superfícies: 16px</li>
+            <li><span style={{ borderRadius: 'var(--r-controle)' }} aria-hidden="true" />Botões e campos: 8px</li>
+            <li><span style={{ borderRadius: 'var(--r-superficie)' }} aria-hidden="true" />Superfícies: 12px</li>
             <li><span style={{ borderRadius: 999 }} aria-hidden="true" />Etiquetas: arredondadas</li>
           </ul>
         </Painel>
@@ -337,11 +336,11 @@ function Componentes() {
         <Esqueleto rotulo="Carregando exemplo" />
       </Exemplo>
 
-      <Exemplo nome="Brasão da rede" nota="Gerado a partir da sigla e da cor da rede; a secretaria poderá enviar o próprio.">
+      <Exemplo nome="Marca da rede" nota="Quadrado com a sigla e a cor da rede, sem escudo nem brasão, para não lembrar órgão policial.">
         <div className="acoes-linha"><Brasao sigla={rede?.sigla ?? 'SP'} tamanho={56} /><Brasao sigla={rede?.sigla ?? 'SP'} tamanho={32} /></div>
       </Exemplo>
 
-      <Exemplo nome="Barra de contexto e aparência" nota="Rede e escola ativas ficam sempre no topo. Aparência ajusta tamanho do texto e cores.">
+      <Exemplo nome="Barra de contexto e aparência" nota="A escola ativa fica ao lado das abas; Trocar abre rede, escola e (na demonstração) Ver como. Aparência ajusta tamanho do texto e cores.">
         <p>Veja no alto desta página.</p>
       </Exemplo>
     </Secao>

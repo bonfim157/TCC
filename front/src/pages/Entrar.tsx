@@ -6,6 +6,7 @@ import { Botao, GrupoOpcoes } from '../components/controles';
 import { Aviso, Esqueleto } from '../components/feedback';
 import { MarcaDaRede, Rodape } from '../layout/Estrutura';
 import { ControlesDeAcessibilidade } from '../layout/MenuAparencia';
+import type { Perfil } from '../api/contract';
 import { nomePerfil } from '../state/perfis';
 import { useSessao } from '../state/sessao';
 import { EntrarComSenha } from './EntrarComSenha';
@@ -44,9 +45,13 @@ export function Entrar() {
   );
 }
 
+/** Perfis que aparecem logo de cara na demonstração: quem está no dia a dia da escola. */
+const principais: Perfil[] = ['professor', 'coordenacao', 'direcao'];
+
 /**
- * Login de demonstração. A rede vem do endereço (subdomínio ou ?rede=)
- * quando possível; senão a pessoa escolhe. O timbre muda com a escolha.
+ * Login de demonstração. A rede vem do endereço (subdomínio ou ?rede=) ou é a
+ * primeira da lista. Aparecem só três pessoas (professora, coordenação e
+ * direção); os outros perfis de teste e a troca de rede ficam recolhidos.
  */
 function EntrarDemonstracao() {
   const s = useSessao();
@@ -59,8 +64,8 @@ function EntrarDemonstracao() {
   const [enviando, setEnviando] = useState(false);
 
   useEffect(() => {
-    if (!redeId && s.redeDoEndereco) setRedeId(s.redeDoEndereco.id);
-  }, [s.redeDoEndereco, redeId]);
+    if (!redeId && (s.redeDoEndereco || s.redes[0])) setRedeId((s.redeDoEndereco ?? s.redes[0]).id);
+  }, [s.redeDoEndereco, s.redes, redeId]);
 
   const { definirRedePrevia } = s;
   useEffect(() => {
@@ -75,8 +80,15 @@ function EntrarDemonstracao() {
       .catch(() => setCarga({ redeId, lista: [] }));
   }, [redeId]);
 
-  const redeEscolhida = s.redes.find((r) => r.id === redeId);
   const usuarios = carga?.redeId === redeId ? carga.lista : null;
+  const perfilNaRede = (u: Usuario) => u.vinculos.find((x) => x.redeId === redeId)?.perfil;
+  const opcao = (u: Usuario) => {
+    const perfil = perfilNaRede(u);
+    return { valor: u.id, rotulo: perfil ? `${u.nome}, ${nomePerfil[perfil].toLowerCase()}` : u.nome };
+  };
+  const doDiaADia = (usuarios ?? []).filter((u) => principais.includes(perfilNaRede(u)!));
+  const outros = (usuarios ?? []).filter((u) => !principais.includes(perfilNaRede(u)!));
+  const escolhidoEmOutros = outros.some((u) => u.id === usuarioId);
 
   async function enviar(e: FormEvent) {
     e.preventDefault();
@@ -108,13 +120,8 @@ function EntrarDemonstracao() {
         <form className="pagina entrar" onSubmit={enviar} noValidate>
           <div className="pagina-cabeca">
             <h1>Entrar</h1>
-            <p>Registre e acompanhe as ocorrências da sua escola.</p>
+            <p>Demonstração sem senha: escolha uma pessoa fictícia para ver o sistema como ela veria.</p>
           </div>
-
-          <Aviso tipo="atencao" titulo="Ambiente de demonstração">
-            Não há senha. Escolha uma rede e uma pessoa fictícia para ver o sistema como ela veria. Na versão real, o
-            acesso será pela conta institucional da rede.
-          </Aviso>
 
           {s.sessaoExpirada && (
             <Aviso tipo="atencao" titulo="Sua sessão expirou">
@@ -123,39 +130,43 @@ function EntrarDemonstracao() {
           )}
           {erros.envio && <Aviso tipo="erro" titulo="Não foi possível entrar">{erros.envio}</Aviso>}
 
-          {s.redes.length === 0 ? (
-            <Esqueleto rotulo="Carregando redes" />
+          {!redeId || usuarios === null ? (
+            <Esqueleto rotulo="Carregando pessoas" />
           ) : (
-            <GrupoOpcoes
-              rotulo="Qual é a sua rede de ensino?"
-              ajuda={
-                s.redeDoEndereco
-                  ? `Identificamos a rede pelo endereço que você usou. Troque se estiver errada.`
-                  : 'Cada rede tem suas próprias escolas, regras e dados.'
-              }
-              opcoes={s.redes.map((r) => ({ valor: r.id, rotulo: r.nome }))}
-              valor={redeId}
-              aoMudar={setRedeId}
-              erro={erros.rede}
-            />
-          )}
-
-          {redeId && (
-            usuarios === null ? (
-              <Esqueleto rotulo="Carregando pessoas" />
-            ) : (
+            <>
               <GrupoOpcoes
                 rotulo="Quem está entrando?"
-                ajuda={`Pessoas fictícias com vínculo na ${redeEscolhida?.nome ?? 'rede escolhida'}.`}
-                opcoes={usuarios.map((u) => {
-                  const v = u.vinculos.find((x) => x.redeId === redeId);
-                  return { valor: u.id, rotulo: v ? `${u.nome}, ${nomePerfil[v.perfil].toLowerCase()}` : u.nome };
-                })}
+                nome="pessoa"
+                opcoes={doDiaADia.map(opcao)}
                 valor={usuarioId}
                 aoMudar={setUsuarioId}
                 erro={erros.usuario}
               />
-            )
+              <details className="entrar-mais" open={escolhidoEmOutros || (s.redes.length > 1 && redeId !== s.redes[0]?.id) || undefined}>
+                <summary>Outros perfis e redes de teste</summary>
+                <div className="entrar-mais-conteudo">
+                  {outros.length > 0 && (
+                    <GrupoOpcoes
+                      rotulo="Outros perfis"
+                      nome="pessoa"
+                      opcoes={outros.map(opcao)}
+                      valor={usuarioId}
+                      aoMudar={setUsuarioId}
+                    />
+                  )}
+                  {s.redes.length > 1 && (
+                    <GrupoOpcoes
+                      rotulo="Rede de ensino"
+                      ajuda="Cada rede tem suas próprias escolas, regras e dados."
+                      opcoes={s.redes.map((r) => ({ valor: r.id, rotulo: r.nome }))}
+                      valor={redeId}
+                      aoMudar={setRedeId}
+                      erro={erros.rede}
+                    />
+                  )}
+                </div>
+              </details>
+            </>
           )}
 
           <Botao type="submit" carregando={enviando} className="btn-largo">Entrar</Botao>

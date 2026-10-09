@@ -74,7 +74,7 @@ export function MenuAparencia() {
 
 const tamanhos: Fonte[] = [100, 115, 130];
 
-/** Atalhos visíveis no topo, como nos portais de serviço público: aumentar e diminuir o texto, e a aparência. */
+/** Atalhos sempre visíveis no topo: aumentar e diminuir o texto, e a aparência. */
 export function ControlesDeAcessibilidade() {
   const { fonte, definirFonte } = usePreferencias();
   const i = tamanhos.indexOf(fonte);

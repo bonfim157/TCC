@@ -30,18 +30,18 @@ const iniciais = (nome = '') => {
 };
 
 /**
- * Cabeçalho de portal de serviço público: faixa escura com a secretaria,
- * atalhos de acessibilidade à esquerda, brasão e nome ao centro e a pessoa à direita.
+ * Cabeçalho enxuto: marca e rede à esquerda; atalhos de acessibilidade e a
+ * pessoa à direita. Sem faixa institucional: é uma ferramenta da escola.
  */
 export function Timbre({ esquerda, children, menu }: { esquerda?: ReactNode; children?: ReactNode; menu?: ReactNode }) {
-  const { rede, redePrevia, redeDoEndereco } = useSessao();
+  const { rede, redePrevia, redeDoEndereco, escola } = useSessao();
   const r = rede ?? redePrevia ?? redeDoEndereco;
   const identidade = (
     <div className="timbre-identidade">
       <Brasao sigla={r?.sigla ?? 'CR'} />
       <div>
         <p className="timbre-produto">Cuidar e Registrar</p>
-        <p className="timbre-rede">{r?.nome ?? 'Ocorrências escolares'}</p>
+        <p className="timbre-rede">{escola?.nome ?? r?.nome ?? 'Ocorrências escolares'}</p>
       </div>
     </div>
   );
@@ -58,75 +58,70 @@ export function Timbre({ esquerda, children, menu }: { esquerda?: ReactNode; chi
   }
   return (
     <header className="timbre">
-      <p className="faixa-topo">{r ? r.secretaria : 'Sistema de ocorrências escolares'}</p>
       <div className="timbre-linha">
-        <div className="timbre-lado">{esquerda}</div>
         {identidade}
-        <div className="timbre-lado timbre-lado-fim">{children}</div>
+        <div className="timbre-lado timbre-lado-fim">
+          {esquerda}
+          {children}
+        </div>
       </div>
     </header>
   );
 }
 
-/** Marca centralizada das telas de acesso: brasão grande, secretaria e nome. */
+/** Marca das telas de acesso: sigla, nome do sistema e rede, numa linha. */
 export function MarcaDaRede() {
   const { rede, redePrevia, redeDoEndereco } = useSessao();
   const r = rede ?? redePrevia ?? redeDoEndereco;
   return (
     <div className="marca">
-      <Brasao sigla={r?.sigla ?? 'CR'} tamanho={64} />
-      <p className="marca-secretaria">{r ? r.secretaria : 'Sistema de ocorrências escolares'}</p>
-      <p className="timbre-produto">Cuidar e Registrar</p>
-      <p className="timbre-rede">{r?.nome ?? 'Ocorrências escolares'}</p>
+      <Brasao sigla={r?.sigla ?? 'CR'} tamanho={44} />
+      <div>
+        <p className="timbre-produto">Cuidar e Registrar</p>
+        <p className="timbre-rede">{r?.nome ?? 'Ocorrências escolares'}</p>
+      </div>
     </div>
   );
 }
 
-/** Telefones de ajuda que valem em qualquer escola do país. */
+/** Telefones de ajuda que valem em qualquer escola do país, do mais urgente ao de apoio. */
 const contatos: [string, string][] = [
-  ['100', 'Disque Direitos Humanos'],
-  ['190', 'Polícia Militar'],
   ['192', 'SAMU'],
-  ['180', 'Central de Atendimento à Mulher'],
-  ['188', 'Centro de Valorização da Vida'],
+  ['190', 'Polícia Militar'],
+  ['188', 'CVV'],
+  ['100', 'Direitos Humanos'],
+  ['180', 'Atendimento à Mulher'],
 ];
 
-/** Rodapé: telefones de ajuda, links úteis e a faixa final. */
+/** Rodapé discreto: o que fazer em caso de risco, links de ajuda e o aviso do protótipo. */
 export function Rodape({ links = true }: { links?: boolean }) {
   const { demonstracao } = useSessao();
   return (
     <footer className="rodape">
-      <section className="rodape-contatos" aria-labelledby="t-contatos">
-        <h2 id="t-contatos"><IconeTelefone /> Telefones para ajuda</h2>
-        <ul>
-          {contatos.map(([n, r]) => (
-            <li key={n}><strong>{n}</strong><span>{r}</span></li>
-          ))}
-        </ul>
-      </section>
-      {links && (
-        <div className="rodape-colunas">
-          <div>
-            <h2>Sobre</h2>
-            <p>Registro e acompanhamento de ocorrências escolares, do relato à devolutiva.</p>
-          </div>
-          <nav aria-label="Ajuda">
-            <h2>Ajuda</h2>
+      <div className="rodape-linha">
+        <section className="rodape-risco" aria-labelledby="t-risco">
+          <h2 id="t-risco"><IconeTelefone width={18} height={18} /> Em caso de risco agora</h2>
+          <p>Acolha o estudante e chame a direção. Registre depois.</p>
+          <ul className="rodape-telefones">
+            {contatos.map(([n, r]) => (
+              <li key={n}><strong>{n}</strong> {r}</li>
+            ))}
+          </ul>
+        </section>
+        {links && (
+          <nav className="rodape-links" aria-label="Ajuda">
             <ul>
               <li><Link to="/guia">Guia da interface</Link></li>
               <li><Link to="/duvidas">Dúvidas frequentes</Link></li>
               <li><Link to="/acessibilidade">Acessibilidade</Link></li>
             </ul>
           </nav>
-          <div>
-            <h2>Em caso de risco agora</h2>
-            <p>Acolha o estudante, chame a direção e ligue para o 190 ou o 192. Registre depois.</p>
-          </div>
-        </div>
+        )}
+      </div>
+      {/* Na demonstração, a faixa do topo já diz isso em toda tela. */}
+      {!demonstracao && (
+        <p className="rodape-nota">Protótipo acadêmico (TCC), sem vínculo oficial com a Secretaria da Educação.</p>
       )}
-      <p className="rodape-faixa">
-        Protótipo acadêmico (TCC), sem vínculo oficial com a Secretaria da Educação.{demonstracao ? ' Pessoas e casos são fictícios.' : ''}
-      </p>
     </footer>
   );
 }
@@ -300,27 +295,27 @@ export function Estrutura() {
             </div>
           </Timbre>
 
-          {/* No computador, a navegação é uma linha com ícones; registrar vira o botão de destaque. */}
-          <nav className="navegacao" aria-label="Principal">
-            <ul>
-              {itens.filter((n) => n.area !== 'registrar').map((n) => {
-                const Icone = icones[n.area];
-                return (
-                  <li key={n.area}>
-                    <NavLink to={n.caminho} end={n.caminho === '/'}><Icone />{n.rotulo}</NavLink>
-                  </li>
-                );
-              })}
-              <li><NavLink to="/guia"><IconeAjuda />Guia</NavLink></li>
-            </ul>
-            {registra && (
-              <NavLink className="btn btn-primario navegacao-destaque" to="/registrar"><IconeLapis width={20} height={20} />Registrar ocorrência</NavLink>
-            )}
-          </nav>
+          {/* No computador, abas simples com a escola ao lado; o destaque de "registrar" fica no Início. */}
+          <div className="barra-navegacao">
+            <nav className="navegacao" aria-label="Principal">
+              <ul>
+                {itens.map((n) => {
+                  const Icone = icones[n.area];
+                  return (
+                    <li key={n.area}>
+                      <NavLink to={n.caminho} end={n.caminho === '/'}><Icone />{n.rotulo}</NavLink>
+                    </li>
+                  );
+                })}
+                <li><NavLink to="/guia"><IconeAjuda />Guia</NavLink></li>
+              </ul>
+            </nav>
+            <BarraDeContexto />
+          </div>
         </>
       )}
 
-      <BarraDeContexto />
+      {celular && <BarraDeContexto />}
 
       {!online && (
         <div className="faixa-offline" role="status">
