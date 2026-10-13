@@ -97,7 +97,7 @@ select.entrada {
 .etiqueta-atencao { color: var(--warn); background: var(--warnSoft); }
 .etiqueta-urgente { color: var(--urgent); background: var(--urgentSoft); }
 .etiqueta-ok { color: var(--ok); background: var(--okSoft); }
-.etiqueta-urgente::before { border-radius: 1px; transform: rotate(45deg); }
+.etiqueta-urgente::before { border-radius: 0; transform: rotate(45deg); }
 
 /* ---------- Aviso ---------- */
 .aviso {

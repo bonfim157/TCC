@@ -26,7 +26,7 @@ A análise só leu o código; nenhuma tela foi alterada.
 - [x] 16. Tela de entrar: faixa de emergência visível sem rolar. [T, P] Causa achada: a altura mínima de 100dvh não descontava a faixa de demonstração, então o rodapé de toda página começava 35px abaixo da primeira tela.
 
 ## Fase 4 — Documentação
-- [ ] 17. `/impeccable init` (PRODUCT.md) e `/impeccable document` (DESIGN.md). [I]
+- [x] 17. `/impeccable init` (PRODUCT.md) e `/impeccable document` (DESIGN.md). [I] Resultado: `front/PRODUCT.md` (confirmado em entrevista: professor e coordenação, "acolher e proteger", WCAG/eMAG e LGPD), `front/DESIGN.md` ("O Livro de Registro") e `front/.impeccable/design.json`. Detector do impeccable: de 3 achados para 1, o falso positivo da linha do tempo.
 
 ## Fora do plano (de propósito)
 Sem animação na troca de caso, filtros e abas (uso contínuo). Sem trocar ícones agora. Sem redesenho.

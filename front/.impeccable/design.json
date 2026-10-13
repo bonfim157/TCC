@@ -1,0 +1,468 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-13T12:30:34+00:00",
+  "title": "Design System: Cuidar e Registrar",
+  "extensions": {
+    "colorMeta": {
+      "azul-de-escola": {
+        "role": "primary",
+        "displayName": "Azul de Escola",
+        "canonical": "#1F5AA6",
+        "tonalRamp": [
+          "#0C2340",
+          "#153D70",
+          "#1E569F",
+          "#2770CE",
+          "#5390DF",
+          "#87B1E9",
+          "#BAD3F2",
+          "#EAF1FB"
+        ]
+      },
+      "azul-de-escola-tinta": {
+        "role": "primary",
+        "displayName": "Azul de Escola, tinta",
+        "canonical": "#1A4F93",
+        "tonalRamp": [
+          "#0B2341",
+          "#143D71",
+          "#1C56A0",
+          "#2570D0",
+          "#5290E0",
+          "#86B1EA",
+          "#BAD3F3",
+          "#E9F1FB"
+        ]
+      },
+      "azul-de-escola-suave": {
+        "role": "primary",
+        "displayName": "Azul de Escola, suave",
+        "canonical": "#E7EEF8",
+        "tonalRamp": [
+          "#11233B",
+          "#1E3C67",
+          "#2B5592",
+          "#376FBE",
+          "#618FD1",
+          "#90B1DF",
+          "#C0D2ED",
+          "#EBF1F9"
+        ]
+      },
+      "azul-de-escola-decor": {
+        "role": "primary",
+        "displayName": "Azul de Escola, decoração",
+        "canonical": "#A9C3E6",
+        "tonalRamp": [
+          "#11233B",
+          "#1E3D67",
+          "#2B5792",
+          "#3770BE",
+          "#6191D1",
+          "#90B2DF",
+          "#C0D3ED",
+          "#EBF1F9"
+        ]
+      },
+      "papel": {
+        "role": "neutral",
+        "displayName": "Papel",
+        "canonical": "#F7F7F9",
+        "tonalRamp": [
+          "#21212C",
+          "#39394C",
+          "#51516C",
+          "#69698C",
+          "#8A8AA8",
+          "#ADADC2",
+          "#D0D0DC",
+          "#F0F0F4"
+        ]
+      },
+      "superficie": {
+        "role": "neutral",
+        "displayName": "Superfície",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "#262626",
+          "#424242",
+          "#5E5E5E",
+          "#7A7A7A",
+          "#999999",
+          "#B8B8B8",
+          "#D6D6D6",
+          "#F2F2F2"
+        ]
+      },
+      "tinta": {
+        "role": "neutral",
+        "displayName": "Tinta",
+        "canonical": "#1E1F2E",
+        "tonalRamp": [
+          "#1E1F2E",
+          "#343650",
+          "#4A4D72",
+          "#616494",
+          "#8486AE",
+          "#A9AAC7",
+          "#CECFDF",
+          "#F0F0F5"
+        ]
+      },
+      "tinta-suave": {
+        "role": "neutral",
+        "displayName": "Tinta suave",
+        "canonical": "#4B4D63",
+        "tonalRamp": [
+          "#21222C",
+          "#393B4B",
+          "#51546B",
+          "#6A6C8B",
+          "#8B8DA7",
+          "#AEAFC1",
+          "#D1D2DC",
+          "#F0F1F4"
+        ]
+      },
+      "linha": {
+        "role": "neutral",
+        "displayName": "Linha",
+        "canonical": "#E1E2E9",
+        "tonalRamp": [
+          "#20222C",
+          "#383B4C",
+          "#50536D",
+          "#686C8D",
+          "#898DA9",
+          "#ADAFC3",
+          "#D0D1DC",
+          "#F0F1F4"
+        ]
+      },
+      "linha-forte": {
+        "role": "neutral",
+        "displayName": "Linha forte",
+        "canonical": "#878A9E",
+        "tonalRamp": [
+          "#22232A",
+          "#3B3D49",
+          "#545768",
+          "#6D7187",
+          "#8E91A4",
+          "#B0B2BF",
+          "#D2D3DB",
+          "#F1F1F4"
+        ]
+      },
+      "urgente": {
+        "role": "status",
+        "displayName": "Urgente",
+        "canonical": "#9A3412",
+        "tonalRamp": [
+          "#441708",
+          "#77280E",
+          "#A93914",
+          "#DB4A1A",
+          "#EA7148",
+          "#F09B7F",
+          "#F6C6B6",
+          "#FCEDE8"
+        ]
+      },
+      "urgente-suave": {
+        "role": "status",
+        "displayName": "Urgente, fundo",
+        "canonical": "#F7E6DD",
+        "tonalRamp": [
+          "#3E1F0F",
+          "#6B3619",
+          "#994C24",
+          "#C6632F",
+          "#D8865A",
+          "#E4AA8B",
+          "#EFCEBD",
+          "#FAF0EA"
+        ]
+      },
+      "atencao": {
+        "role": "status",
+        "displayName": "Atenção",
+        "canonical": "#7A4F00",
+        "tonalRamp": [
+          "#4C3200",
+          "#855600",
+          "#BD7A00",
+          "#F59F00",
+          "#FFB733",
+          "#FFCD70",
+          "#FFE2AD",
+          "#FFF6E5"
+        ]
+      },
+      "atencao-suave": {
+        "role": "status",
+        "displayName": "Atenção, fundo",
+        "canonical": "#FBF1D9",
+        "tonalRamp": [
+          "#453307",
+          "#78580D",
+          "#AB7E12",
+          "#DDA317",
+          "#ECBB46",
+          "#F1CF7E",
+          "#F7E4B5",
+          "#FDF6E8"
+        ]
+      },
+      "ok": {
+        "role": "status",
+        "displayName": "Ok",
+        "canonical": "#1E6B3A",
+        "tonalRamp": [
+          "#113C20",
+          "#1D6838",
+          "#299350",
+          "#36BF68",
+          "#60D289",
+          "#8FE0AD",
+          "#BFEDD0",
+          "#EBF9F0"
+        ]
+      },
+      "ok-suave": {
+        "role": "status",
+        "displayName": "Ok, fundo",
+        "canonical": "#E1F0E6",
+        "tonalRamp": [
+          "#1A3322",
+          "#2C583B",
+          "#3F7E54",
+          "#52A36D",
+          "#77BB8E",
+          "#A0CFB0",
+          "#C9E4D2",
+          "#EEF6F1"
+        ]
+      },
+      "neutro": {
+        "role": "status",
+        "displayName": "Neutro",
+        "canonical": "#4F5864",
+        "tonalRamp": [
+          "#22262B",
+          "#3B414A",
+          "#535D69",
+          "#6C7889",
+          "#8D97A5",
+          "#AFB6C0",
+          "#D1D6DB",
+          "#F1F2F4"
+        ]
+      },
+      "neutro-suave": {
+        "role": "status",
+        "displayName": "Neutro, fundo",
+        "canonical": "#E7E9EC",
+        "tonalRamp": [
+          "#22252B",
+          "#3B414A",
+          "#535C69",
+          "#6C7889",
+          "#8D97A5",
+          "#AFB6C0",
+          "#D1D5DB",
+          "#F1F2F4"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Título de página",
+        "purpose": "Um por página."
+      },
+      "title": {
+        "displayName": "Título de seção",
+        "purpose": "Seções e caso."
+      },
+      "subtitle": {
+        "displayName": "Título de painel",
+        "purpose": "Painéis."
+      },
+      "body": {
+        "displayName": "Corpo",
+        "purpose": "Texto corrido, até 68 caracteres por linha."
+      },
+      "label": {
+        "displayName": "Apoio",
+        "purpose": "Etiquetas, ajuda, metadados."
+      }
+    },
+    "shadows": [
+      {
+        "name": "plano",
+        "value": "0 1px 2px rgb(30 31 46 / .05)",
+        "purpose": "Painéis e tabelas: só descola do papel."
+      },
+      {
+        "name": "dialogo",
+        "value": "0 24px 64px rgb(0 0 0 / .28)",
+        "purpose": "Única camada elevada."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.23, 1, 0.32, 1)",
+        "purpose": "Botão ao pressionar, diálogo, aviso, chevrons."
+      },
+      {
+        "name": "pressionar",
+        "value": "scale(0.97), 160ms",
+        "purpose": "Resposta ao toque em botões."
+      },
+      {
+        "name": "dialogo",
+        "value": "opacity + scale(0.96), 200ms; saída em 150ms",
+        "purpose": "Entrada do diálogo com @starting-style."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "celular",
+        "value": "600px"
+      },
+      {
+        "name": "tablet",
+        "value": "980px"
+      },
+      {
+        "name": "fila-e-caso",
+        "value": "1000px"
+      },
+      {
+        "name": "caso-empilhado",
+        "value": "1400px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Botão principal",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Uma por grupo de ações, escolhida pela fase do caso.",
+      "html": "<button class=\"ds-btn\">Concluir triagem</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; min-height: 44px; padding: 0 24px; font-family: 'Atkinson Hyperlegible Next', 'Segoe UI', Arial, sans-serif; font-size: 1rem; font-weight: 500; border-radius: 8px; border: 2px solid transparent; background: #1F5AA6; color: #FFFFFF; cursor: pointer; transition: background-color .15s, transform .16s cubic-bezier(0.23, 1, 0.32, 1); } .ds-btn:hover { background: color-mix(in srgb, #1F5AA6 86%, #1E1F2E); } .ds-btn:active { transform: scale(0.97); } .ds-btn:focus-visible { outline: 3px solid #1F5AA6; outline-offset: 2px; }"
+    },
+    {
+      "name": "Botão secundário",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Demais ações do grupo.",
+      "html": "<button class=\"ds-btn2\">Registrar escuta</button>",
+      "css": ".ds-btn2 { display: inline-flex; align-items: center; min-height: 44px; padding: 0 24px; font-family: 'Atkinson Hyperlegible Next', 'Segoe UI', Arial, sans-serif; font-size: 1rem; font-weight: 500; border-radius: 8px; background: #FFFFFF; color: #1E1F2E; border: 1.5px solid #878A9E; cursor: pointer; transition: border-color .15s, transform .16s cubic-bezier(0.23, 1, 0.32, 1); } .ds-btn2:hover { border-color: #1E1F2E; } .ds-btn2:active { transform: scale(0.97); } .ds-btn2:focus-visible { outline: 3px solid #1F5AA6; outline-offset: 2px; }"
+    },
+    {
+      "name": "Campo de texto",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Rótulo acima, ajuda abaixo do rótulo, erro abaixo do campo.",
+      "html": "<label class=\"ds-campo\"><span>Local</span><input class=\"ds-entrada\" placeholder=\"Sala 12, quadra\"></label>",
+      "css": ".ds-campo { display: grid; gap: 8px; font-family: 'Atkinson Hyperlegible Next', 'Segoe UI', Arial, sans-serif; color: #1E1F2E; } .ds-campo > span { font-weight: 500; } .ds-entrada { min-height: 44px; padding: 12px 16px; font: inherit; color: #1E1F2E; background: #FFFFFF; border: 1.5px solid #878A9E; border-radius: 8px; } .ds-entrada:hover { border-color: #1E1F2E; } .ds-entrada:focus-visible { outline: 3px solid #1F5AA6; outline-offset: 0; border-color: #1F5AA6; }"
+    },
+    {
+      "name": "Etiquetas de estado",
+      "kind": "chip",
+      "refersTo": "etiqueta-urgente",
+      "description": "Estado sempre escrito; a urgente usa losango.",
+      "html": "<span class=\"ds-et ds-urg\">Urgente</span> <span class=\"ds-et ds-atc\">Pendente</span> <span class=\"ds-et ds-ok\">Cumprida</span>",
+      "css": ".ds-et { display: inline-flex; align-items: center; gap: 8px; padding: 3px 12px; border-radius: 999px; font-family: 'Atkinson Hyperlegible Next', 'Segoe UI', Arial, sans-serif; font-size: .8125rem; font-weight: 500; } .ds-et::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: currentColor; } .ds-urg { color: #9A3412; background: #F7E6DD; } .ds-urg::before { border-radius: 1px; transform: rotate(45deg); } .ds-atc { color: #7A4F00; background: #FBF1D9; } .ds-ok { color: #1E6B3A; background: #E1F0E6; }"
+    },
+    {
+      "name": "Painel",
+      "kind": "card",
+      "refersTo": "painel",
+      "description": "Superfície plana com borda de 1px.",
+      "html": "<section class=\"ds-painel\"><h3>Providências</h3><p>Sugeridas pelo protocolo da rede. O sistema sugere; quem conduz decide.</p></section>",
+      "css": ".ds-painel { background: #FFFFFF; border: 1px solid #E1E2E9; border-radius: 12px; padding: 24px; box-shadow: 0 1px 2px rgb(30 31 46 / .05); font-family: 'Atkinson Hyperlegible Next', 'Segoe UI', Arial, sans-serif; color: #1E1F2E; } .ds-painel h3 { margin: 0 0 8px; font-size: 1.125rem; font-weight: 600; } .ds-painel p { margin: 0; font-size: .8125rem; color: #4B4D63; }"
+    },
+    {
+      "name": "Navegação",
+      "kind": "nav",
+      "refersTo": "",
+      "description": "Abas com filete no item atual.",
+      "html": "<nav class=\"ds-nav\"><a>Início</a><a aria-current=\"page\">Central de gestão</a><a>Buscar</a></nav>",
+      "css": ".ds-nav { display: flex; gap: 4px; background: #FFFFFF; border-bottom: 1px solid #E1E2E9; font-family: 'Atkinson Hyperlegible Next', 'Segoe UI', Arial, sans-serif; } .ds-nav a { display: flex; align-items: center; min-height: 48px; padding: 0 12px; color: #4B4D63; font-size: .9375rem; font-weight: 500; border-bottom: 3px solid transparent; cursor: pointer; } .ds-nav a:hover { color: #1E1F2E; } .ds-nav a[aria-current='page'] { color: #1A4F93; font-weight: 600; border-bottom-color: #1F5AA6; }"
+    },
+    {
+      "name": "Linha do tempo",
+      "kind": "custom",
+      "refersTo": "",
+      "description": "Folha de livro: data na margem, texto na pauta.",
+      "html": "<ol class=\"ds-lt\"><li><span>28 set, 7h40</span><div><b>Registro</b><small>Joana Prado</small></div></li><li class=\"ds-ad\"><span>29 set, 9h10</span><div><b>Adendo</b><small>Correção do local</small></div></li></ol>",
+      "css": ".ds-lt { list-style: none; margin: 0; padding: 0; font-family: 'Atkinson Hyperlegible Next', 'Segoe UI', Arial, sans-serif; color: #1E1F2E; } .ds-lt li { display: grid; grid-template-columns: 132px 1fr; gap: 16px; padding: 16px 0; border-top: 1px solid #E1E2E9; } .ds-lt li > span { font-size: .8125rem; font-weight: 600; color: #4B4D63; border-right: 2px solid #1F5AA6; padding-right: 12px; } .ds-lt div { display: grid; gap: 2px; } .ds-lt small { color: #4B4D63; } .ds-lt .ds-ad > span { border-right: 2px dashed #7A4F00; } .ds-ad div { background: #FBF1D9; border-radius: 4px; padding: 8px 12px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "O Livro de Registro",
+    "overview": "O sistema se comporta como o livro de ocorrências da escola feito com cuidado: pauta limpa, data na margem, o fato escrito antes de qualquer decisão e nada que se apague. A linha do tempo do caso é literalmente uma folha de livro (data na margem com filete, texto na pauta), e os adendos aparecem como anotação à parte, nunca como edição do original.\n\nA densidade é de ferramenta de trabalho, não de vitrine: coordenação e direção leem e agem em sequência, professores registram com pressa no celular. Por isso a interface é sóbria e firme, com bordas finas, sem sombras de destaque, alvos de toque de 44px e cor reservada para ação e estado. O tom é institucional sem imitar órgão oficial: um azul calmo por rede, neutros frios e tipografia desenhada para baixa visão.\n\nA cor nunca carrega sozinha um significado. Toda etiqueta de estado tem texto, e a urgente ganha um losango no lugar do ponto, para quem não distingue vermelho de âmbar.",
+    "keyCharacteristics": [
+      "O fato antes das ações: o relato abre o caso, a pergunta de risco abre o registro.",
+      "Um acento por rede; o resto é neutro e cores de estado.",
+      "Planos chapados com borda de 1px; profundidade só no diálogo.",
+      "Tudo cabe numa coluna no celular; nada rola de lado escondido.",
+      "Contraste AA verificado por script nos modos claro e escuro."
+    ],
+    "rules": [
+      {
+        "name": "The Um Vermelho Rule",
+        "body": "Vermelho é só para urgência real: risco, prioridade urgente, erro. Atraso e pendência são âmbar. Se três indicadores lado a lado ficam vermelhos, o alarme perde a força.",
+        "section": "colors"
+      },
+      {
+        "name": "The Acento da Rede Rule",
+        "body": "O azul pertence à rede, não ao produto. Nenhum componente fixa o hex do azul; tudo passa por `--accent`, `--accent-ink`, `--accent-soft` e `--decor`.",
+        "section": "colors"
+      },
+      {
+        "name": "The Contraste Conferido Rule",
+        "body": "Todo par novo de cor entra em `src/design/themes.ts` e passa por `npm run contrast` (AA, claro e escuro) antes de ser usado.",
+        "section": "colors"
+      },
+      {
+        "name": "The Três Pesos Rule",
+        "body": "Só 400, 500 e 600 são carregados; o negrito usa 600. Peso novo é download novo.",
+        "section": "typography"
+      },
+      {
+        "name": "The A+ Rule",
+        "body": "Tamanhos em rem, sobre uma escala que o usuário controla (botões A+ e A− e opção em Aparência). Nada de px fixo em texto.",
+        "section": "typography"
+      },
+      {
+        "name": "The Nada Escondido Rule",
+        "body": "Nenhuma lista importante rola dentro de uma caixa e nenhuma aba rola de lado. Se não cabe, quebra de linha.",
+        "section": "layout"
+      },
+      {
+        "name": "The Sem Faixa Lateral Rule",
+        "body": "Avisos e cartões não ganham faixa grossa de cor num lado só. Estado é fundo suave, ícone e borda de 1px.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** começar o caso pelo relato e o registro pela pergunta de risco.",
+      "**Do** usar uma única ação principal por grupo, e agrupar comunicações em \"Comunicar\" quando houver mais de uma.",
+      "**Do** escrever a situação (Cumprida, Pendente, Não se aplica) em vez de depender de cor ou ícone.",
+      "**Do** manter alvos de toque de 44px e conferir contraste com `npm run contrast`.",
+      "**Do** animar só o que é ocasional (diálogo, aviso) e manter sem animação o que se repete (troca de caso, filtros, abas)."
+    ],
+    "donts": [
+      "**Don't** usar vermelho para atraso ou pendência.",
+      "**Don't** desenhar um quadrado vazio que pareça caixa de marcar sem ser clicável.",
+      "**Don't** colocar faixa grossa de cor num lado de aviso ou cartão.",
+      "**Don't** esconder casos ou abas em rolagem interna ou lateral.",
+      "**Don't** fixar o azul da rede num componente; use os tokens de acento."
+    ]
+  }
+}
