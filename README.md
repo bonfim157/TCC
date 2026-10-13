@@ -43,6 +43,18 @@ No modo real, o login por e-mail e senha fica em `/entrar?modo=senha` (pessoas f
 
 Detalhes, verificação e estrutura em [`front/README.md`](front/README.md).
 
+## Ambientes: demonstração e login real
+
+O mesmo código roda de dois jeitos; o que muda são as variáveis de ambiente na Vercel.
+
+| Branch | Para quê | Como se entra | Banco |
+| --- | --- | --- | --- |
+| `teste` | Demonstração para banca e testes | Escolhendo uma pessoa fictícia, sem senha | Nenhum: API simulada no navegador |
+| `login` | Login real, antes de ir para a `main` | E-mail e senha; código de aplicativo autenticador para coordenação, direção e regional | Neon (São Paulo), banco de teste com as pessoas fictícias |
+| `main` | Produção | Hoje: demonstração. Depois que a `login` entrar: login real, só a IMSIL | Neon (São Paulo), banco de produção, sem dados fictícios |
+
+Na `login`, as contas de teste são `<primeiro nome>@demo.tcc` (por exemplo `ana@demo.tcc`) com a senha `demonstracao-2026`; o segredo do segundo fator está em [`docs/plano-backend.md`](docs/plano-backend.md). A `teste` nunca entra na `main`: depois de cada mudança na `main`, junte a `main` na `teste` para a demonstração não ficar para trás.
+
 ## Levar uma branch para a main
 
 Nenhuma mudança vai direto para a `main`: ela entra por pull request, depois dos testes do GitHub e do preview da Vercel. Juntar na `main` publica na hora em https://cuidar-registrar.vercel.app. Exemplo com a branch `front-descomplicado` (PR #3):
