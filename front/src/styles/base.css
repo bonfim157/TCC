@@ -102,12 +102,9 @@ small { font-size: var(--t-pequeno); }
 
 /*
  * Movimento reduzido: sai o que se desloca ou gira; ficam as trocas de cor e de
- * opacidade, que dizem o que mudou sem mover nada. Carregar continua visível:
- * o spinner vira um anel que pulsa e o esqueleto fica parado.
+ * opacidade, que dizem o que mudou sem mover nada. O carregamento continua
+ * visível (ver "Carregando" em componentes.css).
  */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-property: color, background-color, border-color, opacity, box-shadow !important; scroll-behavior: auto !important; }
-  .btn .spinner { border-right-color: currentColor; animation: pulsa 1.2s ease-in-out infinite; }
-  .esqueleto span { animation: none; }
 }
-@keyframes pulsa { 50% { opacity: .35; } }

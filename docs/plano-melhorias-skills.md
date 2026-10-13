@@ -1,7 +1,7 @@
 # Plano de melhorias do front (análise com skills, 13/10/2026)
 
 Fontes: graphify (G), playwright (P, 11 capturas), impeccable (I), Emil Kowalski (E), taste skill (T).
-A análise só leu o código; nenhuma tela foi alterada.
+A análise só leu o código; a execução está nas fases abaixo.
 
 ## Fase 1 — Segurança e fluxo (P1)
 - [x] 1. **Pergunta de risco no topo do registro** (PassoFato.tsx:120). "Sim" leva direto à orientação de emergência. [I, P]
@@ -33,7 +33,7 @@ Sem animação na troca de caso, filtros e abas (uso contínuo). Sem trocar íco
 
 Análise feita na branch `front-descomplicado` (PR #3); as referências de linha valem para ela.
 
-**Andamento:** execução na branch `front/melhorias-skills`; cada item marcado foi feito e conferido no navegador.
+**Andamento:** executado na branch `front/melhorias-skills`. Cada item marcado foi conferido no navegador: capturas em computador e celular, claro e escuro; os itens de movimento (9 a 11), por estilos calculados no Playwright (escala de 0,97 ao pressionar, entrada do diálogo de 0 a 1 em cerca de 200ms, spinner pulsando com movimento reduzido, hover desligado no toque). Roteiros `npm run verificar`: 8 de 8 passaram, 208 telas sem violação WCAG A/AA.
 
 ---
 

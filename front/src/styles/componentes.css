@@ -208,6 +208,13 @@ dialog.dialogo[open]::backdrop { opacity: 1; }
 .esqueleto span:nth-child(2) { width: 80%; }
 .esqueleto span:nth-child(3) { width: 60%; }
 @keyframes brilho { to { background-position: -200% 0; } }
+/* Movimento reduzido: o spinner vira um anel que pulsa e o esqueleto fica parado.
+   Fica aqui, depois das regras originais, para vencer na cascata. */
+@media (prefers-reduced-motion: reduce) {
+  .btn .spinner { border-right-color: currentColor; animation: pulsa 1.2s ease-in-out infinite; }
+  .esqueleto span { animation: none; }
+}
+@keyframes pulsa { 50% { opacity: .35; } }
 
 /* ---------- Brasão da rede ---------- */
 .brasao { flex: none; display: block; }
