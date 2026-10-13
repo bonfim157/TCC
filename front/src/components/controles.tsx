@@ -27,7 +27,7 @@ export function Botao({
 /* ---------- Partes comuns de campo ---------- */
 type BaseCampo = { rotulo: string; ajuda?: ReactNode; erro?: string; opcional?: boolean };
 
-function Rotulo({ rotulo, opcional }: { rotulo: string; opcional?: boolean }) {
+export function Rotulo({ rotulo, opcional }: { rotulo: string; opcional?: boolean }) {
   return (
     <>
       {rotulo}
@@ -36,7 +36,7 @@ function Rotulo({ rotulo, opcional }: { rotulo: string; opcional?: boolean }) {
   );
 }
 
-function Erro({ id, erro }: { id: string; erro?: string }) {
+export function Erro({ id, erro }: { id: string; erro?: string }) {
   if (!erro) return null;
   return (
     <p className="campo-erro" id={id}>
@@ -46,7 +46,7 @@ function Erro({ id, erro }: { id: string; erro?: string }) {
   );
 }
 
-const descritores = (ajudaId: string, erroId: string, ajuda?: ReactNode, erro?: string) =>
+export const descritores = (ajudaId: string, erroId: string, ajuda?: ReactNode, erro?: string) =>
   [ajuda ? ajudaId : null, erro ? erroId : null].filter(Boolean).join(' ') || undefined;
 
 /* ---------- Texto ---------- */

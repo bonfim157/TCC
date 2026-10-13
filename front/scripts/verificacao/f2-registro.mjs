@@ -11,6 +11,16 @@ await fetch(`${B}/api/diagnostico/restaurar`, { method: 'POST' }).catch(() => {}
 const b = await chromium.launch();
 const log = (...a) => console.log(...a);
 
+// Data e horário são componentes próprios (calendário em português), não <input type="date|time">.
+async function escolherDataHora(page, dia, mesAno, hora, minuto) {
+  await page.getByLabel('Outro dia').check();
+  const alvo = page.getByRole('button', { name: new RegExp(`, ${dia} de ${mesAno}`) });
+  for (let i = 0; i < 24 && !(await alvo.isVisible()); i++) await page.getByRole('button', { name: 'Mês anterior' }).click();
+  await alvo.click();
+  await page.getByLabel('Hora', { exact: true }).selectOption(hora);
+  await page.getByLabel('Minuto', { exact: true }).selectOption(minuto);
+}
+
 async function entrar(page, nome) {
   await page.goto(`${B}/entrar?rede=sp`);
   await page.waitForTimeout(700);
@@ -48,8 +58,7 @@ log('ordem de tab:', ordem.join(' | '));
 // Preencher com teclado onde possível
 await p.getByLabel('Convivência ou conflito').focus();
 await p.keyboard.press('Space');
-await p.getByLabel('Data').fill('2026-09-25');
-await p.getByLabel('Horário aproximado').fill('09:40');
+await escolherDataHora(p, 25, 'setembro de 2026', '09', '40');
 await p.getByLabel('Local').fill('Pátio');
 await p.getByLabel('Relato do que aconteceu').fill('Dois estudantes discutiram na fila da cantina e um derrubou a bandeja do outro.');
 await p.getByLabel('Não').check();

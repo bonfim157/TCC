@@ -21,6 +21,27 @@ function quandoVence(prazo: string) {
   return { texto: `Em ${d} dias`, tipo: 'neutra' as const };
 }
 
+function ListaDePrazos({ itens }: { itens: PrazoProximo[] }) {
+  return (
+    <ul className="lista-prazos">
+      {itens.map((a) => {
+        const v = quandoVence(a.prazo);
+        return (
+          <li key={`${a.ocorrenciaId}-${a.id}`}>
+            <div>
+              <strong>{a.descricao}</strong>
+              <span>
+                <Link to={`/casos/${a.ocorrenciaId}`}>Caso {a.protocolo}</Link>, {a.responsavel.toLowerCase()}, até {diaPorExtenso(a.prazo)}
+              </span>
+            </div>
+            <Etiqueta tipo={v.tipo}>{v.texto}</Etiqueta>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 const CHAVE_TOUR = 'pref.tourVisto';
 function lerTourVisto() {
   try { return localStorage.getItem(CHAVE_TOUR) === '1'; } catch { return false; }
@@ -133,30 +154,28 @@ export function Inicio() {
         )}
 
         {deEscola && (
-          <Painel titulo="Prazos próximos">
+          <Painel titulo="Prazos">
             <EstadoDaCarga estado={prazos.estado} tentarDeNovo={prazos.tentarDeNovo} rotulo="Carregando prazos">
-              {(dados) =>
-                dados.length === 0 ? (
-                  <p>Nenhuma ação com prazo nos casos que você acompanha.</p>
-                ) : (
-                  <ul className="lista-prazos">
-                    {dados.map((a) => {
-                      const v = quandoVence(a.prazo);
-                      return (
-                        <li key={`${a.ocorrenciaId}-${a.id}`}>
-                          <div>
-                            <strong>{a.descricao}</strong>
-                            <span>
-                              <Link to={`/casos/${a.ocorrenciaId}`}>Caso {a.protocolo}</Link>, {a.responsavel.toLowerCase()}, até {diaPorExtenso(a.prazo)}
-                            </span>
-                          </div>
-                          <Etiqueta tipo={v.tipo}>{v.texto}</Etiqueta>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )
-              }
+              {(dados) => {
+                if (dados.length === 0) return <p>Nenhuma ação com prazo nos casos que você acompanha.</p>;
+                // Atrasados à parte: "próximos" com itens vencidos dizia o contrário do que mostrava.
+                const atrasados = dados.filter((a) => diasAte(a.prazo) < 0);
+                const proximos = dados.filter((a) => diasAte(a.prazo) >= 0);
+                return (
+                  <div className="pilha">
+                    {atrasados.length > 0 && (
+                      <section aria-labelledby="t-atrasados">
+                        <h3 id="t-atrasados" className="prazos-grupo">Atrasados ({atrasados.length})</h3>
+                        <ListaDePrazos itens={atrasados} />
+                      </section>
+                    )}
+                    <section aria-labelledby="t-proximos">
+                      <h3 id="t-proximos" className="prazos-grupo">Próximos</h3>
+                      {proximos.length === 0 ? <p className="campo-ajuda">Nenhum prazo pela frente.</p> : <ListaDePrazos itens={proximos} />}
+                    </section>
+                  </div>
+                );
+              }}
             </EstadoDaCarga>
           </Painel>
         )}

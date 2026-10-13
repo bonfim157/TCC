@@ -1,6 +1,6 @@
 /* Formatação de datas no padrão brasileiro, por extenso quando é para ler. */
 
-const meses = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+export const meses = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
 
 const hora = (d: Date) => `${d.getHours()}h${String(d.getMinutes()).padStart(2, '0')}`;
 
@@ -28,6 +28,24 @@ export const horaLegivel = (hhmm: string) => {
   const [h, m] = hhmm.split(':');
   return `${Number(h)}h${m}`;
 };
+
+export const diasDaSemana = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
+
+/** Data local como AAAA-MM-DD, sem passar por UTC. */
+export function paraISO(d: Date) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+/** AAAA-MM-DD como Date local (meia-noite), sem fuso. */
+export function deISO(dia: string) {
+  const [a, m, d] = dia.split('-').map(Number);
+  return new Date(a, m - 1, d);
+}
+
+/** "segunda-feira, 13 de outubro de 2026" */
+export function diaCompleto(dia: string) {
+  return `${diasDaSemana[deISO(dia).getDay()]}, ${diaPorExtenso(dia)}`;
+}
 
 /** Hoje como AAAA-MM-DD, no fuso local. */
 export function hojeISO() {

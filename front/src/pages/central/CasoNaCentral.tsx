@@ -1,36 +1,23 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  acaoEmAberto, rotas, type Canal, type Categoria, type ContatosLocais, type Encaminhamento, type ModeloDeComunicacao, type Ocorrencia, type Orgao,
-  type PessoaDaEquipe, type Prioridade, type Providencia, type TipoComunicacao,
+  acaoEmAberto, rotas, type Canal, type Categoria, type ContatosLocais, type ModeloDeComunicacao, type Ocorrencia, type Orgao,
+  type PessoaDaEquipe, type Prioridade,
 } from '../../api/contract';
-import { LinhaDoTempo, situacaoPlano } from '../../components/caso';
-import { Botao, CaixaMarcar, CampoAreaTexto, CampoSelecao, CampoTexto, GrupoOpcoes } from '../../components/controles';
-import { Abas, DialogoFormulario, Painel } from '../../components/estrutura';
-import { Aviso, Etiqueta, EtiquetaPrioridade, EtiquetaStatus, EstadoDaCarga, useNotificar } from '../../components/feedback';
+import { CaixaMarcar, CampoAreaTexto, CampoSelecao, CampoTexto, GrupoOpcoes } from '../../components/controles';
+import { DialogoFormulario } from '../../components/estrutura';
+import { Aviso, EtiquetaPrioridade, EtiquetaStatus, EstadoDaCarga, useNotificar } from '../../components/feedback';
 import { nomePerfil } from '../../state/perfis';
 import { useSessao } from '../../state/sessao';
 import { useApi } from '../../state/useApi';
-import { dataHoraCurta, diaPorExtenso, diasAte, hojeISO, horaLegivel } from '../../util/formato';
-import { nomePapel } from '../registrar/PassoEnvolvidos';
+import { diaPorExtenso, hojeISO, horaLegivel } from '../../util/formato';
+import { AbasDoCaso } from './AbasDoCaso';
+import { AcoesDoCaso } from './AcoesDoCaso';
+import { FormComunicacao } from './FormComunicacao';
+import { PainelDaRede } from './PainelDaRede';
+import { Providencias } from './Providencias';
+import { nomeCanal, nomeOrgao, type Dialogo } from './tipos';
 import { useAcaoNoCaso } from './useAcaoNoCaso';
-
-type Dialogo =
-  | { tipo: 'triagem' }
-  | { tipo: 'registro' }
-  | { tipo: 'encaminhar' }
-  | { tipo: 'devolutiva'; enc: Encaminhamento }
-  | { tipo: 'plano' }
-  | { tipo: 'comunicar'; para: TipoComunicacao }
-  | { tipo: 'providencia'; prov: Providencia; acao: 'feita' | 'dispensada' | 'pendente' }
-  | { tipo: 'rede' }
-  | { tipo: 'encerrar' }
-  | null;
-
-const nomeOrgao: Record<Orgao, string> = {
-  conselho_tutelar: 'Conselho Tutelar', policia: 'Polícia', samu: 'SAMU', cras: 'CRAS', creas: 'CREAS', saude: 'Serviço de saúde', outro: 'Outro órgão',
-};
-const nomeCanal: Record<Canal, string> = { oficio: 'Ofício', telefone: 'Telefone', email: 'E-mail', presencial: 'Presencial', sistema: 'Sistema do órgão' };
 
 const emDias = (n: number) => {
   const d = new Date();
@@ -38,131 +25,7 @@ const emDias = (n: number) => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 };
 
-/* ---------- Providências ---------- */
-function Providencias({ o, pedir, pode }: { o: Ocorrencia; pedir: (d: Dialogo) => void; pode: boolean }) {
-  const pendentes = o.providencias.filter((p) => p.obrigatoria && p.situacao === 'pendente').length;
-  return (
-    <Painel titulo="Providências" className="providencias">
-      <p className="campo-ajuda">
-        Sugeridas pelo protocolo da rede para este tipo de caso. O sistema sugere; quem conduz decide.
-        {pendentes > 0 && <strong> {pendentes} {pendentes === 1 ? 'obrigatória pendente' : 'obrigatórias pendentes'}.</strong>}
-      </p>
-      <ul className="lista-providencias">
-        {o.providencias.map((p) => (
-          <li key={p.id} className={`providencia providencia-${p.situacao}`}>
-            <span className="providencia-marca" aria-hidden="true" />
-            <div className="providencia-texto">
-              <p>
-                <strong>{p.descricao}</strong>
-                <span className="visualmente-oculto">. Situação: {p.situacao === 'feita' ? 'cumprida' : p.situacao === 'dispensada' ? 'dispensada' : 'pendente'}.</span>
-              </p>
-              <p className="providencia-base">
-                {p.obrigatoria ? 'Obrigatória' : 'Recomendada'}. {p.base}
-              </p>
-              {p.situacao !== 'pendente' && (
-                <p className="providencia-registro">
-                  {p.situacao === 'feita' ? 'Cumprida' : 'Dispensada'} por {p.registradaPor}{p.registradaEm ? `, ${dataHoraCurta(p.registradaEm)}` : ''}.
-                  {p.observacao ? ` ${p.observacao}` : ''}
-                </p>
-              )}
-              {pode && (
-                <div className="acoes-linha">
-                  {p.situacao === 'pendente' ? (
-                    <>
-                      <Botao variante="secundario" onClick={() => pedir({ tipo: 'providencia', prov: p, acao: 'feita' })}>
-                        Marcar como cumprida<span className="visualmente-oculto">: {p.descricao}</span>
-                      </Botao>
-                      <Botao variante="texto" onClick={() => pedir({ tipo: 'providencia', prov: p, acao: 'dispensada' })}>
-                        Não se aplica<span className="visualmente-oculto">: {p.descricao}</span>
-                      </Botao>
-                    </>
-                  ) : (
-                    <Botao variante="texto" onClick={() => pedir({ tipo: 'providencia', prov: p, acao: 'pendente' })}>
-                      Reabrir<span className="visualmente-oculto">: {p.descricao}</span>
-                    </Botao>
-                  )}
-                </div>
-              )}
-            </div>
-          </li>
-        ))}
-      </ul>
-    </Painel>
-  );
-}
-
-/* ---------- Comunicação a partir de modelo ---------- */
-function FormComunicacao({ o, para, modelos, escola, autor, valor, setValor }: {
-  o: Ocorrencia;
-  para: TipoComunicacao;
-  modelos: ModeloDeComunicacao[];
-  escola: string;
-  autor: string;
-  valor: { estudanteId: string; destinatario: string; resumo: string; texto: string };
-  setValor: (v: { estudanteId: string; destinatario: string; resumo: string; texto: string }) => void;
-}) {
-  const estudantes = o.envolvidos.filter((e) => e.tipo === 'estudante' && !e.restrito);
-  const modelo = modelos.find((m) => m.tipo === para);
-  const estudante = estudantes.find((e) => e.pessoaId === valor.estudanteId);
-
-  // Monta o texto a partir do modelo sempre que estudante ou resumo mudam.
-  useEffect(() => {
-    if (!modelo) return;
-    const [a, m, d] = o.fato.data.split('-').map(Number);
-    const texto = modelo.texto
-      .replaceAll('{estudante}', estudante?.nome ?? '[estudante]')
-      .replaceAll('{escola}', escola)
-      .replaceAll('{data}', diaPorExtenso(`${a}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`))
-      .replaceAll('{protocolo}', o.protocolo)
-      .replaceAll('{resumo}', valor.resumo.trim() || '[resumo do que aconteceu]')
-      .replaceAll('{responsavel}', autor);
-    if (texto !== valor.texto) setValor({ ...valor, texto });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [valor.estudanteId, valor.resumo, modelo]);
-
-  const outros = o.envolvidos.filter((e) => e.pessoaId !== valor.estudanteId && !e.restrito && e.tipo === 'estudante');
-  const vazados = outros.filter((e) => valor.texto.includes(e.nome));
-
-  return (
-    <div className="pilha">
-      {!modelo && <Aviso tipo="atencao">A rede ainda não cadastrou um modelo para esta comunicação.</Aviso>}
-      <CampoSelecao
-        rotulo={para === 'familia' ? 'Família de qual estudante' : 'Estudante a que o ofício se refere'}
-        value={valor.estudanteId}
-        onChange={(e) => {
-          const est = estudantes.find((x) => x.pessoaId === e.target.value);
-          setValor({ ...valor, estudanteId: e.target.value, destinatario: para === 'familia' ? `Família de ${est?.nome ?? ''}` : valor.destinatario });
-        }}
-      >
-        <option value="" disabled>Escolha</option>
-        {estudantes.map((e) => <option key={e.pessoaId} value={e.pessoaId}>{e.nome}{e.turma ? `, ${e.turma}` : ''}</option>)}
-      </CampoSelecao>
-      <CampoTexto rotulo="Destinatário" value={valor.destinatario} onChange={(e) => setValor({ ...valor, destinatario: e.target.value })} />
-      <CampoAreaTexto
-        rotulo="Resumo do que aconteceu"
-        ajuda={para === 'familia' ? 'Escreva só o que diz respeito a este estudante. Não cite outros estudantes nem detalhes que a família não precisa saber.' : 'Descreva os fatos observados que motivam a comunicação.'}
-        value={valor.resumo}
-        rows={3}
-        maxLength={800}
-        onChange={(e) => setValor({ ...valor, resumo: e.target.value })}
-      />
-      <CampoAreaTexto
-        rotulo={para === 'familia' ? 'Texto que a família vai receber' : 'Texto do ofício'}
-        ajuda="Gerado pelo modelo aprovado da rede. Você pode ajustar antes de enviar."
-        value={valor.texto}
-        rows={10}
-        onChange={(e) => setValor({ ...valor, texto: e.target.value })}
-      />
-      {vazados.length > 0 && (
-        <Aviso tipo="erro" titulo="O texto cita outro estudante">
-          Retire {vazados.map((v) => v.nome).join(' e ')} antes de enviar. Cada família só recebe o que diz respeito ao próprio filho ou filha.
-        </Aviso>
-      )}
-    </div>
-  );
-}
-
-/* ---------- Caso na Central ---------- */
+/** Caso aberto dentro da Central: cabeçalho, ações, abas, providências e os diálogos de cada ação. */
 export function CasoNaCentral({ id, externo = 0, aoMudar }: { id: string; externo?: number; aoMudar: () => void }) {
   const s = useSessao();
   const notificar = useNotificar();
@@ -278,6 +141,7 @@ export function CasoNaCentral({ id, externo = 0, aoMudar }: { id: string; extern
   const encerrado = o.status === 'encerrado';
   const emTriagem = o.status === 'recebido' || o.status === 'em_triagem';
   const temCt = o.providencias.some((p) => p.id.endsWith('-ct'));
+  const ctPendente = o.providencias.some((p) => p.id.endsWith('-ct') && p.situacao === 'pendente');
   const pendentesObrig = o.providencias.filter((p) => p.obrigatoria && p.situacao === 'pendente');
   const acoesAbertas = o.plano.filter(acaoEmAberto);
   const nomeCategoria = cats.find((x) => x.id === o.categoriaId)?.nome ?? '';
@@ -317,151 +181,25 @@ export function CasoNaCentral({ id, externo = 0, aoMudar }: { id: string; extern
           <Link to={`/casos/${o.id}`}>Abrir página completa do caso</Link>
         </p>
 
-        {encerrado && o.encerramento ? (
-          <Aviso tipo="sucesso" titulo={`Encerrado em ${dataHoraCurta(o.encerramento.em)} por ${o.encerramento.por}`}>
-            <p>{o.encerramento.justificativa}</p>
-            {o.encerramento.reavaliarEm && <p>Reavaliação marcada para {diaPorExtenso(o.encerramento.reavaliarEm)}.</p>}
-          </Aviso>
-        ) : (
-          <div className="barra-acoes" role="group" aria-label="Ações do caso">
-            {emTriagem && <Botao onClick={() => abrir({ tipo: 'triagem' })}>Concluir triagem</Botao>}
-            <Botao variante="secundario" onClick={() => abrir({ tipo: 'registro' })}>Registrar escuta</Botao>
-            <Botao variante="secundario" onClick={() => abrir({ tipo: 'comunicar', para: 'familia' })}>Comunicar família</Botao>
-            {temCt && <Botao variante="secundario" onClick={() => abrir({ tipo: 'comunicar', para: 'conselho_tutelar' })}>Ofício ao Conselho Tutelar</Botao>}
-            <Botao variante="secundario" onClick={() => abrir({ tipo: 'encaminhar' })}>Encaminhar</Botao>
-            <Botao variante="secundario" onClick={() => abrir({ tipo: 'plano' })}>Incluir no plano</Botao>
-            {podeEncerrar && <Botao variante="texto" onClick={() => abrir({ tipo: 'encerrar' })}>Encerrar caso</Botao>}
-          </div>
-        )}
+        {/* O fato vem antes das ações e das providências: decide-se lendo o que aconteceu. */}
+        <section className="caso-fato" aria-labelledby="t-fato">
+          <h3 id="t-fato">O que aconteceu</h3>
+          <p className="texto-relato">{o.fato.relato}</p>
+          {o.fato.providenciaImediata && <p><strong>Feito no momento:</strong> {o.fato.providenciaImediata}</p>}
+          {o.fato.riscoImediato && <Aviso tipo="erro" titulo="Registrado com risco imediato">Confira se a emergência foi acionada e registrada nas providências.</Aviso>}
+        </section>
+
+        <AcoesDoCaso o={o} encerrado={encerrado} emTriagem={emTriagem} temCt={temCt} ctPendente={ctPendente} podeEncerrar={podeEncerrar} abrir={abrir} />
       </header>
 
       <div className="caso-central-grade">
         <div className="caso-central-principal">
-          <Abas
-            rotulo="Informações do caso"
-            abas={[
-              {
-                id: 'resumo',
-                titulo: 'Resumo',
-                conteudo: (
-                  <div className="pilha">
-                    <p className="texto-relato">{o.fato.relato}</p>
-                    {o.fato.providenciaImediata && <p><strong>Feito no momento:</strong> {o.fato.providenciaImediata}</p>}
-                    {o.fato.riscoImediato && <Aviso tipo="erro" titulo="Registrado com risco imediato">Confira se a emergência foi acionada e registrada nas providências.</Aviso>}
-                    <h3 className="titulo-bloco">Envolvidos</h3>
-                    {o.envolvidos.length === 0 ? <p>Nenhuma pessoa identificada.</p> : (
-                      <ul className="lista-revisao">
-                        {o.envolvidos.map((e) => (
-                          <li key={e.pessoaId}>
-                            <p><strong className={e.restrito ? 'restrito' : undefined}>{e.nome}</strong>{e.turma ? `, ${e.turma}` : ''}</p>
-                            <span>{nomePapel[e.papel]}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                ),
-              },
-              { id: 'tempo', titulo: 'Linha do tempo', conteudo: <LinhaDoTempo eventos={o.eventos} maisRecentesPrimeiro /> },
-              {
-                id: 'enc',
-                titulo: `Encaminhamentos (${o.encaminhamentos.length})`,
-                conteudo: o.encaminhamentos.length === 0 ? <p>Nenhum encaminhamento externo.</p> : (
-                  <ul className="lista-encaminhamentos">
-                    {o.encaminhamentos.map((e) => {
-                      const atraso = !e.devolutiva ? -diasAte(e.devolutivaAte) : 0;
-                      return (
-                        <li key={e.id} className="painel">
-                          <div className="envolvido-cabeca">
-                            <div>
-                              <h3>{e.orgaoNome}</h3>
-                              <p>{nomeCanal[e.canal]}{e.protocoloExterno ? `, ${e.protocoloExterno}` : ''}. Enviado em {dataHoraCurta(e.em)} por {e.registradoPor}.</p>
-                            </div>
-                            {e.devolutiva ? <Etiqueta tipo="ok">Devolutiva recebida</Etiqueta> : atraso > 0 ? <Etiqueta tipo="urgente">Atrasada há {atraso} {atraso === 1 ? 'dia' : 'dias'}</Etiqueta> : <Etiqueta tipo="info">Aguardando até {diaPorExtenso(e.devolutivaAte).replace(/ de \d{4}$/, '')}</Etiqueta>}
-                          </div>
-                          {e.devolutiva ? (
-                            <p><strong>Devolutiva ({dataHoraCurta(e.devolutiva.em)}):</strong> {e.devolutiva.texto}</p>
-                          ) : !encerrado && (
-                            <div><Botao variante="secundario" onClick={() => abrir({ tipo: 'devolutiva', enc: e })}>Registrar devolutiva<span className="visualmente-oculto"> de {e.orgaoNome}</span></Botao></div>
-                          )}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                ),
-              },
-              {
-                id: 'plano',
-                titulo: `Plano de apoio (${o.plano.length})`,
-                conteudo: o.plano.length === 0 ? <p>Nenhuma ação. Use “Incluir no plano”.</p> : (
-                  <ul className="lista-plano">
-                    {o.plano.map((a) => {
-                      const sit = acaoEmAberto(a) && a.prazo < hojeISO() ? 'atrasada' : a.situacao;
-                      return (
-                        <li key={a.id}>
-                          <div>
-                            <strong>{a.descricao}</strong>
-                            <span>{a.responsavel}, até {diaPorExtenso(a.prazo)}</span>
-                          </div>
-                          <div className="acoes-linha">
-                            <Etiqueta tipo={situacaoPlano[sit][1]}>{situacaoPlano[sit][0]}</Etiqueta>
-                            {acaoEmAberto(a) && !encerrado && (
-                              <Botao variante="texto" onClick={() => acao.executar(rotas.acao(o.id, `plano/${a.id}/concluir`), {}).then((ok) => ok && notificar('Ação concluída.'))}>
-                                Concluir<span className="visualmente-oculto"> {a.descricao}</span>
-                              </Botao>
-                            )}
-                          </div>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                ),
-              },
-              {
-                id: 'com',
-                titulo: `Comunicações (${o.comunicacoes.length})`,
-                conteudo: o.comunicacoes.length === 0 ? <p>Nenhuma comunicação enviada.</p> : (
-                  <ul className="lista-encaminhamentos">
-                    {o.comunicacoes.map((c) => (
-                      <li key={c.id} className="painel">
-                        <div className="envolvido-cabeca">
-                          <div>
-                            <h3>{c.destinatario}</h3>
-                            <p>{c.tipo === 'familia' ? 'Comunicação à família' : 'Ofício'}, {dataHoraCurta(c.em)}, por {c.registradaPor}.</p>
-                          </div>
-                          {c.tipo === 'familia' && (c.ciencia ? <Etiqueta tipo="ok">Ciência confirmada</Etiqueta> : <Etiqueta tipo="atencao">Aguardando ciência</Etiqueta>)}
-                        </div>
-                        {c.ciencia && <p>Confirmada por {c.ciencia.nome} em {dataHoraCurta(c.ciencia.em)}.</p>}
-                        {c.linkCiencia && !c.ciencia && (
-                          <p className="campo-ajuda">
-                            Na versão real, a família recebe o link por mensagem. Demonstração: <Link to={c.linkCiencia} target="_blank">abrir a página que a família verá</Link>.
-                          </p>
-                        )}
-                        <details>
-                          <summary>Ver texto enviado</summary>
-                          <p className="texto-relato">{c.texto}</p>
-                        </details>
-                      </li>
-                    ))}
-                  </ul>
-                ),
-              },
-            ]}
-          />
+          <AbasDoCaso o={o} encerrado={encerrado} abrir={abrir} executar={acao.executar} />
         </div>
 
         <aside className="caso-central-lado" aria-label="Providências e registro na rede">
           <Providencias o={o} pedir={abrir} pode={!encerrado} />
-          <Painel titulo={redeSP ? 'Conviva SP' : 'Sistema da rede'}>
-            {o.registroNaRede ? (
-              <p>Lançado: <strong>{o.registroNaRede}</strong>.</p>
-            ) : (
-              <div className="pilha">
-                <p>{redeSP ? 'Ainda não lançado no Conviva SP (Placon).' : 'Ainda não lançado no sistema oficial da rede.'}</p>
-                {!encerrado && <div><Botao variante="secundario" onClick={() => abrir({ tipo: 'rede' })}>Registrar código</Botao></div>}
-              </div>
-            )}
-          </Painel>
+          <PainelDaRede o={o} redeSP={redeSP} encerrado={encerrado} abrir={abrir} />
         </aside>
       </div>
 

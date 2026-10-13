@@ -2,7 +2,10 @@
  * Linguagem de ferramenta escolar: cabeçalho baixo e claro, abas simples,
  * um acento só (o da rede), bordas finas em vez de sombras e nada de faixas escuras. */
 
-.app { min-height: 100dvh; display: flex; flex-direction: column; }
+/* A faixa de demonstração fica fora da página; a altura mínima vale para o conjunto,
+   senão o rodapé começa 100dvh abaixo da faixa e sempre passa da primeira tela. */
+#root { min-height: 100dvh; display: flex; flex-direction: column; }
+.app { flex: 1; display: flex; flex-direction: column; }
 
 /* ---------- Cabeçalho ---------- */
 .timbre { background: var(--surface); border-bottom: 1px solid var(--line); }
@@ -36,7 +39,7 @@
 }
 .acessibilidade-texto button + button { border-left: 1.5px solid var(--line); border-radius: 0 var(--r-controle) var(--r-controle) 0; font-size: var(--t-pequeno); }
 .acessibilidade-texto button:first-child { border-radius: var(--r-controle) 0 0 var(--r-controle); }
-.acessibilidade-texto button:hover:not(:disabled) { background: var(--paper); }
+@media (hover: hover) and (pointer: fine) { .acessibilidade-texto button:hover:not(:disabled) { background: var(--paper); } }
 .acessibilidade-texto button:disabled { color: var(--inkSoft); opacity: .55; cursor: not-allowed; }
 .acessibilidade-texto sup { font-size: .6em; margin-left: 1px; }
 
@@ -121,7 +124,7 @@ main { flex: 1; width: 100%; max-width: 1280px; margin: 0 auto; padding: var(--e
 }
 
 /* ---------- Telas fora da estrutura (entrar, erros, família) ---------- */
-.tela-avulsa { min-height: 100dvh; display: flex; flex-direction: column; }
+.tela-avulsa { flex: 1; display: flex; flex-direction: column; }
 .tela-avulsa main { flex: 1; display: flex; justify-content: center; padding: var(--e7) var(--e4); }
 .tela-avulsa .pagina { width: 100%; max-width: 640px; }
 .pagina > * { min-width: 0; }
@@ -130,8 +133,16 @@ main:focus, main:focus-visible { outline: none; }
 /* Tela de acesso: fundo liso, marca numa linha e um cartão simples. */
 .tela-acesso { background: var(--paper); }
 .acesso-topo { display: flex; justify-content: flex-end; padding: var(--e3) var(--e4) 0; }
-.tela-acesso main { padding-top: var(--e4); }
-.acesso-coluna { width: 100%; max-width: 440px; display: grid; gap: var(--e4); align-content: start; }
+/* Margens mais curtas que nas outras telas avulsas: os telefones de emergência do rodapé
+   cabem na primeira tela de um notebook (1366×800) sem rolar. */
+.tela-acesso main { padding-top: var(--e4); padding-bottom: var(--e5); }
+/* Em telas largas, A+/A− e Aparência flutuam no canto em vez de ocupar uma linha inteira acima da marca. */
+@media (min-width: 900px) {
+  .tela-acesso { position: relative; }
+  .acesso-topo { position: absolute; top: 0; right: 0; }
+  .tela-acesso main { padding-top: var(--e6); }
+}
+.acesso-coluna { width: 100%; max-width: 440px; display: grid; gap: var(--e3); align-content: start; }
 .marca { display: flex; align-items: center; gap: var(--e3); }
 .acesso-cartao {
   background: var(--surface); border-radius: var(--r-superficie);

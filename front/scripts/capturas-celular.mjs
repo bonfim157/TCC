@@ -29,6 +29,16 @@ const medir = (p) => p.evaluate(() => {
 });
 
 let n = 0;
+// Data e horário são componentes próprios (calendário em português), não <input type="date|time">.
+async function escolherDataHora(page, dia, mesAno, hora, minuto) {
+  await page.getByLabel('Outro dia').check();
+  const alvo = page.getByRole('button', { name: new RegExp(`, ${dia} de ${mesAno}`) });
+  for (let i = 0; i < 24 && !(await alvo.isVisible()); i++) await page.getByRole('button', { name: 'Mês anterior' }).click();
+  await alvo.click();
+  await page.getByLabel('Hora', { exact: true }).selectOption(hora);
+  await page.getByLabel('Minuto', { exact: true }).selectOption(minuto);
+}
+
 async function foto(p, nome) {
   await p.waitForTimeout(400);
   const m = await medir(p);
@@ -73,9 +83,8 @@ const novo = () => b.newContext({ viewport: { width: largura, height: 780 }, isM
   await ir(p, '/registrar'); await foto(p, 'registrar-1');
   await p.getByRole('button', { name: 'Continuar' }).click(); await foto(p, 'registrar-1-erros');
   await p.getByLabel('Convivência ou conflito').check();
-  await p.getByLabel('Data').fill('2026-09-25');
-  await p.getByLabel('Horário aproximado').fill('09:40');
-  await p.getByLabel('Local').fill('Pátio');
+  await escolherDataHora(p, 25, 'setembro de 2026', '09', '40');
+    await p.getByLabel('Local').fill('Pátio');
   await p.getByLabel('Relato do que aconteceu').fill('Dois estudantes discutiram na fila da cantina e um derrubou a bandeja do outro.');
   await p.getByLabel('Não').check();
   await p.getByRole('button', { name: 'Continuar' }).click(); await p.waitForTimeout(500);

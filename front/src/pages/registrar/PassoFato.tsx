@@ -1,5 +1,6 @@
 import type { Categoria, DadosDoFato } from '../../api/contract';
 import { CampoAreaTexto, CampoTexto, GrupoOpcoes } from '../../components/controles';
+import { CampoData, CampoHorario } from '../../components/data';
 import { Aviso } from '../../components/feedback';
 import {
   IconeAtencao, IconeCalendario, IconeCelular, IconeConversa, IconeCoracao, IconeEscudo, IconeMartelo, IconePessoas, IconeRegra,
@@ -13,13 +14,14 @@ const locais = ['Sala de aula', 'Pátio', 'Quadra', 'Corredor', 'Banheiro', 'Ref
 export function validarFato(r: RascunhoRegistro): Erros {
   const f = r.fato;
   const e: Erros = {};
+  // A pergunta de risco vem primeiro na tela, então o erro dela também.
+  if (!r.risco) e.risco = 'Responda se alguém corre risco agora.';
   if (!f.categoriaId) e.categoria = 'Escolha o tipo de ocorrência.';
   if (!f.data) e.data = 'Informe a data do fato.';
   else if (f.data > hojeISO()) e.data = 'A data não pode estar no futuro.';
   if (!f.hora) e.hora = 'Informe o horário aproximado.';
   if (!f.local.trim()) e.local = 'Informe onde aconteceu.';
   if (f.relato.trim().length < 20) e.relato = f.relato.trim() ? 'Conte um pouco mais: o relato precisa ter pelo menos 20 caracteres.' : 'Escreva o relato do que aconteceu.';
-  if (!r.risco) e.risco = 'Responda se alguém corre risco agora.';
   return e;
 }
 
@@ -51,6 +53,28 @@ export function PassoFato({ r, categorias, erros, atualizar }: {
 
   return (
     <div className="pilha-larga">
+      <div className="bloco-risco">
+        <GrupoOpcoes
+          id="campo-risco"
+          rotulo="Alguém corre risco agora?"
+          ajuda="Por exemplo: ferimento, ameaça, estudante que não pode voltar para casa."
+          estilo="sim-nao"
+          opcoes={[{ valor: 'sim', rotulo: 'Sim' }, { valor: 'nao', rotulo: 'Não' }]}
+          valor={r.risco}
+          aoMudar={(v) => atualizar({ risco: v as 'sim' | 'nao' })}
+          erro={erros.risco}
+        />
+        {r.risco === 'sim' && (
+          <Aviso tipo="erro" titulo="Aja antes de terminar o registro">
+            <ul className="lista-compacta">
+              <li>Se há perigo agora, ligue <strong>190</strong> (Polícia), <strong>192</strong> (SAMU) ou <strong>193</strong> (Bombeiros).</li>
+              <li>Avise a direção pessoalmente, sem esperar o sistema.</li>
+              <li>Este registro avisa a direção, mas não substitui esses serviços.</li>
+            </ul>
+          </Aviso>
+        )}
+      </div>
+
       <GrupoOpcoes
         id="campo-categoria"
         rotulo="Tipo de ocorrência"
@@ -70,9 +94,9 @@ export function PassoFato({ r, categorias, erros, atualizar }: {
         </Aviso>
       )}
 
-      <div className="grade-2">
-        <CampoTexto id="campo-data" rotulo="Data" type="date" max={hojeISO()} value={f.data} onChange={(e) => muda({ data: e.target.value })} erro={erros.data} />
-        <CampoTexto id="campo-hora" rotulo="Horário aproximado" type="time" value={f.hora} onChange={(e) => muda({ hora: e.target.value })} erro={erros.hora} />
+      <div className="grade-quando">
+        <CampoData id="campo-data" rotulo="Data" max={hojeISO()} valor={f.data} aoMudar={(data) => muda({ data })} erro={erros.data} />
+        <CampoHorario id="campo-hora" rotulo="Horário aproximado" valor={f.hora} aoMudar={(hora) => muda({ hora })} erro={erros.hora} />
       </div>
 
       <CampoTexto
@@ -113,28 +137,6 @@ export function PassoFato({ r, categorias, erros, atualizar }: {
         rows={3}
         onChange={(e) => muda({ providenciaImediata: e.target.value })}
       />
-
-      <div className="bloco-risco">
-        <GrupoOpcoes
-          id="campo-risco"
-          rotulo="Alguém corre risco agora?"
-          ajuda="Por exemplo: ferimento, ameaça, estudante que não pode voltar para casa."
-          estilo="sim-nao"
-          opcoes={[{ valor: 'sim', rotulo: 'Sim' }, { valor: 'nao', rotulo: 'Não' }]}
-          valor={r.risco}
-          aoMudar={(v) => atualizar({ risco: v as 'sim' | 'nao' })}
-          erro={erros.risco}
-        />
-        {r.risco === 'sim' && (
-          <Aviso tipo="erro" titulo="Aja antes de terminar o registro">
-            <ul className="lista-compacta">
-              <li>Se há perigo agora, ligue <strong>190</strong> (Polícia), <strong>192</strong> (SAMU) ou <strong>193</strong> (Bombeiros).</li>
-              <li>Avise a direção pessoalmente, sem esperar o sistema.</li>
-              <li>Este registro avisa a direção, mas não substitui esses serviços.</li>
-            </ul>
-          </Aviso>
-        )}
-      </div>
     </div>
   );
 }

@@ -6,17 +6,19 @@
   min-height: var(--alvo); padding: 0 var(--e5);
   font: inherit; font-weight: 500; line-height: 1.2; text-decoration: none;
   border-radius: var(--r-controle); border: 2px solid transparent; cursor: pointer;
-  transition: background-color .15s, border-color .15s, color .15s, box-shadow .15s;
+  transition: background-color .15s, border-color .15s, color .15s, box-shadow .15s, transform .16s var(--ease-out);
 }
+/* Ao pressionar, o botão cede um pouco: confirma o toque antes da resposta do sistema. */
+.btn:active:not(:disabled) { transform: scale(0.97); }
 .btn svg { flex: none; }
 .btn-largo { width: 100%; }
 .btn:disabled { cursor: not-allowed; opacity: .5; }
 .btn-primario { background: var(--accent); color: var(--on-accent); }
-.btn-primario:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 86%, var(--ink)); }
+@media (hover: hover) and (pointer: fine) { .btn-primario:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 86%, var(--ink)); } }
 .btn-secundario { background: var(--surface); color: var(--ink); border-color: var(--lineStrong); border-width: 1.5px; }
-.btn-secundario:hover:not(:disabled) { border-color: var(--ink); }
+@media (hover: hover) and (pointer: fine) { .btn-secundario:hover:not(:disabled) { border-color: var(--ink); } }
 .btn-perigo { background: var(--urgent); color: var(--surface); }
-.btn-perigo:hover:not(:disabled) { background: color-mix(in srgb, var(--urgent) 86%, var(--ink)); }
+@media (hover: hover) and (pointer: fine) { .btn-perigo:hover:not(:disabled) { background: color-mix(in srgb, var(--urgent) 86%, var(--ink)); } }
 .btn-texto { background: transparent; color: var(--accent-ink); padding: 0 var(--e3); text-decoration: underline; text-underline-offset: 3px; }
 .btn-texto:hover:not(:disabled) { text-decoration-thickness: 2px; }
 .btn[aria-busy='true'] { cursor: progress; }
@@ -42,7 +44,7 @@ fieldset.campo:focus { outline: none; }
   border: 1.5px solid var(--lineStrong); border-radius: var(--r-controle);
 }
 .entrada::placeholder { color: var(--inkSoft); }
-.entrada:hover:not(:disabled) { border-color: var(--ink); }
+@media (hover: hover) and (pointer: fine) { .entrada:hover:not(:disabled) { border-color: var(--ink); } }
 .entrada:focus-visible { outline-offset: 0; border-color: var(--accent); }
 .entrada[aria-invalid='true'] { border-color: var(--urgent); }
 .entrada:disabled { background: var(--neutralSoft); color: var(--inkSoft); cursor: not-allowed; }
@@ -54,6 +56,50 @@ select.entrada {
   background-size: 6px 6px; background-repeat: no-repeat;
 }
 .contador { font-size: var(--t-pequeno); color: var(--inkSoft); justify-self: end; }
+
+/* ---------- Data e horário (components/data.tsx) ---------- */
+.datas-rapidas { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--e2); max-width: 420px; }
+.datas-rapidas .opcao > span { width: 100%; justify-content: center; padding: 0 var(--e2); }
+.data-escolhida { font-size: var(--t-pequeno); color: var(--inkSoft); }
+.data-escolhida strong { color: var(--ink); font-weight: 600; }
+
+.calendario {
+  width: 100%; max-width: 360px; padding: var(--e3) var(--e3) var(--e2);
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-superficie);
+}
+.calendario-cabeca { display: flex; align-items: center; justify-content: space-between; gap: var(--e2); margin-bottom: var(--e2); }
+.calendario-mes { font-weight: 600; text-align: center; flex: 1; }
+.calendario-mes-botao {
+  display: grid; place-items: center; width: var(--alvo); height: var(--alvo); padding: 0;
+  color: var(--ink); background: transparent; border: 1px solid transparent; border-radius: var(--r-controle); cursor: pointer;
+}
+.calendario-mes-botao svg { width: 20px; height: 20px; }
+.calendario-mes-botao:disabled { color: var(--line); cursor: not-allowed; }
+@media (hover: hover) and (pointer: fine) { .calendario-mes-botao:hover:not(:disabled) { background: var(--accent-soft); } }
+.calendario-grade { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.calendario-grade th { padding: 0 0 var(--e1); font-size: var(--t-pequeno); font-weight: 500; color: var(--inkSoft); text-align: center; }
+.calendario-grade abbr { text-decoration: none; }
+.calendario-grade td { padding: 1px; text-align: center; }
+.calendario-dia {
+  width: 100%; height: var(--alvo); padding: 0; font: inherit; color: var(--ink);
+  background: transparent; border: 1px solid transparent; border-radius: var(--r-controle); cursor: pointer;
+  transition: background-color .12s, color .12s, transform .16s var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) { .calendario-dia:hover:not(:disabled):not([aria-pressed='true']) { background: var(--accent-soft); } }
+.calendario-dia:active:not(:disabled) { transform: scale(0.94); }
+/* Hoje: contorno; escolhido: preenchido no acento. Dias depois do limite ficam apagados. */
+.calendario-dia[aria-current='date'] { border-color: var(--accent); font-weight: 600; color: var(--accent-ink); }
+.calendario-dia[aria-pressed='true'] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
+.calendario-dia:disabled { color: var(--lineStrong); cursor: not-allowed; }
+.calendario-dica { margin-top: var(--e2); font-size: var(--t-pequeno); color: var(--inkSoft); }
+@media (hover: none) { .calendario-dica { display: none; } }
+
+.horario-linha { display: flex; align-items: flex-end; gap: var(--e2); flex-wrap: wrap; }
+.horario-parte { display: grid; gap: var(--e1); }
+.horario-parte > label { font-size: var(--t-pequeno); color: var(--inkSoft); }
+.horario-parte select.entrada { width: 5.5rem; font-variant-numeric: tabular-nums; }
+.horario-separador { align-self: flex-end; padding-bottom: 10px; font-weight: 600; color: var(--inkSoft); }
+.horario-agora { margin-left: var(--e2); padding: 0 var(--e4); }
 
 /* ---------- Opções (rádio em forma de etiqueta) ---------- */
 .opcoes { display: flex; flex-wrap: wrap; gap: var(--e2); }
@@ -95,12 +141,12 @@ select.entrada {
 .etiqueta-atencao { color: var(--warn); background: var(--warnSoft); }
 .etiqueta-urgente { color: var(--urgent); background: var(--urgentSoft); }
 .etiqueta-ok { color: var(--ok); background: var(--okSoft); }
-.etiqueta-urgente::before { border-radius: 1px; transform: rotate(45deg); }
+.etiqueta-urgente::before { border-radius: 0; transform: rotate(45deg); }
 
 /* ---------- Aviso ---------- */
 .aviso {
   display: grid; grid-template-columns: auto 1fr; gap: var(--e3); align-items: start;
-  padding: var(--e4) var(--e5); border-radius: var(--r-superficie); border-left: 5px solid; background: var(--surface);
+  padding: var(--e4) var(--e5); border-radius: var(--r-superficie); border: 1px solid; background: var(--surface);
 }
 .aviso-icone { width: 22px; height: 22px; margin-top: 1px; }
 .aviso h4 { margin-bottom: 2px; }
@@ -128,11 +174,12 @@ select.entrada {
 .tabela thead th { font-size: var(--t-pequeno); color: var(--inkSoft); font-weight: 600; border-bottom: 2px solid var(--lineStrong); white-space: nowrap; }
 .tabela tbody tr:last-child td { border-bottom: 0; }
 .tabela td:first-child a { white-space: nowrap; }
-.tabela tbody tr:hover { background: color-mix(in srgb, var(--accent-soft) 45%, transparent); }
+@media (hover: hover) and (pointer: fine) { .tabela tbody tr:hover { background: color-mix(in srgb, var(--accent-soft) 45%, transparent); } }
 
 /* ---------- Abas ---------- */
 .abas { min-width: 0; }
-.abas-lista { position: relative; display: flex; gap: var(--e1); border-bottom: 2px solid var(--line); overflow-x: auto; }
+/* Abas quebram de linha quando não cabem, em vez de rolar de lado com abas escondidas. */
+.abas-lista { position: relative; display: flex; flex-wrap: wrap; gap: 0 var(--e1); border-bottom: 2px solid var(--line); }
 .aba {
   min-height: var(--alvo); padding: 0 var(--e4); font: inherit; font-weight: 500; color: var(--inkSoft);
   background: none; border: 0; border-bottom: 3px solid transparent; margin-bottom: -2px; cursor: pointer; white-space: nowrap;
@@ -140,6 +187,14 @@ select.entrada {
 .aba:hover { color: var(--ink); }
 .aba[aria-selected='true'] { color: var(--ink); border-bottom-color: var(--accent); font-weight: 600; }
 .aba-painel { padding-top: var(--e5); }
+/* Coluna estreita (celular ou caso ao lado da fila): as abas quebram em linhas em
+   vez de rolar de lado, e nenhuma fica escondida fora da área visível. */
+.abas { container-type: inline-size; }
+@container (max-width: 720px) {
+  .abas-lista { gap: var(--e2); padding-bottom: var(--e3); }
+  .aba { margin-bottom: 0; padding: 0 var(--e3); border: 1px solid var(--line); border-radius: var(--r-controle); background: var(--surface); }
+  .aba[aria-selected='true'] { border-color: var(--accent); background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent); }
+}
 
 /* ---------- Diálogo ---------- */
 dialog.dialogo {
@@ -147,6 +202,18 @@ dialog.dialogo {
   background: var(--surface); color: var(--ink); box-shadow: 0 24px 64px rgb(0 0 0 / .28);
 }
 dialog.dialogo::backdrop { background: rgb(10 14 18 / .55); }
+/* Entrada curta (200ms) a partir de quase o tamanho final; o fundo escurece junto. Saída mais rápida. */
+dialog.dialogo {
+  opacity: 0; transform: scale(.96);
+  transition: opacity .15s ease-out, transform .15s var(--ease-out), overlay .15s allow-discrete, display .15s allow-discrete;
+}
+dialog.dialogo[open] { opacity: 1; transform: none; transition-duration: .2s; }
+dialog.dialogo::backdrop { opacity: 0; transition: opacity .2s ease-out, overlay .2s allow-discrete, display .2s allow-discrete; }
+dialog.dialogo[open]::backdrop { opacity: 1; }
+@starting-style {
+  dialog.dialogo[open] { opacity: 0; transform: scale(.96); }
+  dialog.dialogo[open]::backdrop { opacity: 0; }
+}
 .dialogo-corpo { padding: var(--e5); display: grid; gap: var(--e3); }
 .dialogo-acoes { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: var(--e3); padding: var(--e4) var(--e5); border-top: 1px solid var(--line); }
 
@@ -156,10 +223,11 @@ dialog.dialogo::backdrop { background: rgb(10 14 18 / .55); }
   display: flex; gap: var(--e3); align-items: center; justify-content: space-between;
   padding: var(--e3) var(--e4); border-radius: var(--r-superficie);
   background: var(--ink); color: var(--paper); font-weight: 500; box-shadow: 0 8px 24px rgb(0 0 0 / .2);
-  animation: entra .2s ease-out;
+  transition: opacity .2s ease-out, transform .2s var(--ease-out);
 }
+/* Transição (e não keyframes): se dois avisos chegam juntos, o movimento se ajusta em vez de recomeçar. */
+@starting-style { .notificacao { opacity: 0; transform: translateY(8px); } }
 .notificacao button { color: var(--paper); background: none; border: 0; font: inherit; text-decoration: underline; cursor: pointer; min-height: 44px; padding: 0 var(--e2); }
-@keyframes entra { from { opacity: 0; transform: translateY(8px); } }
 
 /* ---------- Estado vazio ---------- */
 .vazio { display: grid; gap: var(--e3); justify-items: start; padding: var(--e6) var(--e5); border: 2px dashed var(--line); border-radius: var(--r-superficie); background: var(--surface); }
@@ -184,6 +252,13 @@ dialog.dialogo::backdrop { background: rgb(10 14 18 / .55); }
 .esqueleto span:nth-child(2) { width: 80%; }
 .esqueleto span:nth-child(3) { width: 60%; }
 @keyframes brilho { to { background-position: -200% 0; } }
+/* Movimento reduzido: o spinner vira um anel que pulsa e o esqueleto fica parado.
+   Fica aqui, depois das regras originais, para vencer na cascata. */
+@media (prefers-reduced-motion: reduce) {
+  .btn .spinner { border-right-color: currentColor; animation: pulsa 1.2s ease-in-out infinite; }
+  .esqueleto span { animation: none; }
+}
+@keyframes pulsa { 50% { opacity: .35; } }
 
 /* ---------- Brasão da rede ---------- */
 .brasao { flex: none; display: block; }
@@ -232,7 +307,7 @@ dialog.dialogo::backdrop { background: rgb(10 14 18 / .55); }
 .opcoes-cartoes .opcao-icone svg { width: 22px; height: 22px; }
 .opcoes-cartoes .opcao input:checked + span { box-shadow: inset 0 0 0 1px var(--accent); }
 .opcoes-cartoes .opcao input:checked + span .opcao-icone { background: var(--decor); color: var(--on-decor); }
-.opcoes-cartoes .opcao:hover > span { border-color: var(--ink); }
+@media (hover: hover) and (pointer: fine) { .opcoes-cartoes .opcao:hover > span { border-color: var(--ink); } }
 
 /* ---------- Tabelas no celular ----------
  * Cada linha vira um cartão e cada célula traz o nome da coluna antes do valor.
@@ -259,8 +334,6 @@ dialog.dialogo::backdrop { background: rgb(10 14 18 / .55); }
   .painel-cabeca a, .lista-registros a { display: inline-flex; align-items: center; min-height: 44px; }
   .painel { padding: var(--e4); }
   .aviso { padding: var(--e4); }
-  .abas-lista { scroll-snap-type: x proximity; scrollbar-width: thin; }
-  .aba { scroll-snap-align: start; }
   dialog.dialogo { max-height: calc(100dvh - 32px); }
   .dialogo-acoes { position: sticky; bottom: 0; background: var(--surface); }
 }
