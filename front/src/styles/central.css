@@ -12,7 +12,7 @@
 }
 .indicador strong { font-family: var(--titulo); font-size: var(--t-h2); line-height: 1.1; color: var(--ink); }
 .indicador span { font-size: var(--t-pequeno); font-weight: 600; }
-.indicador:hover { border-color: var(--lineStrong); }
+@media (hover: hover) and (pointer: fine) { .indicador:hover { border-color: var(--lineStrong); } }
 .indicador-urgente { border-color: var(--urgent); background: var(--urgentSoft); }
 .indicador-urgente strong { color: var(--urgent); }
 .indicador-atencao { border-color: var(--warn); background: var(--warnSoft); }
@@ -32,7 +32,7 @@
   display: grid; gap: var(--e1); padding: var(--e3) var(--e4); color: var(--ink); text-decoration: none;
   background: var(--surface); border: 1px solid var(--line); border-left: 4px solid transparent; border-radius: var(--r-controle);
 }
-.fila-item:hover { border-color: var(--lineStrong); border-left-color: var(--lineStrong); }
+@media (hover: hover) and (pointer: fine) { .fila-item:hover { border-color: var(--lineStrong); border-left-color: var(--lineStrong); } }
 .fila-item[aria-current='true'] { border-color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); }
 .fila-linha { display: flex; justify-content: space-between; align-items: center; gap: var(--e2); flex-wrap: wrap; }
 .fila-linha strong { font-family: var(--titulo); font-size: var(--t-destaque); }
@@ -114,7 +114,7 @@ dialog.dialogo-largo { width: min(760px, calc(100vw - 32px)); }
 
 /* Ciência da família */
 .ciencia { max-width: 680px; }
-.carta { display: grid; gap: var(--e3); border-top: 6px solid var(--accent); }
+.carta { display: grid; gap: var(--e3); }
 
 /* Celular: a ação principal ocupa a linha; as demais ficam em duas colunas. */
 @media (max-width: 600px) {

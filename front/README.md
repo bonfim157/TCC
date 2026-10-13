@@ -67,7 +67,7 @@ Os roteiros ficam em `scripts/verificacao/` e as capturas de tela em `output/ver
 - **Multi-rede:** a rede é o inquilino. Toda chamada envia `X-Rede-Id`; a API recusa com 403 qualquer registro de outra rede.
 - **Acento por rede:** cada rede tem sua cor, com par de texto verificado nos modos claro e escuro.
 - **Celular:** até 980px o topo vira uma linha (marca e botão Menu) e o contexto recolhe numa linha com escola e perfil; até 820px as tabelas viram cartões com o nome de cada coluna. `node scripts/capturas-celular.mjs <largura>` captura todas as telas e mede rolagem lateral, onde começa o conteúdo e alvos de toque.
-- **Fonte local:** Poppins (400 a 700) servida pelo próprio app, sem chamadas a terceiros.
+- **Fonte local:** Atkinson Hyperlegible Next (400, 500 e 600) servida pelo próprio app, sem chamadas a terceiros.
 - **Visual:** ferramenta de escola, não boletim de ocorrência: cabeçalho baixo e claro, abas simples com a escola ativa ao lado, um acento só (azul `#1F5AA6` na rede SP, 6,8:1 com texto branco), bordas finas em vez de sombras e rodapé curto com os telefones de emergência. Sem faixas escuras, escudo ou dourado. Os atalhos A+/A− e Aparência ficam sempre no topo.
 - **Entrar na demonstração:** aparecem só professora, coordenação e direção; os outros perfis e a rede de testes ficam em "Outros perfis e redes de teste".
 - **Permissões na tela não são segurança:** a matriz em `src/state/perfis.ts` só decide o que mostrar; o backend precisa aplicar as regras de `src/mocks/base.ts`.

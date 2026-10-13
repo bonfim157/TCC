@@ -6,17 +6,19 @@
   min-height: var(--alvo); padding: 0 var(--e5);
   font: inherit; font-weight: 500; line-height: 1.2; text-decoration: none;
   border-radius: var(--r-controle); border: 2px solid transparent; cursor: pointer;
-  transition: background-color .15s, border-color .15s, color .15s, box-shadow .15s;
+  transition: background-color .15s, border-color .15s, color .15s, box-shadow .15s, transform .16s var(--ease-out);
 }
+/* Ao pressionar, o botão cede um pouco: confirma o toque antes da resposta do sistema. */
+.btn:active:not(:disabled) { transform: scale(0.97); }
 .btn svg { flex: none; }
 .btn-largo { width: 100%; }
 .btn:disabled { cursor: not-allowed; opacity: .5; }
 .btn-primario { background: var(--accent); color: var(--on-accent); }
-.btn-primario:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 86%, var(--ink)); }
+@media (hover: hover) and (pointer: fine) { .btn-primario:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 86%, var(--ink)); } }
 .btn-secundario { background: var(--surface); color: var(--ink); border-color: var(--lineStrong); border-width: 1.5px; }
-.btn-secundario:hover:not(:disabled) { border-color: var(--ink); }
+@media (hover: hover) and (pointer: fine) { .btn-secundario:hover:not(:disabled) { border-color: var(--ink); } }
 .btn-perigo { background: var(--urgent); color: var(--surface); }
-.btn-perigo:hover:not(:disabled) { background: color-mix(in srgb, var(--urgent) 86%, var(--ink)); }
+@media (hover: hover) and (pointer: fine) { .btn-perigo:hover:not(:disabled) { background: color-mix(in srgb, var(--urgent) 86%, var(--ink)); } }
 .btn-texto { background: transparent; color: var(--accent-ink); padding: 0 var(--e3); text-decoration: underline; text-underline-offset: 3px; }
 .btn-texto:hover:not(:disabled) { text-decoration-thickness: 2px; }
 .btn[aria-busy='true'] { cursor: progress; }
@@ -42,7 +44,7 @@ fieldset.campo:focus { outline: none; }
   border: 1.5px solid var(--lineStrong); border-radius: var(--r-controle);
 }
 .entrada::placeholder { color: var(--inkSoft); }
-.entrada:hover:not(:disabled) { border-color: var(--ink); }
+@media (hover: hover) and (pointer: fine) { .entrada:hover:not(:disabled) { border-color: var(--ink); } }
 .entrada:focus-visible { outline-offset: 0; border-color: var(--accent); }
 .entrada[aria-invalid='true'] { border-color: var(--urgent); }
 .entrada:disabled { background: var(--neutralSoft); color: var(--inkSoft); cursor: not-allowed; }
@@ -100,7 +102,7 @@ select.entrada {
 /* ---------- Aviso ---------- */
 .aviso {
   display: grid; grid-template-columns: auto 1fr; gap: var(--e3); align-items: start;
-  padding: var(--e4) var(--e5); border-radius: var(--r-superficie); border-left: 5px solid; background: var(--surface);
+  padding: var(--e4) var(--e5); border-radius: var(--r-superficie); border: 1px solid; background: var(--surface);
 }
 .aviso-icone { width: 22px; height: 22px; margin-top: 1px; }
 .aviso h4 { margin-bottom: 2px; }
@@ -128,7 +130,7 @@ select.entrada {
 .tabela thead th { font-size: var(--t-pequeno); color: var(--inkSoft); font-weight: 600; border-bottom: 2px solid var(--lineStrong); white-space: nowrap; }
 .tabela tbody tr:last-child td { border-bottom: 0; }
 .tabela td:first-child a { white-space: nowrap; }
-.tabela tbody tr:hover { background: color-mix(in srgb, var(--accent-soft) 45%, transparent); }
+@media (hover: hover) and (pointer: fine) { .tabela tbody tr:hover { background: color-mix(in srgb, var(--accent-soft) 45%, transparent); } }
 
 /* ---------- Abas ---------- */
 .abas { min-width: 0; }
@@ -156,6 +158,18 @@ dialog.dialogo {
   background: var(--surface); color: var(--ink); box-shadow: 0 24px 64px rgb(0 0 0 / .28);
 }
 dialog.dialogo::backdrop { background: rgb(10 14 18 / .55); }
+/* Entrada curta (200ms) a partir de quase o tamanho final; o fundo escurece junto. Saída mais rápida. */
+dialog.dialogo {
+  opacity: 0; transform: scale(.96);
+  transition: opacity .15s ease-out, transform .15s var(--ease-out), overlay .15s allow-discrete, display .15s allow-discrete;
+}
+dialog.dialogo[open] { opacity: 1; transform: none; transition-duration: .2s; }
+dialog.dialogo::backdrop { opacity: 0; transition: opacity .2s ease-out, overlay .2s allow-discrete, display .2s allow-discrete; }
+dialog.dialogo[open]::backdrop { opacity: 1; }
+@starting-style {
+  dialog.dialogo[open] { opacity: 0; transform: scale(.96); }
+  dialog.dialogo[open]::backdrop { opacity: 0; }
+}
 .dialogo-corpo { padding: var(--e5); display: grid; gap: var(--e3); }
 .dialogo-acoes { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: var(--e3); padding: var(--e4) var(--e5); border-top: 1px solid var(--line); }
 
@@ -165,10 +179,11 @@ dialog.dialogo::backdrop { background: rgb(10 14 18 / .55); }
   display: flex; gap: var(--e3); align-items: center; justify-content: space-between;
   padding: var(--e3) var(--e4); border-radius: var(--r-superficie);
   background: var(--ink); color: var(--paper); font-weight: 500; box-shadow: 0 8px 24px rgb(0 0 0 / .2);
-  animation: entra .2s ease-out;
+  transition: opacity .2s ease-out, transform .2s var(--ease-out);
 }
+/* Transição (e não keyframes): se dois avisos chegam juntos, o movimento se ajusta em vez de recomeçar. */
+@starting-style { .notificacao { opacity: 0; transform: translateY(8px); } }
 .notificacao button { color: var(--paper); background: none; border: 0; font: inherit; text-decoration: underline; cursor: pointer; min-height: 44px; padding: 0 var(--e2); }
-@keyframes entra { from { opacity: 0; transform: translateY(8px); } }
 
 /* ---------- Estado vazio ---------- */
 .vazio { display: grid; gap: var(--e3); justify-items: start; padding: var(--e6) var(--e5); border: 2px dashed var(--line); border-radius: var(--r-superficie); background: var(--surface); }
@@ -241,7 +256,7 @@ dialog.dialogo::backdrop { background: rgb(10 14 18 / .55); }
 .opcoes-cartoes .opcao-icone svg { width: 22px; height: 22px; }
 .opcoes-cartoes .opcao input:checked + span { box-shadow: inset 0 0 0 1px var(--accent); }
 .opcoes-cartoes .opcao input:checked + span .opcao-icone { background: var(--decor); color: var(--on-decor); }
-.opcoes-cartoes .opcao:hover > span { border-color: var(--ink); }
+@media (hover: hover) and (pointer: fine) { .opcoes-cartoes .opcao:hover > span { border-color: var(--ink); } }
 
 /* ---------- Tabelas no celular ----------
  * Cada linha vira um cartão e cada célula traz o nome da coluna antes do valor.

@@ -115,15 +115,15 @@ function Cores() {
 /* ---------- Tipografia e espaço ---------- */
 function Tipografia() {
   return (
-    <Secao id="tipografia" titulo="Tipografia" intro="Poppins em toda a interface; os títulos se distinguem pelo peso, não por outra família. O texto-base tem 16px e cresce com os botões A+ e A− e com a opção de tamanho em Aparência.">
+    <Secao id="tipografia" titulo="Tipografia" intro="Atkinson Hyperlegible Next em toda a interface, uma fonte desenhada para baixa visão (letras parecidas, como 0 e O, são fáceis de separar); os títulos se distinguem pelo peso, não por outra família. O texto-base tem 16px e cresce com os botões A+ e A− e com a opção de tamanho em Aparência.">
       <Painel>
         <dl className="escala">
-          <div><dt>Título de página, Poppins semibold, 28px</dt><dd><span style={{ fontFamily: 'var(--titulo)', fontWeight: 600, fontSize: 'var(--t-h1)' }}>Registro de ocorrência</span></dd></div>
-          <div><dt>Título de seção, Poppins semibold, 22px</dt><dd><span style={{ fontFamily: 'var(--titulo)', fontWeight: 600, fontSize: 'var(--t-h2)' }}>Quem esteve envolvido?</span></dd></div>
-          <div><dt>Subtítulo, Poppins semibold, 18px</dt><dd><span style={{ fontFamily: 'var(--titulo)', fontWeight: 600, fontSize: 'var(--t-h3)' }}>Plano de apoio</span></dd></div>
-          <div><dt>Destaque, Poppins, 18px</dt><dd><span style={{ fontSize: 'var(--t-destaque)' }}>Descreva o fato, não a pessoa.</span></dd></div>
-          <div><dt>Corpo, Poppins, 16px</dt><dd>Durante o intervalo, houve discussão entre dois estudantes no pátio; ambos foram separados e acolhidos.</dd></div>
-          <div><dt>Apoio, Poppins, 13px</dt><dd><small>Registrado por Coordenação, 25 de setembro, 11h15</small></dd></div>
+          <div><dt>Título de página, Atkinson semibold, 28px</dt><dd><span style={{ fontFamily: 'var(--titulo)', fontWeight: 600, fontSize: 'var(--t-h1)' }}>Registro de ocorrência</span></dd></div>
+          <div><dt>Título de seção, Atkinson semibold, 22px</dt><dd><span style={{ fontFamily: 'var(--titulo)', fontWeight: 600, fontSize: 'var(--t-h2)' }}>Quem esteve envolvido?</span></dd></div>
+          <div><dt>Subtítulo, Atkinson semibold, 18px</dt><dd><span style={{ fontFamily: 'var(--titulo)', fontWeight: 600, fontSize: 'var(--t-h3)' }}>Plano de apoio</span></dd></div>
+          <div><dt>Destaque, Atkinson, 18px</dt><dd><span style={{ fontSize: 'var(--t-destaque)' }}>Descreva o fato, não a pessoa.</span></dd></div>
+          <div><dt>Corpo, Atkinson, 16px</dt><dd>Durante o intervalo, houve discussão entre dois estudantes no pátio; ambos foram separados e acolhidos.</dd></div>
+          <div><dt>Apoio, Atkinson, 13px</dt><dd><small>Registrado por Coordenação, 25 de setembro, 11h15</small></dd></div>
         </dl>
       </Painel>
     </Secao>

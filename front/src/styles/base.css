@@ -12,8 +12,9 @@
   --accent: #1F5AA6; --on-accent: #FFFFFF; --accent-ink: #1A4F93; --accent-soft: #E7EEF8;
   --decor: #A9C3E6; --on-decor: #1E1F2E;
 
-  /* Poppins em toda a interface; os títulos ganham peso, não outra família. */
-  --sans: 'Poppins', 'Segoe UI', Arial, sans-serif;
+  /* Atkinson Hyperlegible Next em toda a interface: feita para baixa visão e mais estreita que a
+     Poppins usada antes, o que evita botões e abas quebrando no celular. Títulos ganham peso, não outra família. */
+  --sans: 'Atkinson Hyperlegible Next', 'Segoe UI', Arial, sans-serif;
   --titulo: var(--sans);
 
   /* Escala tipográfica sobre 16px, contida: 13 · 16 · 18 · 18 · 22 · 28 */
@@ -32,6 +33,9 @@
   --r-superficie: 12px;
   --r-pilula: 999px;
   --sombra: 0 1px 2px rgb(30 31 46 / .05);
+
+  /* Curva única para a interface: começa rápida (resposta imediata) e assenta devagar. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 
   --alvo: 44px;       /* altura mínima de controles */
   --medida: 68ch;     /* largura máxima de texto corrido */
@@ -70,6 +74,8 @@ h2 { letter-spacing: -0.01em; }
 h2 { font-size: var(--t-h2); }
 h3 { font-size: var(--t-h3); }
 h4 { font-size: var(--t-corpo); font-weight: 600; margin: 0; }
+/* O negrito usa o mesmo semibold dos títulos: um peso a menos para baixar. */
+strong, b { font-weight: 600; }
 
 p { margin: 0; max-width: var(--medida); }
 a { color: var(--accent-ink); font-weight: 500; text-underline-offset: 3px; }
@@ -103,7 +109,5 @@ small { font-size: var(--t-pequeno); }
   *, *::before, *::after { transition-property: color, background-color, border-color, opacity, box-shadow !important; scroll-behavior: auto !important; }
   .btn .spinner { border-right-color: currentColor; animation: pulsa 1.2s ease-in-out infinite; }
   .esqueleto span { animation: none; }
-  .notificacao { animation-name: surge; }
 }
 @keyframes pulsa { 50% { opacity: .35; } }
-@keyframes surge { from { opacity: 0; } }

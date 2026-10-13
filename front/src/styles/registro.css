@@ -60,7 +60,7 @@
 /* Protocolo: o número é o que a pessoa leva */
 .protocolo {
   display: grid; gap: var(--e3); justify-items: start; padding: var(--e6);
-  background: var(--surface); border: 1px solid var(--line); border-top: 6px solid var(--accent); border-radius: var(--r-superficie);
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-superficie);
 }
 .protocolo h1 { font-size: var(--t-h2); }
 .protocolo h1:focus { outline: none; }
@@ -117,6 +117,7 @@
 .contagem strong { font-family: var(--titulo); font-size: var(--t-h2); color: var(--ink); line-height: 1.1; }
 .contagem-urgente { border-color: var(--urgent); background: var(--urgentSoft); }
 .contagem-urgente strong { color: var(--urgent); }
+.prazos-grupo { font-size: var(--t-corpo); margin-bottom: var(--e2); }
 .lista-prazos, .lista-rascunhos { list-style: none; margin: 0; padding: 0; display: grid; }
 .lista-prazos li, .lista-rascunhos li {
   display: flex; justify-content: space-between; align-items: center; gap: var(--e3);
@@ -142,7 +143,7 @@
   font: inherit; font-size: .9375rem; font-weight: 500; color: var(--ink); cursor: pointer;
   background: var(--surface); border: 1.5px solid var(--line); border-radius: var(--r-pilula);
 }
-.filtro:hover { border-color: var(--lineStrong); }
+@media (hover: hover) and (pointer: fine) { .filtro:hover { border-color: var(--lineStrong); } }
 .filtro[aria-pressed='true'] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 .filtro-num {
   min-width: 24px; padding: 0 6px; border-radius: var(--r-pilula); text-align: center;
@@ -154,9 +155,9 @@
 .cartao-registro {
   position: relative; display: grid; gap: var(--e3); padding: var(--e5);
   background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-superficie); box-shadow: var(--sombra);
-  transition: border-color .15s, transform .15s;
+  transition: border-color .15s;
 }
-.cartao-registro:hover { border-color: var(--lineStrong); }
+@media (hover: hover) and (pointer: fine) { .cartao-registro:hover { border-color: var(--lineStrong); } }
 .cartao-registro-topo { display: flex; align-items: center; gap: var(--e3); }
 .cartao-registro h3 { font-size: var(--t-destaque); }
 .cartao-registro h3 a { color: var(--ink); text-decoration: none; }

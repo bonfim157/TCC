@@ -17,13 +17,13 @@ A análise só leu o código; nenhuma tela foi alterada.
 - [x] 9. **Movimento reduzido** sem matar o feedback: spinner e esqueleto viram estáticos/pulso de opacidade. [I, E]
 
 ## Fase 3 — Acabamento (P2/P3)
-- [ ] 10. `:active` com scale(0.97) nos botões + token `--ease-out`. [E]
-- [ ] 11. Diálogo e aviso com entrada via `@starting-style` (200ms) e saída mais rápida. [E]
-- [ ] 12. Hover só em `(hover: hover) and (pointer: fine)`. [E]
-- [ ] 13. `.aviso` sem faixa lateral de 5px; `.protocolo` sem filete de 6px. [I]
-- [ ] 14. "Prazos próximos" → separar "Atrasados". [I]
-- [ ] 15. Testar Atkinson Hyperlegible ou Inter no lugar de Poppins; tirar o peso 500. [T]
-- [ ] 16. Tela de entrar: faixa de emergência visível sem rolar. [T, P]
+- [x] 10. `:active` com scale(0.97) nos botões + token `--ease-out`. [E]
+- [x] 11. Diálogo e aviso com entrada via `@starting-style` (200ms) e saída mais rápida. [E]
+- [x] 12. Hover só em `(hover: hover) and (pointer: fine)`. [E]
+- [x] 13. `.aviso` sem faixa lateral de 5px; `.protocolo` sem filete de 6px. [I]
+- [x] 14. "Prazos próximos" → separar "Atrasados". [I]
+- [x] 15. Testar Atkinson Hyperlegible ou Inter no lugar de Poppins; tirar o peso 500. [T] Resultado: adotada a Atkinson Hyperlegible Next (página do caso no celular ~8% mais curta, abas cabem duas por linha); pesos 400, 500 e 600, com o negrito em 600.
+- [x] 16. Tela de entrar: faixa de emergência visível sem rolar. [T, P] Causa achada: a altura mínima de 100dvh não descontava a faixa de demonstração, então o rodapé de toda página começava 35px abaixo da primeira tela.
 
 ## Fase 4 — Documentação
 - [ ] 17. `/impeccable init` (PRODUCT.md) e `/impeccable document` (DESIGN.md). [I]
