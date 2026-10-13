@@ -12,6 +12,7 @@ Protótipo acadêmico, sem vínculo oficial com a Secretaria da Educação. Pess
 | --- | --- |
 | [`docs/plano-de-escopo.md`](docs/plano-de-escopo.md) | Plano do front: fases, telas, critérios de aceite, decisões e riscos |
 | [`docs/pendencias.md`](docs/pendencias.md) | Tudo o que ficou para depois, com situação |
+| [`docs/plano-melhorias-skills.md`](docs/plano-melhorias-skills.md) | Plano de melhorias do front a partir de auditorias com skills (impeccable, Emil Kowalski, taste, graphify, playwright) |
 | [`docs/gestao-da-ocorrencia.md`](docs/gestao-da-ocorrencia.md) | Como a gestão escolar trata uma ocorrência, base legal e fontes |
 | [`docs/registro-de-execucao.md`](docs/registro-de-execucao.md) | O que foi construído e verificado em cada fase |
 | [`docs/contrato-para-o-backend.md`](docs/contrato-para-o-backend.md) | Rotas, erros e regras de acesso que o backend precisa seguir |
