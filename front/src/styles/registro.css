@@ -3,6 +3,7 @@
 /* ---------- Composição ---------- */
 .pilha-larga { display: grid; gap: var(--e6); grid-template-columns: minmax(0, 1fr); min-width: 0; }
 .pilha-curta { display: grid; gap: var(--e1); }
+.grade-quando { display: grid; gap: var(--e5) var(--e6); grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); align-items: start; }
 .grade-2 { display: grid; gap: var(--e4); grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); align-items: start; }
 .titulo-bloco { font-size: var(--t-h3); }
 .lista-compacta { margin: var(--e2) 0 0; padding-left: 1.2em; display: grid; gap: var(--e1); }

@@ -57,6 +57,50 @@ select.entrada {
 }
 .contador { font-size: var(--t-pequeno); color: var(--inkSoft); justify-self: end; }
 
+/* ---------- Data e horário (components/data.tsx) ---------- */
+.datas-rapidas { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--e2); max-width: 420px; }
+.datas-rapidas .opcao > span { width: 100%; justify-content: center; padding: 0 var(--e2); }
+.data-escolhida { font-size: var(--t-pequeno); color: var(--inkSoft); }
+.data-escolhida strong { color: var(--ink); font-weight: 600; }
+
+.calendario {
+  width: 100%; max-width: 360px; padding: var(--e3) var(--e3) var(--e2);
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-superficie);
+}
+.calendario-cabeca { display: flex; align-items: center; justify-content: space-between; gap: var(--e2); margin-bottom: var(--e2); }
+.calendario-mes { font-weight: 600; text-align: center; flex: 1; }
+.calendario-mes-botao {
+  display: grid; place-items: center; width: var(--alvo); height: var(--alvo); padding: 0;
+  color: var(--ink); background: transparent; border: 1px solid transparent; border-radius: var(--r-controle); cursor: pointer;
+}
+.calendario-mes-botao svg { width: 20px; height: 20px; }
+.calendario-mes-botao:disabled { color: var(--line); cursor: not-allowed; }
+@media (hover: hover) and (pointer: fine) { .calendario-mes-botao:hover:not(:disabled) { background: var(--accent-soft); } }
+.calendario-grade { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.calendario-grade th { padding: 0 0 var(--e1); font-size: var(--t-pequeno); font-weight: 500; color: var(--inkSoft); text-align: center; }
+.calendario-grade abbr { text-decoration: none; }
+.calendario-grade td { padding: 1px; text-align: center; }
+.calendario-dia {
+  width: 100%; height: var(--alvo); padding: 0; font: inherit; color: var(--ink);
+  background: transparent; border: 1px solid transparent; border-radius: var(--r-controle); cursor: pointer;
+  transition: background-color .12s, color .12s, transform .16s var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) { .calendario-dia:hover:not(:disabled):not([aria-pressed='true']) { background: var(--accent-soft); } }
+.calendario-dia:active:not(:disabled) { transform: scale(0.94); }
+/* Hoje: contorno; escolhido: preenchido no acento. Dias depois do limite ficam apagados. */
+.calendario-dia[aria-current='date'] { border-color: var(--accent); font-weight: 600; color: var(--accent-ink); }
+.calendario-dia[aria-pressed='true'] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
+.calendario-dia:disabled { color: var(--lineStrong); cursor: not-allowed; }
+.calendario-dica { margin-top: var(--e2); font-size: var(--t-pequeno); color: var(--inkSoft); }
+@media (hover: none) { .calendario-dica { display: none; } }
+
+.horario-linha { display: flex; align-items: flex-end; gap: var(--e2); flex-wrap: wrap; }
+.horario-parte { display: grid; gap: var(--e1); }
+.horario-parte > label { font-size: var(--t-pequeno); color: var(--inkSoft); }
+.horario-parte select.entrada { width: 5.5rem; font-variant-numeric: tabular-nums; }
+.horario-separador { align-self: flex-end; padding-bottom: 10px; font-weight: 600; color: var(--inkSoft); }
+.horario-agora { margin-left: var(--e2); padding: 0 var(--e4); }
+
 /* ---------- Opções (rádio em forma de etiqueta) ---------- */
 .opcoes { display: flex; flex-wrap: wrap; gap: var(--e2); }
 .opcao { position: relative; }

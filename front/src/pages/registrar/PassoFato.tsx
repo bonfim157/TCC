@@ -1,5 +1,6 @@
 import type { Categoria, DadosDoFato } from '../../api/contract';
 import { CampoAreaTexto, CampoTexto, GrupoOpcoes } from '../../components/controles';
+import { CampoData, CampoHorario } from '../../components/data';
 import { Aviso } from '../../components/feedback';
 import {
   IconeAtencao, IconeCalendario, IconeCelular, IconeConversa, IconeCoracao, IconeEscudo, IconeMartelo, IconePessoas, IconeRegra,
@@ -93,9 +94,9 @@ export function PassoFato({ r, categorias, erros, atualizar }: {
         </Aviso>
       )}
 
-      <div className="grade-2">
-        <CampoTexto id="campo-data" rotulo="Data" type="date" max={hojeISO()} value={f.data} onChange={(e) => muda({ data: e.target.value })} erro={erros.data} />
-        <CampoTexto id="campo-hora" rotulo="Horário aproximado" type="time" value={f.hora} onChange={(e) => muda({ hora: e.target.value })} erro={erros.hora} />
+      <div className="grade-quando">
+        <CampoData id="campo-data" rotulo="Data" max={hojeISO()} valor={f.data} aoMudar={(data) => muda({ data })} erro={erros.data} />
+        <CampoHorario id="campo-hora" rotulo="Horário aproximado" valor={f.hora} aoMudar={(hora) => muda({ hora })} erro={erros.hora} />
       </div>
 
       <CampoTexto

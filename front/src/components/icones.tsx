@@ -75,6 +75,12 @@ export const IconeTelefone = (p: SVGProps<SVGSVGElement>) => (
 export const IconeLua = (p: SVGProps<SVGSVGElement>) => (
   <svg {...base(p)}><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z" /></svg>
 );
+export const IconeAnterior = (p: SVGProps<SVGSVGElement>) => (
+  <svg {...base(p)}><path d="M15 5l-7 7 7 7" /></svg>
+);
+export const IconeProximo = (p: SVGProps<SVGSVGElement>) => (
+  <svg {...base(p)}><path d="M9 5l7 7-7 7" /></svg>
+);
 export const IconeSeta = (p: SVGProps<SVGSVGElement>) => (
   <svg {...base(p)}><path d="M4 12h16M14 6l6 6-6 6" /></svg>
 );

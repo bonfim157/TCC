@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-13T12:30:34+00:00",
+  "generatedAt": "2026-10-13T13:06:34+00:00",
   "title": "Design System: Cuidar e Registrar",
   "extensions": {
     "colorMeta": {
@@ -455,6 +455,7 @@
       "**Do** usar uma única ação principal por grupo, e agrupar comunicações em \"Comunicar\" quando houver mais de uma.",
       "**Do** escrever a situação (Cumprida, Pendente, Não se aplica) em vez de depender de cor ou ícone.",
       "**Do** manter alvos de toque de 44px e conferir contraste com `npm run contrast`.",
+      "**Do** usar `CampoData` e `CampoHorario` para data e hora, com a data por extenso logo abaixo.",
       "**Do** animar só o que é ocasional (diálogo, aviso) e manter sem animação o que se repete (troca de caso, filtros, abas)."
     ],
     "donts": [

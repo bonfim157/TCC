@@ -279,6 +279,11 @@ Quatro raios com regra: 4px para detalhes internos (código, esqueleto de carreg
 ### Navigation
 - Abas horizontais com ícone de 20px, texto em tinta suave e item atual em tinta do acento com filete de 3px embaixo. No celular, viram menu.
 
+### Data e horário
+- Componentes próprios (`CampoData`, `CampoHorario`), não os nativos do navegador, que seguem o idioma dele e mudam de cara em cada aparelho.
+- **Data:** atalhos "Hoje", "Ontem" e "Outro dia" em botões de opção; "Outro dia" abre um calendário em português (semana de domingo a sábado, dias abreviados "dom seg ter…"). Dia de hoje com contorno no acento; dia escolhido preenchido no acento; dias além do limite apagados e desativados. Setas andam pelos dias, Page Up e Page Down trocam o mês. Abaixo, a data por extenso ("Terça-feira, 29 de setembro de 2026").
+- **Horário:** listas de hora e minuto (de 5 em 5) e um botão "Agora"; abaixo, "Por volta das 9h40".
+
 ### Linha do tempo
 - Folha de livro: data na margem (132px) com filete no acento, texto na pauta. Adendo com filete tracejado em âmbar e fundo de atenção. No celular, a data vai para cima com filete à esquerda.
 
@@ -292,6 +297,7 @@ Quatro raios com regra: 4px para detalhes internos (código, esqueleto de carreg
 - **Do** usar uma única ação principal por grupo, e agrupar comunicações em "Comunicar" quando houver mais de uma.
 - **Do** escrever a situação (Cumprida, Pendente, Não se aplica) em vez de depender de cor ou ícone.
 - **Do** manter alvos de toque de 44px e conferir contraste com `npm run contrast`.
+- **Do** usar `CampoData` e `CampoHorario` para data e hora, com a data por extenso logo abaixo.
 - **Do** animar só o que é ocasional (diálogo, aviso) e manter sem animação o que se repete (troca de caso, filtros, abas).
 
 ### Don't:
