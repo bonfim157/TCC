@@ -24,7 +24,8 @@
 .central-fila-cabeca { display: grid; gap: var(--e2); }
 .central-fila-cabeca h2 { font-size: var(--t-h3); }
 .central-fila-cabeca .marcar { padding-top: 0; }
-.fila { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--e2); max-height: 72vh; overflow-y: auto; padding-right: 2px; }
+/* Sem rolagem interna: todos os casos ficam à vista na página, nenhum escondido no fim de uma caixa. */
+.fila { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--e2); }
 .fila-item {
   display: grid; gap: var(--e1); padding: var(--e3) var(--e4); color: var(--ink); text-decoration: none;
   background: var(--surface); border: 1px solid var(--line); border-left: 4px solid transparent; border-radius: var(--r-controle);
@@ -98,7 +99,6 @@ dialog.dialogo-largo { width: min(760px, calc(100vw - 32px)); }
   .central-com-caso .central-fila, .central-com-caso .indicadores { display: none; }
   .central:not(.central-com-caso) .central-detalhe { display: none; }
   .central-voltar { display: block; }
-  .fila { max-height: none; }
 }
 @media (max-width: 560px) { .lista-agenda li { grid-template-columns: 1fr; gap: 0; } }
 

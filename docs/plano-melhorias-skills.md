@@ -4,36 +4,36 @@ Fontes: graphify (G), playwright (P, 11 capturas), impeccable (I), Emil Kowalski
 A análise só leu o código; nenhuma tela foi alterada.
 
 ## Fase 1 — Segurança e fluxo (P1)
-1. **Pergunta de risco no topo do registro** (PassoFato.tsx:120). "Sim" leva direto à orientação de emergência. [I, P]
-2. **Fila da Central não esconde casos** (central.css:27, `max-height: 72vh`). Casos sem responsável sobem na ordenação; sem rolagem interna no desktop. [I, P]
+- [x] 1. **Pergunta de risco no topo do registro** (PassoFato.tsx:120). "Sim" leva direto à orientação de emergência. [I, P]
+- [x] 2. **Fila da Central não esconde casos** (central.css:27, `max-height: 72vh`). Casos sem responsável sobem na ordenação; sem rolagem interna no desktop. [I, P]
 
 ## Fase 2 — Clareza do caso (P2)
-3. **Dividir CasoNaCentral.tsx** em Providencias / AcoesDoCaso / ConvivaSP / AbasDoCaso, sem mudar visual. Facilita 4 a 6. [G]
-4. **Relato antes das providências** no painel do caso. [I]
-5. **Ações do caso por fase:** 1 primária, "Comunicar…" agrupado, o resto contextual. [I]
-6. **Marcador de providência** deixa de parecer checkbox (ou vira o próprio controle). [I]
-7. **Indicadores:** só "urgentes" em vermelho; os outros em âmbar. [I, T]
-8. **Abas do caso no celular** com pista de rolagem ou quebra em linhas. [I, P]
-9. **Movimento reduzido** sem matar o feedback: spinner e esqueleto viram estáticos/pulso de opacidade. [I, E]
+- [ ] 3. **Dividir CasoNaCentral.tsx** em Providencias / AcoesDoCaso / ConvivaSP / AbasDoCaso, sem mudar visual. Facilita 4 a 6. [G]
+- [ ] 4. **Relato antes das providências** no painel do caso. [I]
+- [ ] 5. **Ações do caso por fase:** 1 primária, "Comunicar…" agrupado, o resto contextual. [I]
+- [ ] 6. **Marcador de providência** deixa de parecer checkbox (ou vira o próprio controle). [I]
+- [ ] 7. **Indicadores:** só "urgentes" em vermelho; os outros em âmbar. [I, T]
+- [ ] 8. **Abas do caso no celular** com pista de rolagem ou quebra em linhas. [I, P]
+- [ ] 9. **Movimento reduzido** sem matar o feedback: spinner e esqueleto viram estáticos/pulso de opacidade. [I, E]
 
 ## Fase 3 — Acabamento (P2/P3)
-10. `:active` com scale(0.97) nos botões + token `--ease-out`. [E]
-11. Diálogo e aviso com entrada via `@starting-style` (200ms) e saída mais rápida. [E]
-12. Hover só em `(hover: hover) and (pointer: fine)`. [E]
-13. `.aviso` sem faixa lateral de 5px; `.protocolo` sem filete de 6px. [I]
-14. "Prazos próximos" → separar "Atrasados". [I]
-15. Testar Atkinson Hyperlegible ou Inter no lugar de Poppins; tirar o peso 500. [T]
-16. Tela de entrar: faixa de emergência visível sem rolar. [T, P]
+- [ ] 10. `:active` com scale(0.97) nos botões + token `--ease-out`. [E]
+- [ ] 11. Diálogo e aviso com entrada via `@starting-style` (200ms) e saída mais rápida. [E]
+- [ ] 12. Hover só em `(hover: hover) and (pointer: fine)`. [E]
+- [ ] 13. `.aviso` sem faixa lateral de 5px; `.protocolo` sem filete de 6px. [I]
+- [ ] 14. "Prazos próximos" → separar "Atrasados". [I]
+- [ ] 15. Testar Atkinson Hyperlegible ou Inter no lugar de Poppins; tirar o peso 500. [T]
+- [ ] 16. Tela de entrar: faixa de emergência visível sem rolar. [T, P]
 
 ## Fase 4 — Documentação
-17. `/impeccable init` (PRODUCT.md) e `/impeccable document` (DESIGN.md). [I]
+- [ ] 17. `/impeccable init` (PRODUCT.md) e `/impeccable document` (DESIGN.md). [I]
 
 ## Fora do plano (de propósito)
 Sem animação na troca de caso, filtros e abas (uso contínuo). Sem trocar ícones agora. Sem redesenho.
 
 Análise feita na branch `front-descomplicado` (PR #3); as referências de linha valem para ela.
 
-**Prioridade escolhida:** começar pela Fase 1.
+**Andamento:** execução na branch `front/melhorias-skills`; cada item marcado foi feito e conferido no navegador.
 
 ---
 

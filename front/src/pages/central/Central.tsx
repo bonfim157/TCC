@@ -15,9 +15,14 @@ type Situacao = 'abertos' | 'encerrados' | 'todos';
 
 const pesoPrioridade: Record<Prioridade, number> = { urgente: 0, alta: 1, media: 2, baixa: 3 };
 
+const semResponsavel = (i: ItemDaFila) => !i.responsavelNome && i.status !== 'encerrado';
+
+/** Urgentes primeiro; depois os casos que ninguém conduz; depois o resto por prioridade. */
 function ordenar(a: ItemDaFila, b: ItemDaFila) {
+  const grupo = (i: ItemDaFila) => (i.prioridade === 'urgente' ? 0 : semResponsavel(i) ? 1 : 2);
   const atencao = (i: ItemDaFila) => (i.ctPendente ? 2 : 0) + (i.devolutivasAtrasadas ? 1 : 0);
   return (
+    grupo(a) - grupo(b) ||
     pesoPrioridade[a.prioridade] - pesoPrioridade[b.prioridade] ||
     atencao(b) - atencao(a) ||
     (a.proximoPrazo ?? '9999').localeCompare(b.proximoPrazo ?? '9999') ||
@@ -163,9 +168,10 @@ function CentralDaEscola() {
                               <EtiquetaPrioridade prioridade={i.prioridade} />
                             </span>
                             <span className="fila-tipo">{nomeCategoria(i.categoriaId)}, {i.local}</span>
-                            <span className="fila-meta">{dataHoraCurta(i.abertaEm)}{i.responsavelNome ? `. Com ${i.responsavelNome}` : '. Sem responsável'}</span>
+                            <span className="fila-meta">{dataHoraCurta(i.abertaEm)}{i.responsavelNome ? `. Com ${i.responsavelNome}` : ''}</span>
                             <span className="fila-sinais">
                               <EtiquetaStatus status={i.status} />
+                              {semResponsavel(i) && <Etiqueta tipo="atencao">Sem responsável</Etiqueta>}
                               {i.ctPendente && <Etiqueta tipo="urgente">Comunicar Conselho Tutelar</Etiqueta>}
                               {i.devolutivasAtrasadas > 0 && <Etiqueta tipo="atencao">Devolutiva atrasada</Etiqueta>}
                               {!i.ctPendente && i.obrigatoriasPendentes > 0 && i.status !== 'encerrado' && (
