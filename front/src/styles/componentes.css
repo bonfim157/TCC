@@ -132,7 +132,8 @@ select.entrada {
 
 /* ---------- Abas ---------- */
 .abas { min-width: 0; }
-.abas-lista { position: relative; display: flex; gap: var(--e1); border-bottom: 2px solid var(--line); overflow-x: auto; }
+/* Abas quebram de linha quando não cabem, em vez de rolar de lado com abas escondidas. */
+.abas-lista { position: relative; display: flex; flex-wrap: wrap; gap: 0 var(--e1); border-bottom: 2px solid var(--line); }
 .aba {
   min-height: var(--alvo); padding: 0 var(--e4); font: inherit; font-weight: 500; color: var(--inkSoft);
   background: none; border: 0; border-bottom: 3px solid transparent; margin-bottom: -2px; cursor: pointer; white-space: nowrap;
@@ -140,6 +141,14 @@ select.entrada {
 .aba:hover { color: var(--ink); }
 .aba[aria-selected='true'] { color: var(--ink); border-bottom-color: var(--accent); font-weight: 600; }
 .aba-painel { padding-top: var(--e5); }
+/* Coluna estreita (celular ou caso ao lado da fila): as abas quebram em linhas em
+   vez de rolar de lado, e nenhuma fica escondida fora da área visível. */
+.abas { container-type: inline-size; }
+@container (max-width: 720px) {
+  .abas-lista { gap: var(--e2); padding-bottom: var(--e3); }
+  .aba { margin-bottom: 0; padding: 0 var(--e3); border: 1px solid var(--line); border-radius: var(--r-controle); background: var(--surface); }
+  .aba[aria-selected='true'] { border-color: var(--accent); background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent); }
+}
 
 /* ---------- Diálogo ---------- */
 dialog.dialogo {
@@ -259,8 +268,6 @@ dialog.dialogo::backdrop { background: rgb(10 14 18 / .55); }
   .painel-cabeca a, .lista-registros a { display: inline-flex; align-items: center; min-height: 44px; }
   .painel { padding: var(--e4); }
   .aviso { padding: var(--e4); }
-  .abas-lista { scroll-snap-type: x proximity; scrollbar-width: thin; }
-  .aba { scroll-snap-align: start; }
   dialog.dialogo { max-height: calc(100dvh - 32px); }
   .dialogo-acoes { position: sticky; bottom: 0; background: var(--surface); }
 }

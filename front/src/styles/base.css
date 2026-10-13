@@ -94,6 +94,16 @@ small { font-size: var(--t-pequeno); }
 }
 .pular-conteudo:focus { top: var(--e4); }
 
+/*
+ * Movimento reduzido: sai o que se desloca ou gira; ficam as trocas de cor e de
+ * opacidade, que dizem o que mudou sem mover nada. Carregar continua visível:
+ * o spinner vira um anel que pulsa e o esqueleto fica parado.
+ */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  *, *::before, *::after { transition-property: color, background-color, border-color, opacity, box-shadow !important; scroll-behavior: auto !important; }
+  .btn .spinner { border-right-color: currentColor; animation: pulsa 1.2s ease-in-out infinite; }
+  .esqueleto span { animation: none; }
+  .notificacao { animation-name: surge; }
 }
+@keyframes pulsa { 50% { opacity: .35; } }
+@keyframes surge { from { opacity: 0; } }

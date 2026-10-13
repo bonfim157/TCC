@@ -22,6 +22,12 @@ async function entrar(page, nome) {
 const dialogo = (p) => p.locator('dialog[open]');
 
 const ctx = await b.newContext({ viewport: { width: 1440, height: 1000 } });
+// Com mais de uma comunicação possível, elas ficam dentro de "Comunicar".
+async function comunicar(page, nome) {
+  if (!(await page.getByRole('button', { name: nome }).isVisible())) await page.getByRole('button', { name: 'Comunicar', exact: true }).click();
+  await page.getByRole('button', { name: nome }).click();
+}
+
 const p = await ctx.newPage();
 p.on('pageerror', (e) => log('PAGEERROR', e.message));
 await entrar(p, 'Beatriz Nunes');
@@ -42,7 +48,7 @@ await p.locator('.fila-item', { hasText: '2026-000483' }).click();
 await p.waitForTimeout(1200);
 log('providências 483:', (await p.locator('.providencia .providencia-texto > p:first-child strong').allTextContents()).join(' | '));
 await p.screenshot({ path: `${out}/41-caso-483.png`, fullPage: true });
-await p.getByRole('button', { name: 'Ofício ao Conselho Tutelar' }).click();
+await comunicar(p, 'Ofício ao Conselho Tutelar');
 await p.waitForTimeout(500);
 await dialogo(p).getByLabel('Resumo do que aconteceu').fill('O estudante chegou com marcas no braço e disse espontaneamente que não queria voltar para casa. Foi acolhido pela orientação.');
 await p.waitForTimeout(200);
@@ -56,7 +62,7 @@ log('encaminhamentos aba:', await p.getByRole('tab', { name: /Encaminhamentos/ }
 // Caso 482: comunicação à família com vazamento
 await p.locator('.fila-item', { hasText: '2026-000482' }).click();
 await p.waitForTimeout(1200);
-await p.getByRole('button', { name: 'Comunicar família' }).click();
+await comunicar(p, 'Comunicar família');
 await p.waitForTimeout(400);
 await dialogo(p).getByLabel('Resumo do que aconteceu').fill('Houve uma discussão com Lara T. no pátio.');
 await p.waitForTimeout(200);

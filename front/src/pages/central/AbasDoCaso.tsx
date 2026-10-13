@@ -3,7 +3,7 @@ import { acaoEmAberto, rotas, type Ocorrencia } from '../../api/contract';
 import { LinhaDoTempo, situacaoPlano } from '../../components/caso';
 import { Botao } from '../../components/controles';
 import { Abas } from '../../components/estrutura';
-import { Aviso, Etiqueta, useNotificar } from '../../components/feedback';
+import { Etiqueta, useNotificar } from '../../components/feedback';
 import { dataHoraCurta, diaPorExtenso, diasAte, hojeISO } from '../../util/formato';
 import { nomePapel } from '../registrar/PassoEnvolvidos';
 import type { Dialogo } from './tipos';
@@ -22,14 +22,10 @@ export function AbasDoCaso({ o, encerrado, abrir, executar }: {
       rotulo="Informações do caso"
       abas={[
         {
-          id: 'resumo',
-          titulo: 'Resumo',
+          id: 'envolvidos',
+          titulo: `Envolvidos (${o.envolvidos.length})`,
           conteudo: (
             <div className="pilha">
-              <p className="texto-relato">{o.fato.relato}</p>
-              {o.fato.providenciaImediata && <p><strong>Feito no momento:</strong> {o.fato.providenciaImediata}</p>}
-              {o.fato.riscoImediato && <Aviso tipo="erro" titulo="Registrado com risco imediato">Confira se a emergência foi acionada e registrada nas providências.</Aviso>}
-              <h3 className="titulo-bloco">Envolvidos</h3>
               {o.envolvidos.length === 0 ? <p>Nenhuma pessoa identificada.</p> : (
                 <ul className="lista-revisao">
                   {o.envolvidos.map((e) => (

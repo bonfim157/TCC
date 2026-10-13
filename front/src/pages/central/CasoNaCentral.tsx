@@ -141,6 +141,7 @@ export function CasoNaCentral({ id, externo = 0, aoMudar }: { id: string; extern
   const encerrado = o.status === 'encerrado';
   const emTriagem = o.status === 'recebido' || o.status === 'em_triagem';
   const temCt = o.providencias.some((p) => p.id.endsWith('-ct'));
+  const ctPendente = o.providencias.some((p) => p.id.endsWith('-ct') && p.situacao === 'pendente');
   const pendentesObrig = o.providencias.filter((p) => p.obrigatoria && p.situacao === 'pendente');
   const acoesAbertas = o.plano.filter(acaoEmAberto);
   const nomeCategoria = cats.find((x) => x.id === o.categoriaId)?.nome ?? '';
@@ -180,7 +181,15 @@ export function CasoNaCentral({ id, externo = 0, aoMudar }: { id: string; extern
           <Link to={`/casos/${o.id}`}>Abrir página completa do caso</Link>
         </p>
 
-        <AcoesDoCaso o={o} encerrado={encerrado} emTriagem={emTriagem} temCt={temCt} podeEncerrar={podeEncerrar} abrir={abrir} />
+        {/* O fato vem antes das ações e das providências: decide-se lendo o que aconteceu. */}
+        <section className="caso-fato" aria-labelledby="t-fato">
+          <h3 id="t-fato">O que aconteceu</h3>
+          <p className="texto-relato">{o.fato.relato}</p>
+          {o.fato.providenciaImediata && <p><strong>Feito no momento:</strong> {o.fato.providenciaImediata}</p>}
+          {o.fato.riscoImediato && <Aviso tipo="erro" titulo="Registrado com risco imediato">Confira se a emergência foi acionada e registrada nas providências.</Aviso>}
+        </section>
+
+        <AcoesDoCaso o={o} encerrado={encerrado} emTriagem={emTriagem} temCt={temCt} ctPendente={ctPendente} podeEncerrar={podeEncerrar} abrir={abrir} />
       </header>
 
       <div className="caso-central-grade">

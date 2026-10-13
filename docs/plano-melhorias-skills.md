@@ -8,13 +8,13 @@ A análise só leu o código; nenhuma tela foi alterada.
 - [x] 2. **Fila da Central não esconde casos** (central.css:27, `max-height: 72vh`). Casos sem responsável sobem na ordenação; sem rolagem interna no desktop. [I, P]
 
 ## Fase 2 — Clareza do caso (P2)
-- [ ] 3. **Dividir CasoNaCentral.tsx** em Providencias / AcoesDoCaso / ConvivaSP / AbasDoCaso, sem mudar visual. Facilita 4 a 6. [G]
-- [ ] 4. **Relato antes das providências** no painel do caso. [I]
-- [ ] 5. **Ações do caso por fase:** 1 primária, "Comunicar…" agrupado, o resto contextual. [I]
-- [ ] 6. **Marcador de providência** deixa de parecer checkbox (ou vira o próprio controle). [I]
-- [ ] 7. **Indicadores:** só "urgentes" em vermelho; os outros em âmbar. [I, T]
-- [ ] 8. **Abas do caso no celular** com pista de rolagem ou quebra em linhas. [I, P]
-- [ ] 9. **Movimento reduzido** sem matar o feedback: spinner e esqueleto viram estáticos/pulso de opacidade. [I, E]
+- [x] 3. **Dividir CasoNaCentral.tsx** em Providencias / AcoesDoCaso / ConvivaSP / AbasDoCaso, sem mudar visual. Facilita 4 a 6. [G]
+- [x] 4. **Relato antes das providências** no painel do caso. [I]
+- [x] 5. **Ações do caso por fase:** 1 primária, "Comunicar…" agrupado, o resto contextual. [I]
+- [x] 6. **Marcador de providência** deixa de parecer checkbox (ou vira o próprio controle). [I]
+- [x] 7. **Indicadores:** só "urgentes" em vermelho; os outros em âmbar. [I, T]
+- [x] 8. **Abas do caso no celular** com pista de rolagem ou quebra em linhas. [I, P]
+- [x] 9. **Movimento reduzido** sem matar o feedback: spinner e esqueleto viram estáticos/pulso de opacidade. [I, E]
 
 ## Fase 3 — Acabamento (P2/P3)
 - [ ] 10. `:active` com scale(0.97) nos botões + token `--ease-out`. [E]

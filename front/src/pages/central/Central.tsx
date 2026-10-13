@@ -30,9 +30,10 @@ function ordenar(a: ItemDaFila, b: ItemDaFila) {
   );
 }
 
-function Indicador({ ativo, valor, rotulo, destaque, aoClicar }: { ativo: boolean; valor: number; rotulo: string; destaque?: boolean; aoClicar: () => void }) {
+/** Só "urgentes" leva o vermelho; atraso e pendência ficam em âmbar, para o alarme não perder força. */
+function Indicador({ ativo, valor, rotulo, tom, aoClicar }: { ativo: boolean; valor: number; rotulo: string; tom?: 'urgente' | 'atencao'; aoClicar: () => void }) {
   return (
-    <button type="button" className={`indicador${destaque && valor > 0 ? ' indicador-alerta' : ''}`} aria-pressed={ativo} onClick={aoClicar}>
+    <button type="button" className={`indicador${tom && valor > 0 ? ` indicador-${tom}` : ''}`} aria-pressed={ativo} onClick={aoClicar}>
       <strong>{valor}</strong>
       <span>{rotulo}</span>
     </button>
@@ -136,9 +137,9 @@ function CentralDaEscola() {
             <>
               <div className="indicadores" role="group" aria-label="Filtrar a fila pelo que pede atenção">
                 <Indicador ativo={filtro === 'novas'} valor={contagem.novas} rotulo="novas ou sem triagem" aoClicar={() => alternar('novas')} />
-                <Indicador ativo={filtro === 'urgentes'} valor={contagem.urgentes} rotulo="urgentes" destaque aoClicar={() => alternar('urgentes')} />
-                <Indicador ativo={filtro === 'ct'} valor={contagem.ct} rotulo="a comunicar ao Conselho Tutelar" destaque aoClicar={() => alternar('ct')} />
-                <Indicador ativo={filtro === 'devolutivas'} valor={contagem.devolutivas} rotulo="com devolutiva atrasada" destaque aoClicar={() => alternar('devolutivas')} />
+                <Indicador ativo={filtro === 'urgentes'} valor={contagem.urgentes} rotulo="urgentes" tom="urgente" aoClicar={() => alternar('urgentes')} />
+                <Indicador ativo={filtro === 'ct'} valor={contagem.ct} rotulo="a comunicar ao Conselho Tutelar" tom="atencao" aoClicar={() => alternar('ct')} />
+                <Indicador ativo={filtro === 'devolutivas'} valor={contagem.devolutivas} rotulo="com devolutiva atrasada" tom="atencao" aoClicar={() => alternar('devolutivas')} />
               </div>
 
               <div className="central-corpo">

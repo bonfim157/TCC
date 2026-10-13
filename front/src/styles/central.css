@@ -13,8 +13,10 @@
 .indicador strong { font-family: var(--titulo); font-size: var(--t-h2); line-height: 1.1; color: var(--ink); }
 .indicador span { font-size: var(--t-pequeno); font-weight: 600; }
 .indicador:hover { border-color: var(--lineStrong); }
-.indicador-alerta { border-color: var(--urgent); background: var(--urgentSoft); }
-.indicador-alerta strong { color: var(--urgent); }
+.indicador-urgente { border-color: var(--urgent); background: var(--urgentSoft); }
+.indicador-urgente strong { color: var(--urgent); }
+.indicador-atencao { border-color: var(--warn); background: var(--warnSoft); }
+.indicador-atencao strong { color: var(--warn); }
 .indicador[aria-pressed='true'] { border-color: var(--accent); box-shadow: inset 0 0 0 2px var(--accent); }
 
 .central-corpo { display: grid; gap: var(--e5); grid-template-columns: minmax(280px, 340px) minmax(0, 1fr); align-items: start; }
@@ -46,7 +48,17 @@
 .caso-central-titulo { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--e3); flex-wrap: wrap; }
 .caso-central-titulo h2 { font-size: var(--t-h2); }
 .central-voltar { display: none; }
+.caso-fato { display: grid; gap: var(--e2); }
+.caso-fato h3 { font-size: var(--t-corpo); }
+.acoes-caso { display: grid; gap: var(--e2); }
 .barra-acoes { display: flex; flex-wrap: wrap; gap: var(--e2); }
+/* "Comunicar" abre as comunicações logo abaixo, sem sobrepor a tela */
+.btn-menu::after {
+  content: ''; width: 7px; height: 7px; margin-left: 2px;
+  border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg) translateY(-2px);
+}
+.btn-menu[aria-expanded='true']::after { transform: rotate(-135deg) translateY(-2px); }
+.barra-acoes-sub { padding: var(--e2); background: var(--accent-soft); border-radius: var(--r-superficie); }
 .caso-central-grade { display: grid; gap: var(--e5); grid-template-columns: minmax(0, 1fr) minmax(280px, 360px); align-items: start; }
 .caso-central-principal { min-width: 0; }
 .caso-central-lado { display: grid; gap: var(--e4); }
@@ -54,12 +66,10 @@
 /* Providências */
 .providencias .painel-cabeca { margin-bottom: var(--e2); }
 .lista-providencias { list-style: none; margin: var(--e3) 0 0; padding: 0; display: grid; }
-.providencia { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: var(--e3); padding: var(--e3) 0; border-top: 1px solid var(--line); }
+.providencia { padding: var(--e3) 0; border-top: 1px solid var(--line); }
 .providencia:first-child { border-top: 0; }
-.providencia-marca { width: 20px; height: 20px; margin-top: 2px; border: 2px solid var(--lineStrong); border-radius: 4px; background: var(--surface); }
-.providencia-feita .providencia-marca { background: var(--ok); border-color: var(--ok); box-shadow: inset 0 0 0 3px var(--surface); }
-.providencia-dispensada .providencia-marca { border-style: dashed; background: linear-gradient(135deg, transparent 45%, var(--lineStrong) 45% 55%, transparent 55%); }
 .providencia-texto { display: grid; gap: 2px; min-width: 0; }
+.providencia-titulo { display: grid; justify-items: start; gap: var(--e1); }
 .providencia-base, .providencia-registro { font-size: var(--t-pequeno); color: var(--inkSoft); }
 .providencia-pendente .providencia-texto > p:first-child strong { color: var(--ink); }
 .providencia-feita .providencia-texto > p:first-child strong, .providencia-dispensada .providencia-texto > p:first-child strong { font-weight: 600; color: var(--inkSoft); }

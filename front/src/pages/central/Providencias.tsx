@@ -1,6 +1,7 @@
 import type { Ocorrencia } from '../../api/contract';
 import { Botao } from '../../components/controles';
 import { Painel } from '../../components/estrutura';
+import { Etiqueta } from '../../components/feedback';
 import { dataHoraCurta } from '../../util/formato';
 import type { Dialogo } from './tipos';
 
@@ -16,11 +17,13 @@ export function Providencias({ o, pedir, pode }: { o: Ocorrencia; pedir: (d: Dia
       <ul className="lista-providencias">
         {o.providencias.map((p) => (
           <li key={p.id} className={`providencia providencia-${p.situacao}`}>
-            <span className="providencia-marca" aria-hidden="true" />
             <div className="providencia-texto">
-              <p>
+              {/* A situação vem escrita: um quadrado vazio parecia caixa de marcar, mas não era clicável. */}
+              <p className="providencia-titulo">
                 <strong>{p.descricao}</strong>
-                <span className="visualmente-oculto">. Situação: {p.situacao === 'feita' ? 'cumprida' : p.situacao === 'dispensada' ? 'dispensada' : 'pendente'}.</span>
+                {p.situacao === 'feita' ? <Etiqueta tipo="ok">Cumprida</Etiqueta>
+                  : p.situacao === 'dispensada' ? <Etiqueta tipo="neutra">Não se aplica</Etiqueta>
+                    : p.obrigatoria ? <Etiqueta tipo="atencao">Pendente</Etiqueta> : <Etiqueta tipo="neutra">Pendente</Etiqueta>}
               </p>
               <p className="providencia-base">
                 {p.obrigatoria ? 'Obrigatória' : 'Recomendada'}. {p.base}
