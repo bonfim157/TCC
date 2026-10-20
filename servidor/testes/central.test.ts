@@ -82,7 +82,7 @@ describe('ações no caso', () => {
     const prov = o.providencias.find((p) => p.obrigatoria && p.situacao === 'pendente')!;
     const sem = await agir(carlos, 'oc-sp-484', `providencias/${prov.id}`, { situacao: 'dispensada', observacao: '' });
     expect(sem.status).toBe(422);
-    expect(await sem.json()).toMatchObject({ mensagem: 'Explique por que esta providência não se aplica (pelo menos 15 caracteres).' });
+    expect(await sem.json()).toMatchObject({ mensagem: 'Explique por que este passo não se aplica (pelo menos 15 caracteres).' });
     const com = (await (await agir(carlos, 'oc-sp-484', `providencias/${prov.id}`, { situacao: 'dispensada', observacao: 'Não há estudante identificado neste caso.' })).json()) as Ocorrencia;
     expect(com.providencias.find((p) => p.id === prov.id)).toMatchObject({ situacao: 'dispensada', registradaPor: 'Carlos Mendes' });
   });
@@ -211,7 +211,7 @@ describe('encerrar', () => {
   test('providência obrigatória pendente impede o encerramento', async () => {
     const r = await agir(beatriz, 'oc-sp-483', 'encerrar', { justificativa: 'Caso acompanhado pela rede de proteção.', reavaliarEm: null });
     expect(r.status).toBe(409);
-    expect(((await r.json()) as { mensagem: string }).mensagem).toMatch(/^Faltam \d+ providências obrigatórias/);
+    expect(((await r.json()) as { mensagem: string }).mensagem).toMatch(/^Faltam \d+ passos obrigatórios/);
   });
 
   test('ações do plano em aberto exigem confirmação; confirmando, ficam canceladas', async () => {

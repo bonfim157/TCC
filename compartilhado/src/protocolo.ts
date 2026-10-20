@@ -6,7 +6,7 @@ import type { ModeloDeComunicacao, Providencia, RegraDoProtocolo } from './contr
  * o jurídico e o encarregado de dados (ver Pendências), não uma norma.
  */
 
-const regrasBase = (redeId: string, p: string, conviva: boolean): RegraDoProtocolo[] => {
+export const regrasBase = (redeId: string, p: string, conviva: boolean): RegraDoProtocolo[] => {
   const cat = (...n: number[]) => n.map((i) => `${p}-cat-${i}`);
   const r = (id: string, categoriaIds: RegraDoProtocolo['categoriaIds'], descricao: string, base: string, obrigatoria: boolean, somenteComRisco = false): RegraDoProtocolo => ({
     id: `${p}-${id}`, redeId, categoriaIds, somenteComRisco, descricao, base, obrigatoria,
@@ -38,7 +38,7 @@ export function gerarProvidencias(redeId: string, categoriaId: string, riscoImed
     .map((g) => ({ id: g.id, descricao: g.descricao, base: g.base, obrigatoria: g.obrigatoria, situacao: 'pendente' }));
 }
 
-export const modelos: ModeloDeComunicacao[] = (['rede-sp', 'rede-teste'] as const).flatMap((redeId) => [
+export const modelosDaRede = (redeId: string): ModeloDeComunicacao[] => [
   {
     id: `${redeId}-mod-familia`,
     redeId,
@@ -55,4 +55,6 @@ export const modelos: ModeloDeComunicacao[] = (['rede-sp', 'rede-teste'] as cons
     texto:
       'Ao Conselho Tutelar\n\nA direção da {escola} comunica, nos termos do art. 13 do Estatuto da Criança e do Adolescente, situação de suspeita de violação de direitos envolvendo o(a) estudante {estudante}, identificada em {data} (protocolo interno {protocolo}).\n\n{resumo}\n\nColocamo-nos à disposição para informações complementares e solicitamos devolutiva sobre as providências adotadas.\n\n{responsavel}\n{escola}',
   },
-]);
+];
+
+export const modelos: ModeloDeComunicacao[] = ['rede-sp', 'rede-teste'].flatMap(modelosDaRede);

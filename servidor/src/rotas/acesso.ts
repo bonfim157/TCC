@@ -1,11 +1,13 @@
 import type { Context, Hono } from 'hono';
-import type { Ambiente, Perfil, RespostaEntrar, Usuario, Vinculo } from '@tcc/compartilhado/contrato';
-import { esquemaEntrar, esquemaSegundoFator, esquemaTrocaDeSenha } from '@tcc/compartilhado/esquemas';
+import type { Ambiente, ConvitePublico, Perfil, RespostaEntrar, Usuario, Vinculo } from '@tcc/compartilhado/contrato';
+import { esquemaAceitarConvite, esquemaCadastroEscola, esquemaEntrar, esquemaSegundoFator, esquemaTrocaDeSenha } from '@tcc/compartilhado/esquemas';
+import { modelosDaRede, regrasBase } from '@tcc/compartilhado/protocolo';
+import { categoriasDaRede, categoriasSensiveis } from '@tcc/compartilhado/seed';
 import { loginDemoAtivo } from '../ambiente';
-import { naRede, type Cliente } from '../banco/conexao';
+import { definirRede, naRede, type Cliente } from '../banco/conexao';
 import { cifrar, decifrar } from '../cifra';
 import { auditar, tokenDaRequisicao, vinculosDe } from '../contexto';
-import { ErroApi, naoAutenticado, semPermissao, validacao } from '../erros';
+import { conflito, ErroApi, naoAutenticado, naoEncontrado, semPermissao, validacao } from '../erros';
 import { hashDoToken, novoToken } from '../seguranca';
 import { hashDaSenha, hashDeEngodo, senhaAceitavel, senhaConfere } from '../senha';
 import { novoSegredoTotp, totpConfere, uriTotp } from '../totp';
@@ -175,6 +177,153 @@ export function rotasDeAcesso(app: Hono) {
     });
     if (resultado instanceof ErroApi) throw resultado;
     return c.json({ ok: true });
+  });
+
+  /**
+   * Cadastro de uma escola pela própria direção, com o código INEP. Cria a rede
+   * da escola, a escola e a conta de direção; o segundo fator é cadastrado no
+   * primeiro login, como em qualquer perfil de gestão.
+   */
+  app.post('/cadastro-escola', async (c) => {
+    const p = await corpo(c, esquemaCadastroEscola, 'Preencha os dados da escola e da sua conta.');
+    const inep = p.inep.replace(/\D/g, '');
+    const email = p.email.trim().toLowerCase();
+    const nome = p.nome.trim();
+    if (!/^\d{8}$/.test(inep)) throw validacao('O código INEP da escola tem 8 números. Ele aparece no Censo Escolar e no site do INEP.');
+    if (nome.length < 3 || !p.secretaria.trim() || !p.municipio.trim() || !p.bairro.trim()) throw validacao('Preencha o nome, a secretaria, o município e o bairro da escola.');
+    if (p.nomeResponsavel.trim().length < 3) throw validacao('Informe seu nome completo.');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw validacao('Confira o e-mail.');
+    if (!senhaAceitavel(p.senha)) throw validacao('A senha precisa ter pelo menos 12 caracteres. Uma frase é uma boa senha.');
+
+    const prefixo = `e${inep}`;
+    const redeId = `rede-${prefixo}`;
+    const escolaId = `esc-${prefixo}`;
+    const senhaHash = await hashDaSenha(p.senha);
+    const resultado = await naRede<true | ErroApi>({ redeId: null }, async (db) => {
+      if ((await db.query('select 1 from redes where id = $1', [redeId])).rowCount) {
+        return conflito('Esta escola já está cadastrada. Peça um convite à direção da escola.');
+      }
+      if ((await db.query('select 1 from hash_da_senha($1)', [email])).rowCount) {
+        return conflito('Já existe uma conta com este e-mail. Entre com ela, ou use outro e-mail.');
+      }
+      const sigla = nome.split(/\s+/).map((palavra) => palavra[0]).join('').toUpperCase().slice(0, 8);
+      const usuarioId = (await db.query<{ id: string }>(
+        'select cadastrar_escola($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) as id',
+        [redeId, nome, p.secretaria.trim(), p.municipio.trim(), p.uf, p.esfera, sigla, p.nomeResponsavel.trim(), email, senhaHash],
+      )).rows[0].id;
+      await definirRede(db, redeId);
+      await db.query(`select set_config('app.usuario_id', $1, true)`, [usuarioId]);
+
+      const ins = (tabela: string, linha: Record<string, unknown>) => {
+        const cols = Object.keys(linha);
+        return db.query(`insert into ${tabela} (${cols.join(', ')}) values (${cols.map((_, i) => `$${i + 1}`).join(', ')})`, Object.values(linha));
+      };
+      await ins('regionais', { id: `reg-${prefixo}`, rede_id: redeId, nome: p.municipio.trim() });
+      await ins('escolas', { id: escolaId, rede_id: redeId, regional_id: `reg-${prefixo}`, nome, municipio: p.municipio.trim(), bairro: p.bairro.trim(), inep });
+      await ins('contatos_locais', { escola_id: escolaId, rede_id: redeId });
+      // Os mesmos tipos de ocorrência e o mesmo protocolo das redes de exemplo; a direção ajusta depois na Administração.
+      for (const [i, cat] of categoriasDaRede(redeId, prefixo).entries()) {
+        await ins('categorias', { id: cat.id, rede_id: redeId, nome: cat.nome, ativa: true, ordem: i, sensivel: categoriasSensiveis.includes(cat.id.replace(prefixo, 'sp')) });
+      }
+      const conviva = p.uf === 'SP' && p.esfera === 'estadual';
+      for (const [i, r] of regrasBase(redeId, prefixo, conviva).entries()) {
+        await ins('regras_protocolo', {
+          id: r.id, rede_id: redeId, categoria_ids: r.categoriaIds === 'todas' ? null : r.categoriaIds,
+          somente_com_risco: r.somenteComRisco, descricao: r.descricao, base: r.base, obrigatoria: r.obrigatoria, ordem: i,
+        });
+      }
+      for (const m of modelosDaRede(redeId)) await ins('modelos_comunicacao', { id: m.id, rede_id: redeId, tipo: m.tipo, nome: m.nome, texto: m.texto });
+      const vinculoId = (await db.query<{ id: string }>(
+        `insert into vinculos (usuario_id, rede_id, perfil) values ($1, $2, 'direcao') returning id`, [usuarioId, redeId],
+      )).rows[0].id;
+      await ins('vinculo_escolas', { vinculo_id: vinculoId, rede_id: redeId, escola_id: escolaId });
+      await ins('auditoria', {
+        rede_id: redeId, ator: p.nomeResponsavel.trim(), perfil: 'direcao', acao: 'administracao',
+        recurso: `escola ${nome}`, resultado: 'permitido', detalhe: `cadastrada pela direção com o código INEP ${inep}`,
+      });
+      return true;
+    });
+    if (resultado instanceof ErroApi) throw resultado;
+    return c.json({ ok: true, redeId }, 201);
+  });
+
+  /* ---------- Convite da escola: a página pública do link ---------- */
+
+  /** Acha o convite pelo token do link. Sem token válido, 404: não revela nada. */
+  async function conviteDoToken(db: Cliente, token: string) {
+    const th = hashDoToken(token);
+    const rede = (await db.query<{ rede_id: string }>('select rede_id from tokens_convite where token_hash = $1', [th])).rows[0]?.rede_id;
+    if (!rede) return null;
+    await definirRede(db, rede);
+    const cv = (await db.query<{ id: string; rede_id: string; escola_id: string; email: string; perfil: Perfil; expira_em: string; aceito_em: string | null; cancelado_em: string | null; escola: string; vencido: boolean }>(
+      `select c.*, e.nome as escola, c.expira_em <= now() as vencido from convites c join escolas e on e.id = c.escola_id where c.token_hash = $1`, [th],
+    )).rows[0];
+    return cv ?? null;
+  }
+  const situacao = (cv: { aceito_em: string | null; cancelado_em: string | null; vencido: boolean }): ConvitePublico['situacao'] =>
+    cv.aceito_em ? 'aceito' : cv.cancelado_em ? 'cancelado' : cv.vencido ? 'vencido' : 'pendente';
+
+  app.get('/convites/:token', async (c) => {
+    const r = await naRede({ redeId: null }, async (db) => {
+      const cv = await conviteDoToken(db, c.req.param('token'));
+      if (!cv) throw naoEncontrado('Este convite não existe. Confira o link ou peça um novo à direção da escola.');
+      const temConta = Boolean((await db.query('select 1 from hash_da_senha($1)', [cv.email])).rowCount);
+      return { escola: cv.escola, perfil: cv.perfil as ConvitePublico['perfil'], email: cv.email, expiraEm: cv.expira_em, situacao: situacao(cv), temConta } satisfies ConvitePublico;
+    });
+    return c.json(r);
+  });
+
+  /**
+   * Aceita o convite. Sem conta para o e-mail: cria a conta com nome e senha.
+   * Com conta: exige estar logado com ela e só acrescenta a escola. O link nunca
+   * define nem troca a senha de uma conta que já existe.
+   */
+  app.post('/convites/:token/aceitar', async (c) => {
+    const p = await corpo(c, esquemaAceitarConvite);
+    const senhaHash = p.senha ? await hashDaSenha(p.senha) : null;
+    const resultado = await naRede<{ novaConta: boolean } | ErroApi>({ redeId: null }, async (db) => {
+      const cv = await conviteDoToken(db, c.req.param('token'));
+      if (!cv) return naoEncontrado('Este convite não existe. Confira o link ou peça um novo à direção da escola.');
+      const s = situacao(cv);
+      if (s === 'aceito') return conflito('Este convite já foi aceito. Entre com o seu e-mail e senha.');
+      if (s === 'cancelado') return conflito('A escola cancelou este convite. Fale com a direção.');
+      if (s === 'vencido') return conflito('Este convite venceu. Peça um link novo à direção da escola.');
+
+      const conta = (await db.query<{ usuario_id: string }>('select usuario_id from hash_da_senha($1)', [cv.email])).rows[0];
+      let usuarioId: string;
+      if (conta) {
+        const sessao = await sessaoAtual(db, c);
+        if (!sessao || sessao.mfa_pendente || sessao.usuario_id !== conta.usuario_id) {
+          return semPermissao('Este e-mail já tem conta. Entre com ela e abra o link do convite de novo.');
+        }
+        usuarioId = conta.usuario_id;
+      } else {
+        if ((p.nome ?? '').trim().length < 3) return validacao('Informe seu nome completo.');
+        if (!senhaHash || !senhaAceitavel(p.senha!)) return validacao('A senha precisa ter pelo menos 12 caracteres. Uma frase é uma boa senha.');
+        usuarioId = (await db.query<{ id: string }>('select criar_conta_convidada($1, $2, $3) as id', [p.nome!.trim(), cv.email, senhaHash])).rows[0].id;
+      }
+      await db.query(`select set_config('app.usuario_id', $1, true)`, [usuarioId]);
+
+      // Uma pessoa tem um perfil só por rede. Já atua nela com o mesmo perfil: a escola entra nesse vínculo.
+      // Com outro perfil, recusa: aceitar daria a ela, na escola nova, um acesso que a direção não deu.
+      const atual = (await db.query<{ id: string; perfil: Perfil }>('select id, perfil from vinculos where usuario_id = $1 and rede_id = $2', [usuarioId, cv.rede_id])).rows[0];
+      if (atual && atual.perfil !== cv.perfil) {
+        return conflito('Você já atua nesta rede com outro perfil, e cada pessoa tem um perfil só por rede. Peça à direção um convite com o mesmo perfil.');
+      }
+      let vinculoId = atual?.id;
+      if (!vinculoId) {
+        vinculoId = (await db.query<{ id: string }>('insert into vinculos (usuario_id, rede_id, perfil) values ($1, $2, $3) returning id', [usuarioId, cv.rede_id, cv.perfil])).rows[0].id;
+      }
+      await db.query('insert into vinculo_escolas (vinculo_id, rede_id, escola_id) values ($1, $2, $3) on conflict do nothing', [vinculoId, cv.rede_id, cv.escola_id]);
+      await db.query('update convites set aceito_em = now() where id = $1', [cv.id]);
+      await db.query(
+        `insert into auditoria (rede_id, ator, perfil, acao, recurso, resultado, detalhe) values ($1, $2, $3, 'administracao', 'convite', 'permitido', 'aceito')`,
+        [cv.rede_id, p.nome?.trim() || cv.email, cv.perfil],
+      );
+      return { novaConta: !conta };
+    });
+    if (resultado instanceof ErroApi) throw resultado;
+    return c.json(resultado);
   });
 
   app.post('/sair', async (c) => {

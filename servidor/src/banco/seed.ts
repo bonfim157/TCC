@@ -15,7 +15,7 @@ import { acessoDemo, categorias, categoriasSensiveis, contatos, escolas, ocorren
 
 /** Tabelas com dados, na ordem em que podem ser esvaziadas (filhas antes das mães). */
 const TABELAS = [
-  'tentativas_login', 'fatores_mfa', 'tokens_ciencia', 'auditoria', 'sessoes', 'comunicacoes', 'acoes_plano', 'encaminhamentos', 'providencias', 'eventos', 'anexos',
+  'tokens_convite', 'convites', 'tentativas_login', 'fatores_mfa', 'tokens_ciencia', 'auditoria', 'sessoes', 'comunicacoes', 'acoes_plano', 'encaminhamentos', 'providencias', 'eventos', 'anexos',
   'envolvimentos', 'ocorrencias', 'contadores_protocolo', 'responsaveis', 'pessoas', 'contatos_locais',
   'modelos_comunicacao', 'regras_protocolo', 'categorias', 'vinculo_escolas', 'vinculos', 'usuarios', 'escolas',
   'regionais', 'redes',

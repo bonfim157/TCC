@@ -136,3 +136,22 @@ export const esquemaNovaPessoa = z.object({
 export const esquemaEntrar = z.object({ email: z.string().max(200), senha: z.string().max(200) });
 export const esquemaSegundoFator = z.object({ codigo: z.string().max(12) });
 export const esquemaTrocaDeSenha = z.object({ atual: z.string().max(200), nova: z.string().max(200) });
+
+export const esquemaCadastroEscola = z.object({
+  inep: z.string().max(20),
+  nome: texto(200),
+  secretaria: texto(200),
+  municipio: texto(100),
+  bairro: texto(100),
+  uf: z.string().regex(/^[A-Z]{2}$/),
+  esfera: z.enum(['municipal', 'estadual']),
+  nomeResponsavel: texto(200),
+  email: z.string().max(200),
+  senha: z.string().max(200),
+});
+
+export const esquemaConvite = z.object({
+  email: z.string().max(200),
+  perfil: z.enum(['professor', 'apoio', 'coordenacao', 'direcao', 'referente_protecao']),
+});
+export const esquemaAceitarConvite = z.object({ nome: z.string().max(200).optional(), senha: z.string().max(200).optional() });

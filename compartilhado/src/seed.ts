@@ -70,7 +70,7 @@ export const escolas: Escola[] = [
   },
 ];
 
-const cat = (redeId: string, prefixo: string): Categoria[] =>
+export const categoriasDaRede = (redeId: string, prefixo: string): Categoria[] =>
   [
     'Convivência ou conflito',
     'Bullying ou cyberbullying',
@@ -83,7 +83,7 @@ const cat = (redeId: string, prefixo: string): Categoria[] =>
     'Outro',
   ].map((nome, i) => ({ id: `${prefixo}-cat-${i + 1}`, redeId, nome, ativa: true }));
 
-export const categorias: Categoria[] = [...cat('rede-sp', 'sp'), ...cat('rede-teste', 'rt')];
+export const categorias: Categoria[] = [...categoriasDaRede('rede-sp', 'sp'), ...categoriasDaRede('rede-teste', 'rt')];
 
 /** Categorias que sempre pedem atenção da direção, mesmo sem risco imediato marcado. */
 export const categoriasSensiveis = ['sp-cat-8', 'rt-cat-8', 'sp-cat-4', 'rt-cat-4'];

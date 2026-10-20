@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import type { Categoria, Rede, Sessao, Usuario } from '@tcc/compartilhado/contrato';
 import { esquemaNovaSessao } from '@tcc/compartilhado/esquemas';
+import { redes as redesDeExemplo } from '@tcc/compartilhado/seed';
 import { loginDemoAtivo } from './ambiente';
 import { banco, comoDono, naRede, temDono } from './banco/conexao';
 import { carregarSeed } from './banco/seed';
@@ -15,6 +16,9 @@ import { hashDoToken, novoToken } from './seguranca';
 
 /** Validade da sessão. */
 const HORAS_DE_SESSAO = 8;
+
+/** O login de demonstração só vale para as redes fictícias: uma escola cadastrada de verdade entra só com senha. */
+const redeDeExemplo = (redeId: string) => redesDeExemplo.some((r) => r.id === redeId);
 
 
 export function criarApp() {
@@ -45,6 +49,7 @@ export function criarApp() {
   app.get('/redes/:redeId/usuarios-demo', async (c) => {
     if (!loginDemoAtivo()) throw naoEncontrado('Esta função não existe neste ambiente.');
     const redeId = c.req.param('redeId');
+    if (!redeDeExemplo(redeId)) throw naoEncontrado('Esta rede não tem pessoas de demonstração.');
     const lista = await naRede({ redeId }, async (db) => {
       const r = await db.query<{ id: string; nome: string }>(
         `select distinct u.id, u.nome from usuarios u join vinculos v on v.usuario_id = u.id where v.rede_id = $1 order by u.nome`,
@@ -64,6 +69,7 @@ export function criarApp() {
   app.post('/sessoes', async (c) => {
     if (!loginDemoAtivo()) throw naoEncontrado('Esta função não existe neste ambiente.');
     const { redeId, usuarioId } = await corpo(c, esquemaNovaSessao, 'Escolha a rede e a pessoa.');
+    if (!redeDeExemplo(redeId)) throw semPermissao('Esta rede só aceita entrada com e-mail e senha.');
     const sessao = await naRede({ redeId, usuarioId }, async (db) => {
       const u = await db.query<{ id: string; nome: string }>('select id, nome from usuarios where id = $1', [usuarioId]);
       const vinculos = u.rows[0] ? await vinculosDe(db, usuarioId) : [];

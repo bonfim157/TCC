@@ -1,15 +1,16 @@
 import type { Hono } from 'hono';
 import {
   nomeStatus, type Contagem, type ContatosLocais, type Exportacao, type Perfil, type RegistroDeAuditoria, type RegraDoProtocolo,
-  type Relatorio, type ResultadoDeBusca, type StatusCaso, type UsuarioDaRede,
+  type Relatorio, type ResultadoDeBusca, type StatusCaso, type UsuarioDaRede, type Convite, type ConviteComLink,
 } from '@tcc/compartilhado/contrato';
 import {
-  esquemaCategoria, esquemaContatos, esquemaExportacao, esquemaModelo, esquemaNovaPessoa, esquemaRegra,
+  esquemaCategoria, esquemaContatos, esquemaConvite, esquemaExportacao, esquemaModelo, esquemaNovaPessoa, esquemaRegra,
 } from '@tcc/compartilhado/esquemas';
 import type { Cliente } from '../banco/conexao';
 import { alcance, conduz, podeAbrir } from '../casos';
 import { auditar, comContexto, escolasDoVinculo, type Contexto } from '../contexto';
-import { naoEncontrado, semPermissao, validacao } from '../erros';
+import { conflito, naoEncontrado, semPermissao, validacao } from '../erros';
+import { hashDoToken, novoToken } from '../seguranca';
 import { corpo, semAcento } from '../util';
 
 /* Busca, relatórios, auditoria e administração (B5). Espelha front/src/mocks/gestao.ts. */
@@ -181,7 +182,7 @@ export function rotasDeGestao(app: Hono) {
     const p = await corpo(c, esquemaRegra);
     return comContexto(c.req.raw.headers, async (db, ctx) => {
       if (!administraRede(ctx)) throw negar('protocolo da rede', 'Só a secretaria altera o protocolo da rede.');
-      if (p.descricao !== undefined && p.descricao.trim().length < 10) throw validacao('Descreva a providência com pelo menos 10 caracteres.');
+      if (p.descricao !== undefined && p.descricao.trim().length < 10) throw validacao('Descreva o passo com pelo menos 10 caracteres.');
       const r = await db.query(
         `update regras_protocolo set descricao = coalesce($2, descricao), base = coalesce($3, base), obrigatoria = coalesce($4, obrigatoria)
           where id = $1 returning *`,
@@ -289,6 +290,77 @@ export function rotasDeGestao(app: Hono) {
         [ctx.vinculo.redeId, administraRede(ctx), ctx.escolaId],
       );
       return c.json(r.rows);
+    }),
+  );
+
+  /* ---------- Convites (só a direção da escola) ---------- */
+  const DIAS_DO_CONVITE = 7;
+  const convite = (x: Record<string, string>): Convite => ({ id: x.id, email: x.email, perfil: x.perfil as Convite['perfil'], expiraEm: x.expira_em });
+  const pendentes = 'aceito_em is null and cancelado_em is null and expira_em > now()';
+
+  /** Novo token para o convite: guarda só o hash (no convite e no índice público) e devolve o link uma vez. */
+  async function novoLink(db: Cliente, redeId: string, id: string): Promise<string> {
+    const token = novoToken();
+    const antigo = (await db.query<{ token_hash: string }>('select token_hash from convites where id = $1', [id])).rows[0];
+    if (antigo) await db.query('delete from tokens_convite where token_hash = $1', [antigo.token_hash]);
+    await db.query('update convites set token_hash = $2 where id = $1', [id, hashDoToken(token)]);
+    await db.query('insert into tokens_convite (token_hash, rede_id) values ($1, $2)', [hashDoToken(token), redeId]);
+    return `/convite/${token}`;
+  }
+
+  app.get('/admin/convites', (c) =>
+    comContexto(c.req.raw.headers, async (db, ctx) => {
+      if (!administraEscola(ctx) || !ctx.escolaId) throw negar('convites', 'Só a direção da escola vê os convites.');
+      const r = await db.query(`select id, email, perfil, expira_em from convites where escola_id = $1 and ${pendentes} order by criado_em desc`, [ctx.escolaId]);
+      return c.json(r.rows.map(convite));
+    }),
+  );
+
+  app.post('/admin/convites', async (c) => {
+    const p = await corpo(c, esquemaConvite, 'Informe o e-mail e o perfil.');
+    const email = p.email.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw validacao('Confira o e-mail.');
+    return comContexto(c.req.raw.headers, async (db, ctx) => {
+      if (!administraEscola(ctx) || !ctx.escolaId) throw negar('convites', 'Só a direção da escola convida pessoas.');
+      const jaEsta = await db.query(
+        `select 1 from usuarios u join vinculos v on v.usuario_id = u.id join vinculo_escolas ve on ve.vinculo_id = v.id
+          where lower(u.email) = $1 and ve.escola_id = $2`, [email, ctx.escolaId]);
+      if (jaEsta.rowCount) throw conflito('Esta pessoa já faz parte da equipe da escola.');
+      if ((await db.query(`select 1 from convites where email = $1 and escola_id = $2 and ${pendentes}`, [email, ctx.escolaId])).rowCount) {
+        throw conflito('Já existe um convite esperando resposta para este e-mail. Gere um link novo nele, se precisar.');
+      }
+      const r = await db.query(
+        `insert into convites (rede_id, escola_id, email, perfil, token_hash, criado_por, expira_em)
+         values ($1, $2, $3, $4, gen_random_uuid()::text, $5, now() + make_interval(days => $6)) returning id, email, perfil, expira_em`,
+        [ctx.vinculo.redeId, ctx.escolaId, email, p.perfil, ctx.usuario.nome, DIAS_DO_CONVITE],
+      );
+      const link = await novoLink(db, ctx.vinculo.redeId, r.rows[0].id);
+      await auditar(db, ctx, 'administracao', 'convite', 'permitido', `perfil ${p.perfil}`);
+      return c.json({ convite: convite(r.rows[0]), link } satisfies ConviteComLink, 201);
+    });
+  });
+
+  app.post('/admin/convites/:id/link', (c) =>
+    comContexto(c.req.raw.headers, async (db, ctx) => {
+      if (!administraEscola(ctx) || !ctx.escolaId) throw negar('convites', 'Só a direção da escola convida pessoas.');
+      const r = await db.query(
+        `update convites set expira_em = now() + make_interval(days => $3) where id = $1 and escola_id = $2 and aceito_em is null and cancelado_em is null
+         returning id, email, perfil, expira_em`, [c.req.param('id'), ctx.escolaId, DIAS_DO_CONVITE]);
+      if (!r.rowCount) throw naoEncontrado('Convite não encontrado.');
+      // O link anterior para de funcionar: só o mais novo vale.
+      const link = await novoLink(db, ctx.vinculo.redeId, r.rows[0].id);
+      await auditar(db, ctx, 'administracao', 'convite', 'permitido', 'link novo');
+      return c.json({ convite: convite(r.rows[0]), link } satisfies ConviteComLink);
+    }),
+  );
+
+  app.delete('/admin/convites/:id', (c) =>
+    comContexto(c.req.raw.headers, async (db, ctx) => {
+      if (!administraEscola(ctx) || !ctx.escolaId) throw negar('convites', 'Só a direção da escola convida pessoas.');
+      const r = await db.query('update convites set cancelado_em = now() where id = $1 and escola_id = $2 and aceito_em is null returning token_hash', [c.req.param('id'), ctx.escolaId]);
+      if (!r.rowCount) throw naoEncontrado('Convite não encontrado.');
+      await auditar(db, ctx, 'administracao', 'convite', 'permitido', 'cancelado');
+      return c.json({ ok: true });
     }),
   );
 }

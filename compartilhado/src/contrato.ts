@@ -100,13 +100,13 @@ export type StatusCaso =
 /** Nome de cada situação, como aparece nas telas, nos relatórios e nas exportações. */
 export const nomeStatus: Record<StatusCaso, string> = {
   rascunho: 'Rascunho',
-  recebido: 'Recebido',
-  em_triagem: 'Em triagem',
+  recebido: 'Esperando leitura',
+  em_triagem: 'Sendo lido',
   em_acompanhamento: 'Em acompanhamento',
-  encerrado: 'Encerrado',
+  encerrado: 'Concluído',
   duplicado: 'Duplicado',
   cancelado: 'Cancelado',
-  encaminhado_rede: 'Encaminhado à rede',
+  encaminhado_rede: 'Com a rede de apoio',
 };
 
 export type Prioridade = 'urgente' | 'alta' | 'media' | 'baixa';
@@ -398,6 +398,43 @@ export type ContatosLocais = {
 
 export type UsuarioDaRede = { id: string; nome: string; perfil: Perfil; escolas: string[] };
 
+/** Cadastro de uma escola pela própria direção. O código INEP prova que a escola existe. */
+export type PedidoCadastroEscola = {
+  inep: string;
+  nome: string;
+  secretaria: string;
+  municipio: string;
+  bairro: string;
+  uf: string;
+  esfera: Esfera;
+  nomeResponsavel: string;
+  email: string;
+  senha: string;
+};
+
+/** Perfis que a direção pode dar a quem convida. */
+export const perfisConvidaveis = ['professor', 'apoio', 'coordenacao', 'direcao', 'referente_protecao'] as const;
+export type PerfilConvidavel = (typeof perfisConvidaveis)[number];
+
+/** Convite pendente, como a direção vê na aba Equipe. O token nunca volta: só o link na criação. */
+export type Convite = { id: string; email: string; perfil: PerfilConvidavel; expiraEm: string };
+export type PedidoConvite = { email: string; perfil: PerfilConvidavel };
+/** Resposta da criação (e da troca de link): o caminho com o token, para copiar e mandar à pessoa. */
+export type ConviteComLink = { convite: Convite; link: string };
+
+/** O que a página do convite mostra a quem tem o link. */
+export type ConvitePublico = {
+  escola: string;
+  perfil: PerfilConvidavel;
+  email: string;
+  expiraEm: string;
+  situacao: 'pendente' | 'aceito' | 'cancelado' | 'vencido';
+  /** O e-mail já tem conta: aceitar exige entrar com ela, e o convite só acrescenta a escola. */
+  temConta: boolean;
+};
+/** Sem conta: nome e senha criam a conta. Com conta: corpo vazio, vale a sessão. */
+export type PedidoAceitarConvite = { nome?: string; senha?: string };
+
 export type PedidoNovaPessoa = Pick<Pessoa, 'nome' | 'tipo' | 'turma'>;
 
 export type NovoAdendo = { texto: string };
@@ -423,6 +460,9 @@ export const rotas = {
   sessao: '/api/sessao',
   sair: '/api/sair',
   senha: '/api/senha',
+  cadastroEscola: '/api/cadastro-escola',
+  convite: (token: string) => `/api/convites/${token}`,
+  aceitarConvite: (token: string) => `/api/convites/${token}/aceitar`,
   escolas: '/api/escolas',
   categorias: '/api/categorias',
   ocorrencias: '/api/ocorrencias',
@@ -450,6 +490,9 @@ export const rotas = {
     contatos: '/api/admin/contatos',
     pessoas: '/api/admin/pessoas',
     usuarios: '/api/admin/usuarios',
+    convites: '/api/admin/convites',
+    convite: (id: string) => `/api/admin/convites/${id}`,
+    novoLink: (id: string) => `/api/admin/convites/${id}/link`,
   },
   falhaSimulada: '/api/diagnostico/falha',
 } as const;

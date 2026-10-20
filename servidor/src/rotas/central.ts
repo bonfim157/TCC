@@ -71,7 +71,7 @@ function acaoNoCaso(c: Context, status: 200 | 201, fn: (db: Cliente, ctx: Contex
     if (!conduz(ctx) || !podeAbrir(ctx, await alcance(db, ctx), o)) {
       throw semPermissao('Seu perfil não conduz casos nesta escola.').registrar(`caso ${o.protocolo}`, 'tentativa de alterar sem permissão');
     }
-    if (o.status === 'encerrado') throw conflito('Este caso está encerrado. Para retomar, registre uma reavaliação com a direção.');
+    if (o.status === 'encerrado') throw conflito('Este acompanhamento foi concluído. Para retomar, registre uma reavaliação com a direção.');
     await fn(db, ctx, o);
     const atual = (await carregarCaso(db, o.id))!;
     await auditar(db, ctx, 'alteracao', `caso ${atual.protocolo}`, 'permitido', atual.eventos.at(-1)?.tipo);
@@ -165,9 +165,9 @@ export function rotasDaCentral(app: Hono) {
     const p = await corpo(c, esquemaProvidencia);
     return acaoNoCaso(c, 200, async (db, ctx, o) => {
       const prov = o.providencias.find((x) => x.id === c.req.param('pid'));
-      if (!prov) throw naoEncontrado('Providência não encontrada.');
+      if (!prov) throw naoEncontrado('Passo não encontrado.');
       if (p.situacao === 'dispensada' && p.observacao.trim().length < 15) {
-        throw validacao('Explique por que esta providência não se aplica (pelo menos 15 caracteres).');
+        throw validacao('Explique por que este passo não se aplica (pelo menos 15 caracteres).');
       }
       const pendente = p.situacao === 'pendente';
       await db.query(
@@ -176,7 +176,7 @@ export function rotasDaCentral(app: Hono) {
           where ocorrencia_id = $1 and id = $2`,
         [o.id, prov.id, p.situacao, p.observacao.trim() || null, pendente ? null : ctx.usuario.nome, pendente],
       );
-      const verbo = p.situacao === 'feita' ? 'Providência cumprida' : p.situacao === 'dispensada' ? 'Providência dispensada' : 'Providência reaberta';
+      const verbo = p.situacao === 'feita' ? 'Passo feito' : p.situacao === 'dispensada' ? 'Passo marcado como não se aplica' : 'Passo reaberto';
       await novoEvento(db, ctx, o.id, 'providencia', `${verbo}: ${prov.descricao.toLowerCase()}.${p.observacao.trim() ? ` ${p.observacao.trim()}` : ''}`);
     });
   });
@@ -202,7 +202,7 @@ export function rotasDaCentral(app: Hono) {
     const { texto } = await corpo(c, esquemaDevolutiva);
     return acaoNoCaso(c, 200, async (db, ctx, o) => {
       const enc = o.encaminhamentos.find((e) => e.id === c.req.param('eid'));
-      if (!enc) throw naoEncontrado('Encaminhamento não encontrado.');
+      if (!enc) throw naoEncontrado('Pedido de apoio não encontrado.');
       if (texto.trim().length < 10) throw validacao('Descreva a devolutiva recebida.');
       await db.query(
         `update encaminhamentos set devolutiva_em = clock_timestamp(), devolutiva_texto = $3 where ocorrencia_id = $1 and id = $2`,
@@ -300,13 +300,13 @@ export function rotasDaCentral(app: Hono) {
   app.post('/ocorrencias/:id/encerrar', async (c) => {
     const p = await corpo(c, esquemaEncerramento);
     return acaoNoCaso(c, 200, async (db, ctx, o) => {
-      if (!['coordenacao', 'direcao'].includes(ctx.vinculo.perfil)) throw semPermissao('Só coordenação ou direção encerram casos.');
+      if (!['coordenacao', 'direcao'].includes(ctx.vinculo.perfil)) throw semPermissao('Só coordenação ou direção concluem acompanhamentos.');
       const pendentes = o.providencias.filter((x) => x.obrigatoria && x.situacao === 'pendente');
       if (pendentes.length) {
-        throw conflito(`Faltam ${pendentes.length} providências obrigatórias: ${pendentes.map((x) => x.descricao.toLowerCase()).join('; ')}. Cumpra ou dispense cada uma com justificativa.`);
+        throw conflito(`Faltam ${pendentes.length} passos obrigatórios: ${pendentes.map((x) => x.descricao.toLowerCase()).join('; ')}. Faça cada um ou explique por que não se aplica.`);
       }
       const justificativa = p.justificativa.trim();
-      if (justificativa.length < 20) throw validacao('Explique o resultado e por que o caso pode ser encerrado (pelo menos 20 caracteres).');
+      if (justificativa.length < 20) throw validacao('Explique o resultado e por que o acompanhamento pode ser concluído (pelo menos 20 caracteres).');
       // Caso encerrado não aceita mais ações: nada do plano pode ficar pendurado.
       const abertas = o.plano.filter(acaoEmAberto);
       if (abertas.length && !p.cancelarAcoesAbertas) {
