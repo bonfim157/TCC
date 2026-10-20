@@ -14,9 +14,9 @@ export function Enviado({ ocorrencia, aoNovo }: { ocorrencia: Ocorrencia; aoNovo
     <div className="pagina pagina-estreita">
       <section className="protocolo" aria-labelledby="t-enviado">
         <h1 id="t-enviado" ref={titulo} tabIndex={-1}>
-          {urgente ? 'Registro enviado. A direção foi avisada.' : 'Registro enviado para triagem'}
+          {urgente ? 'Registro enviado. A direção foi avisada.' : 'Registro enviado'}
         </h1>
-        <p className="protocolo-rotulo">Número de protocolo</p>
+        <p className="protocolo-rotulo">Número do registro</p>
         <p className="protocolo-numero">{ocorrencia.protocolo}</p>
         <EtiquetaPrioridade prioridade={ocorrencia.prioridade} />
         <p>

@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom';
 import { api, ErroDaApi, FalhaDeRede } from '../api/client';
 import { rotas, type Escola, type OcorrenciaResumo } from '../api/contract';
 import { Botao, CaixaMarcar, CampoAreaTexto, CampoSelecao, CampoTexto, GrupoOpcoes } from '../components/controles';
-import { Abas, Brasao, DialogoConfirmacao, Etapas, Painel, Tabela } from '../components/estrutura';
+import { Abas, DialogoConfirmacao, Etapas, Painel, Tabela } from '../components/estrutura';
 import { Aviso, Esqueleto, Etiqueta, EtiquetaPrioridade, EtiquetaStatus, EstadoDaCarga, useNotificar, Vazio } from '../components/feedback';
 import { contraste } from '../design/contraste';
-import { base, redeThemes } from '../design/themes';
+import { acento, base } from '../design/themes';
 import { definirSemConexaoSimulada, semConexaoSimuladaAtiva, useConexao } from '../layout/useConexao';
 import { LimiteDeErro } from './Estados';
 import { usePreferencias } from '../state/preferencias';
@@ -70,14 +70,13 @@ function Amostra({ nome, cor, sobre, uso }: { nome: string; cor: string; sobre: 
 
 function Cores() {
   const { modoEfetivo } = usePreferencias();
-  const { rede } = useSessao();
   const b = base[modoEfetivo];
-  const p = (redeThemes[rede?.id ?? ''] ?? redeThemes['rede-sp'])[modoEfetivo];
+  const p = acento[modoEfetivo];
   return (
     <Secao
       id="cores"
       titulo="Cores"
-      intro={`A base neutra é a mesma em todas as redes. O acento vem da rede ativa (${rede?.nome}). Contrastes medidos no modo ${modoEfetivo === 'dark' ? 'escuro' : 'claro'}; troque em Aparência para conferir o outro.`}
+      intro={`Uma paleta só para todas as escolas: lousa verde, caneta azul e marca-texto. Contrastes medidos no modo ${modoEfetivo === 'dark' ? 'escuro' : 'claro'}; troque em Aparência para conferir o outro.`}
     >
       <div className="guia-colunas">
         <Painel titulo="Base">
@@ -88,7 +87,7 @@ function Cores() {
             <Amostra nome="Papel" cor={b.paper} sobre={b.ink} uso="Fundo da página" />
           </ul>
         </Painel>
-        <Painel titulo="Acento da rede">
+        <Painel titulo="Lousa, caneta e marca-texto">
           <ul className="amostras">
             <Amostra nome="Acento" cor={p.accent} sobre={p.onAccent} uso="Botão principal, com seu texto" />
             <Amostra nome="Acento como texto" cor={p.accentInk} sobre={b.surface} uso="Links e item ativo" />
@@ -162,7 +161,6 @@ function Componentes() {
   const [urgente, setUrgente] = useState<string | null>('nao');
   const [dialogo, setDialogo] = useState(false);
   const [etapa, setEtapa] = useState(2);
-  const { rede } = useSessao();
 
   return (
     <Secao id="componentes" titulo="Componentes" intro="Estados mostrados lado a lado. Passe o mouse ou use a tecla Tab para ver os estados de foco e de cursor.">
@@ -336,11 +334,7 @@ function Componentes() {
         <Esqueleto rotulo="Carregando exemplo" />
       </Exemplo>
 
-      <Exemplo nome="Marca da rede" nota="Quadrado com a sigla e a cor da rede, sem escudo nem brasão, para não lembrar órgão policial.">
-        <div className="acoes-linha"><Brasao sigla={rede?.sigla ?? 'SP'} tamanho={56} /><Brasao sigla={rede?.sigla ?? 'SP'} tamanho={32} /></div>
-      </Exemplo>
-
-      <Exemplo nome="Barra de contexto e aparência" nota="A escola ativa fica ao lado das abas; Trocar abre rede, escola e (na demonstração) Ver como. Aparência ajusta tamanho do texto e cores.">
+      <Exemplo nome="Barra de contexto e aparência" nota="A escola em uso fica no topo do menu; Trocar abre as escolas da pessoa e, na demonstração, Ver como. Tema e tamanho do texto ficam em Minha conta.">
         <p>Veja no alto desta página.</p>
       </Exemplo>
     </Secao>

@@ -1,34 +1,118 @@
-/* Estrutura da aplicação: cabeçalho, navegação, barra de contexto, conteúdo e rodapé.
- * Linguagem de ferramenta escolar: cabeçalho baixo e claro, abas simples,
- * um acento só (o da rede), bordas finas em vez de sombras e nada de faixas escuras. */
+/* Estrutura da aplicação, "caderno da escola": menu na lousa verde à esquerda
+ * (no celular, barra de abas embaixo), a escola em uso no topo do menu e
+ * "Minha conta" sempre no fim dele. O conteúdo fica sobre a folha clara. */
 
-/* A faixa de demonstração fica fora da página; a altura mínima vale para o conjunto,
-   senão o rodapé começa 100dvh abaixo da faixa e sempre passa da primeira tela. */
+/* A faixa de demonstração fica fora da página; a altura mínima vale para o conjunto. */
 #root { min-height: 100dvh; display: flex; flex-direction: column; }
-.app { flex: 1; display: flex; flex-direction: column; }
+.app { flex: 1; display: flex; min-width: 0; }
+.app-celular, .app-publica { flex-direction: column; }
+.area-conteudo { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 
-/* ---------- Cabeçalho ---------- */
-.timbre { background: var(--surface); border-bottom: 1px solid var(--line); }
-.timbre-linha {
-  display: flex; align-items: center; justify-content: space-between; gap: var(--e4);
-  max-width: 1280px; margin: 0 auto; padding: var(--e3) var(--e5);
-}
-.timbre-lado { display: flex; align-items: center; gap: var(--e3); min-width: 0; flex-wrap: wrap; }
-.timbre-lado-fim { justify-content: flex-end; }
-.timbre-identidade { display: flex; align-items: center; gap: var(--e3); min-width: 0; }
-.timbre-produto { font-weight: 600; font-size: var(--t-destaque); line-height: 1.2; letter-spacing: -0.01em; }
-.timbre-rede { font-size: var(--t-pequeno); color: var(--inkSoft); line-height: 1.3; }
-
-.timbre-usuario { display: flex; align-items: center; gap: var(--e3); padding-left: var(--e3); border-left: 1px solid var(--line); }
-.timbre-usuario p { display: grid; line-height: 1.25; text-align: right; }
-.timbre-usuario p strong { font-weight: 600; font-size: var(--t-pequeno); }
-.timbre-usuario p span { font-size: var(--t-pequeno); color: var(--inkSoft); }
 .avatar {
-  order: 2; width: 40px; height: 40px; flex: none; display: grid; place-items: center; border-radius: 50%;
-  background: var(--accent-soft); color: var(--accent-ink); font-weight: 600; font-size: var(--t-pequeno); letter-spacing: .04em;
+  width: 40px; height: 40px; flex: none; display: grid; place-items: center; border-radius: 50%;
+  background: var(--decor); color: var(--on-decor); font-weight: 700; font-size: var(--t-pequeno); letter-spacing: .04em;
+  text-decoration: none;
 }
-.timbre-usuario .btn-sair { order: 3; }
-.btn-sair, .btn-aparencia { min-height: 44px; padding: 0 var(--e3); font-weight: 500; }
+.avatar-link { width: 44px; height: 44px; }
+.avatar-link[aria-current='page'] { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.marca { display: inline-flex; align-items: center; gap: var(--e2); font-weight: 700; font-size: var(--t-destaque); letter-spacing: -0.01em; }
+
+/* ---------- Menu lateral (computador) ---------- */
+.lateral {
+  flex: none; width: 264px; position: sticky; top: 0; align-self: flex-start; height: 100dvh; overflow-y: auto;
+  display: flex; flex-direction: column; gap: var(--e5); padding: var(--e5) var(--e4);
+  background: var(--lousa); color: var(--onLousa);
+}
+.lateral :focus-visible { outline-color: #FFE58A; }
+.lateral-registrar {
+  display: flex; align-items: center; justify-content: center; gap: var(--e2); min-height: 52px; padding: 0 var(--e4);
+  border-radius: var(--r-superficie); background: #FFFFFF; color: #234A3F; font-weight: 700; text-decoration: none;
+}
+.lateral-registrar svg { width: 20px; height: 20px; }
+/* Dentro do registro, o botão vira marca-texto: mostra onde a pessoa está. */
+.lateral-registrar[aria-current='page'], .lateral-registrar.active { background: var(--marca); color: var(--ink); }
+.lateral-itens { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--e1); }
+.lateral-itens a {
+  display: flex; align-items: center; gap: var(--e3); min-height: 48px; padding: 0 var(--e3);
+  border-radius: 10px; color: var(--onLousa); text-decoration: none; font-weight: 500;
+}
+.lateral-itens a svg { width: 20px; height: 20px; flex: none; }
+@media (hover: hover) and (pointer: fine) { .lateral-itens a:hover { background: rgb(255 255 255 / .08); } }
+.lateral-itens a[aria-current='page'] { background: var(--lousaAtivo); color: #FFFFFF; font-weight: 600; }
+.lateral-conta {
+  margin-top: auto; display: flex; align-items: center; gap: var(--e3); padding: var(--e2) var(--e3);
+  border: 1px solid rgb(255 255 255 / .22); border-radius: var(--r-superficie); color: var(--onLousa); text-decoration: none;
+}
+.lateral-conta > span:last-child { display: grid; line-height: 1.3; min-width: 0; }
+.lateral-conta strong { color: #FFFFFF; font-weight: 600; }
+.lateral-conta > span:last-child > span { font-size: var(--t-pequeno); color: var(--lousaSuave); overflow-wrap: anywhere; }
+.lateral-conta[aria-current='page'] { background: var(--lousaAtivo); }
+.lateral-conta[aria-current='page'] > span:last-child > span { color: var(--onLousa); }
+
+/* Escola em uso: no topo do menu; os seletores abrem logo abaixo, ao tocar em "Trocar". */
+.lateral .contexto { border: 1px solid rgb(255 255 255 / .22); border-radius: var(--r-superficie); background: rgb(255 255 255 / .08); }
+.lateral .contexto-resumo strong { color: #FFFFFF; }
+.lateral .contexto-resumo span { color: var(--lousaSuave); }
+.lateral .contexto-trocar { color: #FFE58A; }
+.lateral .contexto-item label { color: var(--onLousa); }
+
+.contexto-item { display: grid; gap: 2px; min-width: 0; }
+.contexto-item label { font-size: var(--t-pequeno); font-weight: 500; color: var(--inkSoft); }
+.contexto-item .entrada { min-height: 44px; padding-top: 6px; padding-bottom: 6px; font-weight: 500; width: 100%; }
+.contexto-fixo { display: flex; align-items: center; min-height: 44px; font-weight: 600; }
+/* "Ver como" é ferramenta da demonstração: tracejado, sem disputar atenção. */
+.contexto-demo .entrada { font-size: var(--t-pequeno); font-weight: 400; border-style: dashed; background-color: var(--surface); }
+.contexto-celular { display: block; min-width: 0; }
+.contexto-celular summary, .contexto-linha {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--e3);
+  min-height: 52px; padding: var(--e2) var(--e3); cursor: pointer; list-style: none;
+}
+.contexto-linha { cursor: default; margin: 0; }
+.contexto-celular summary::-webkit-details-marker { display: none; }
+.contexto-resumo { display: grid; min-width: 0; line-height: 1.3; }
+.contexto-resumo strong { font-size: .9375rem; font-weight: 600; }
+.contexto-resumo span { font-size: var(--t-pequeno); color: var(--inkSoft); }
+.contexto-trocar { flex: none; display: inline-flex; align-items: center; gap: var(--e1); font-size: var(--t-pequeno); font-weight: 600; color: var(--accent-ink); }
+.contexto-trocar::after { content: ''; width: 7px; height: 7px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg) translateY(-2px); }
+.contexto-celular[open] .contexto-trocar::after { transform: rotate(-135deg) translateY(-2px); }
+.contexto-campos { display: grid; gap: var(--e3); padding: 0 var(--e3) var(--e3); }
+
+/* ---------- Celular: topo com a escola e a conta; abas embaixo ---------- */
+.topo-celular {
+  position: sticky; top: 0; z-index: 40; display: flex; align-items: center; gap: var(--e2);
+  padding: var(--e1) var(--e3) var(--e1) var(--e1); padding-top: calc(var(--e1) + env(safe-area-inset-top, 0px));
+  background: var(--surface); border-bottom: 1px solid var(--line);
+}
+.topo-celular .contexto { flex: 1; }
+.topo-celular .contexto-resumo strong { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.topo-celular .contexto-campos {
+  position: absolute; left: 0; right: 0; top: 100%; padding: var(--e4);
+  background: var(--surface); border-bottom: 1px solid var(--line); box-shadow: 0 16px 32px rgb(0 0 0 / .18);
+}
+.abas-celular {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+  padding: var(--e2) var(--e2) calc(var(--e2) + env(safe-area-inset-bottom, 0px)); background: var(--lousa);
+}
+.abas-celular ul { list-style: none; margin: 0; padding: 0; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 2px; }
+.abas-celular a {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; padding: var(--e1) 2px;
+  border-radius: var(--r-superficie); color: var(--onLousa); text-decoration: none; font-size: .8125rem; text-align: center; line-height: 1.2;
+}
+.abas-celular a svg { width: 22px; height: 22px; }
+.abas-celular a[aria-current='page'] { background: var(--lousaAtivo); color: #FFFFFF; font-weight: 600; }
+.abas-celular :focus-visible { outline-color: #FFE58A; }
+/* O conteúdo nunca fica escondido atrás das abas. */
+.app-celular .area-conteudo { padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
+
+/* ---------- Topo das páginas públicas ---------- */
+.topo-publico {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--e3); padding: var(--e3) var(--e5);
+  background: var(--lousa); color: #FFFFFF;
+}
+.topo-publico-marca { color: #FFFFFF; text-decoration: none; margin-right: auto; }
+.topo-publico :focus-visible { outline-color: #FFE58A; }
+.topo-publico .btn-primario { background: #FFFFFF; color: #234A3F; }
 
 /* ---------- Atalhos de acessibilidade ---------- */
 .acessibilidade-rapida { display: flex; align-items: center; gap: var(--e2); }
@@ -42,44 +126,15 @@
 @media (hover: hover) and (pointer: fine) { .acessibilidade-texto button:hover:not(:disabled) { background: var(--paper); } }
 .acessibilidade-texto button:disabled { color: var(--inkSoft); opacity: .55; cursor: not-allowed; }
 .acessibilidade-texto sup { font-size: .6em; margin-left: 1px; }
-
-/* ---------- Aparência ---------- */
+.btn-aparencia { min-height: 44px; padding: 0 var(--e3); font-weight: 500; }
 .aparencia { position: relative; }
 .aparencia-painel {
   position: absolute; right: 0; top: calc(100% + var(--e2)); z-index: 30; width: min(340px, calc(100vw - 32px));
-  display: grid; gap: var(--e4); padding: var(--e4);
+  display: grid; gap: var(--e4); padding: var(--e4); color: var(--ink);
   background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-superficie);
   box-shadow: 0 8px 24px rgb(0 0 0 / .14);
 }
 .aparencia-painel .opcao > span { padding: 0 var(--e3); }
-
-/* ---------- Navegação (abas) e escola ativa ---------- */
-.barra-navegacao {
-  display: flex; align-items: center; justify-content: space-between; gap: var(--e4);
-  padding: 0 max(var(--e5), calc((100% - 1280px) / 2 + var(--e5)));
-  background: var(--surface); border-bottom: 1px solid var(--line);
-}
-.navegacao { min-width: 0; }
-.navegacao ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; align-items: stretch; }
-.navegacao li { display: flex; }
-.navegacao a:not(.btn) {
-  display: flex; align-items: center; gap: var(--e2); min-height: 48px; padding: 0 var(--e3);
-  color: var(--inkSoft); text-decoration: none; font-weight: 500; font-size: .9375rem;
-  border-bottom: 3px solid transparent; margin-bottom: -1px;
-}
-.navegacao a:not(.btn) svg { width: 20px; height: 20px; flex: none; }
-.navegacao a:not(.btn):hover { color: var(--ink); }
-.navegacao a:not(.btn)[aria-current='page'] { color: var(--accent-ink); font-weight: 600; border-bottom-color: var(--accent); }
-
-/* Escola ativa: uma linha curta; os seletores abrem num painel ao tocar em "Trocar". */
-.contexto { background: var(--paper); border-bottom: 1px solid var(--line); }
-.barra-navegacao .contexto { position: relative; flex: 0 1 auto; max-width: 46%; background: none; border: 0; }
-.contexto-item { display: grid; gap: 2px; min-width: 0; }
-.contexto-item label { font-size: var(--t-pequeno); font-weight: 500; color: var(--inkSoft); }
-.contexto-item .entrada { min-height: 44px; padding-top: 6px; padding-bottom: 6px; font-weight: 500; max-width: 100%; }
-.contexto-fixo { display: flex; align-items: center; min-height: 44px; font-weight: 600; }
-/* "Ver como" é ferramenta da demonstração: tracejado, sem disputar atenção. */
-.contexto-demo .entrada { font-size: var(--t-pequeno); font-weight: 400; border-style: dashed; background-color: var(--surface); }
 
 /* ---------- Sem conexão ---------- */
 .faixa-offline {
@@ -89,69 +144,57 @@
 .faixa-offline svg { color: var(--warn); flex: none; }
 
 /* ---------- Conteúdo ---------- */
-main { flex: 1; width: 100%; max-width: 1280px; margin: 0 auto; padding: var(--e6) var(--e5) var(--e8); outline: none; min-width: 0; }
-.pagina { max-width: 1100px; display: grid; gap: var(--e5); }
+main { flex: 1; width: 100%; max-width: 1100px; padding: var(--e6) var(--e7) var(--e7); outline: none; min-width: 0; }
+.app-publica main { margin: 0 auto; }
+.pagina { max-width: 1000px; display: grid; gap: var(--e5); }
 .pagina-estreita { max-width: 760px; }
 .pagina-cabeca { display: grid; gap: var(--e1); }
 .pagina-cabeca p { color: var(--inkSoft); }
-
-/* ---------- Rodapé ---------- */
-.rodape { background: var(--surface); border-top: 1px solid var(--line); font-size: var(--t-pequeno); }
-.rodape-linha {
-  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: start; gap: var(--e4) var(--e6);
-  max-width: 1280px; margin: 0 auto; padding: var(--e5);
-}
-.rodape-risco { display: grid; gap: var(--e1); }
-.rodape-risco h2 { display: flex; align-items: center; gap: var(--e2); font-size: var(--t-corpo); font-weight: 600; }
-.rodape-risco h2 svg { color: var(--accent-ink); }
-.rodape-risco p { color: var(--inkSoft); }
-.rodape-telefones { list-style: none; margin: var(--e1) 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--e1) var(--e4); color: var(--inkSoft); }
-.rodape-telefones strong { color: var(--ink); font-weight: 600; }
-.rodape-links ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0 var(--e4); }
-.rodape-links a { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink); font-weight: 400; }
-.rodape-nota { margin: 0 auto; max-width: 1280px; padding: 0 var(--e5) var(--e5); color: var(--inkSoft); }
-
-/* ---------- Telas médias: as abas apertam ---------- */
-@media (max-width: 1180px) {
-  .navegacao a:not(.btn) { padding: 0 var(--e2); }
-  .navegacao a:not(.btn) svg { display: none; }
-}
-
-/* Cabeçalho completo em tela estreita (página da família, que não tem menu) */
-@media (max-width: 980px) {
-  .timbre:not(.timbre-celular) .timbre-linha { flex-wrap: wrap; padding: var(--e3) var(--e4); }
-  .timbre:not(.timbre-celular) .timbre-lado:empty { display: none; }
-}
-
-/* ---------- Telas fora da estrutura (entrar, erros, família) ---------- */
-.tela-avulsa { flex: 1; display: flex; flex-direction: column; }
-.tela-avulsa main { flex: 1; display: flex; justify-content: center; padding: var(--e7) var(--e4); }
-.tela-avulsa .pagina { width: 100%; max-width: 640px; }
 .pagina > * { min-width: 0; }
 main:focus, main:focus-visible { outline: none; }
 
-/* Tela de acesso: fundo liso, marca numa linha e um cartão simples. */
-.tela-acesso { background: var(--paper); }
-.acesso-topo { display: flex; justify-content: flex-end; padding: var(--e3) var(--e4) 0; }
-/* Margens mais curtas que nas outras telas avulsas: os telefones de emergência do rodapé
-   cabem na primeira tela de um notebook (1366×800) sem rolar. */
-.tela-acesso main { padding-top: var(--e4); padding-bottom: var(--e5); }
-/* Em telas largas, A+/A− e Aparência flutuam no canto em vez de ocupar uma linha inteira acima da marca. */
-@media (min-width: 900px) {
-  .tela-acesso { position: relative; }
-  .acesso-topo { position: absolute; top: 0; right: 0; }
-  .tela-acesso main { padding-top: var(--e6); }
+/* ---------- Rodapé ---------- */
+.rodape { padding: var(--e5) var(--e7) var(--e6); font-size: var(--t-pequeno); color: var(--inkSoft); border-top: 1px solid var(--line); }
+.app-publica .rodape { padding-left: 0; padding-right: 0; margin-top: var(--e7); }
+.rodape-risco { display: grid; gap: var(--e1); }
+.rodape-risco h2 { display: flex; align-items: center; gap: var(--e2); font-size: var(--t-corpo); font-weight: 600; color: var(--ink); }
+.rodape-risco h2 svg { color: var(--urgent); }
+.rodape-telefones { list-style: none; margin: var(--e1) 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--e1) var(--e4); }
+.rodape-telefones strong { color: var(--ink); font-weight: 600; }
+.rodape-nota { margin-top: var(--e3); }
+
+/* ---------- Telas fora da estrutura (entrar, convite, família) ---------- */
+.tela-avulsa { flex: 1; display: flex; flex-direction: column; }
+.tela-avulsa main { flex: 1; display: flex; justify-content: center; padding: var(--e7) var(--e4); margin: 0 auto; }
+.tela-avulsa .pagina { width: 100%; max-width: 640px; }
+
+/* Entrar, convite e cadastro: a lousa pautada à esquerda e o formulário na folha. */
+.tela-acesso { flex: 1; display: flex; flex-wrap: wrap; background: var(--paper); }
+.acesso-lousa {
+  flex: 1 1 380px; display: flex; flex-direction: column; justify-content: space-between; gap: var(--e6);
+  padding: var(--e7) var(--e6) var(--e7) 72px; color: var(--onLousa); background-color: var(--lousa);
+  background-image:
+    linear-gradient(to right, transparent 40px, rgb(232 160 168 / .55) 40px, rgb(232 160 168 / .55) 41px, transparent 41px),
+    repeating-linear-gradient(to bottom, transparent 0, transparent 35px, rgb(233 239 233 / .16) 35px, rgb(233 239 233 / .16) 36px);
 }
-.acesso-coluna { width: 100%; max-width: 440px; display: grid; gap: var(--e3); align-content: start; }
-.marca { display: flex; align-items: center; gap: var(--e3); }
-.acesso-cartao {
-  background: var(--surface); border-radius: var(--r-superficie);
-  border: 1px solid var(--line); padding: var(--e5);
-}
-.acesso-cartao .pagina { max-width: none; gap: var(--e4); }
-.acesso-cartao .pagina-cabeca h1 { font-size: var(--t-h2); }
-.acesso-ajuda { font-size: var(--t-pequeno); color: var(--inkSoft); }
-@media (max-width: 600px) { .acesso-cartao { padding: var(--e4); } }
+.acesso-lousa .marca { color: #FFFFFF; font-size: 1.375rem; }
+.acesso-lousa-frase { max-width: 30ch; display: grid; gap: var(--e4); }
+.acesso-lousa-frase p:first-child { font-size: 2.25rem; line-height: 1.15; font-weight: 700; letter-spacing: -0.02em; color: #FFFFFF; }
+.acesso-lousa-frase p + p { font-size: var(--t-destaque); }
+.acesso-lousa-nota { font-size: var(--t-pequeno); color: var(--lousaSuave); }
+.acesso-lousa :focus-visible { outline-color: #FFE58A; }
+.acesso-conteudo { flex: 999 1 480px; min-width: 0; display: flex; flex-direction: column; align-items: center; padding: var(--e5) var(--e5) var(--e7); }
+.acesso-topo { align-self: flex-end; }
+main.acesso-coluna { padding: 0; flex: none; }
+.acesso-coluna { width: 100%; max-width: 440px; display: grid; gap: var(--e6); margin-top: var(--e6); }
+.acesso-coluna .pagina { max-width: none; gap: var(--e4); }
+.acesso-portas { display: grid; border-top: 1px solid var(--line); }
+.acesso-porta { display: flex; gap: var(--e4); align-items: flex-start; padding: var(--e5) 0; border-bottom: 1px solid var(--line); }
+.acesso-porta:last-child { border-bottom: 0; }
+.acesso-porta > svg { flex: none; color: var(--accent-ink); margin-top: 2px; }
+.acesso-porta h2 { font-size: var(--t-destaque); }
+.acesso-porta p { color: var(--inkSoft); }
+.acesso-porta > div { display: grid; gap: var(--e2); justify-items: start; }
 
 /* ---------- Faixa da demonstração ----------
  * Só no modo simulado: deixa claro, em toda tela e em qualquer captura,
@@ -161,99 +204,37 @@ main:focus, main:focus-visible { outline: none; }
   font-size: var(--t-pequeno); font-weight: 500; line-height: 1.35;
   background: var(--warnSoft); color: var(--ink); border-bottom: 1px solid var(--warn);
 }
-
-/* =========================================================================
- * Celular e tablet (até 980px)
- * O topo cabe numa linha (marca e botão de menu); pessoa, navegação, atalhos
- * e Sair ficam no menu; o contexto recolhe numa linha. O conteúdo começa
- * logo abaixo, sem ocupar a primeira tela com cabeçalho.
- * ========================================================================= */
-.timbre-celular { position: sticky; top: 0; z-index: 40; border-bottom: 1px solid var(--line); }
-.timbre-celular .timbre-linha {
-  display: flex; align-items: center; justify-content: space-between; gap: var(--e3);
-  padding: var(--e2) var(--e4); padding-top: calc(var(--e2) + env(safe-area-inset-top, 0px));
-}
-.timbre-celular .timbre-identidade { gap: var(--e2); min-width: 0; }
-.timbre-celular .brasao { width: 32px; height: 32px; }
-.timbre-celular .timbre-identidade > div { min-width: 0; }
-.timbre-celular .timbre-produto { font-size: var(--t-corpo); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.timbre-celular .timbre-rede { font-size: .6875rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.botao-menu { flex: none; min-height: 44px; padding: 0 var(--e4); gap: var(--e2); }
-.botao-menu svg { width: 20px; height: 20px; }
-
-.menu-celular {
-  position: absolute; left: 0; right: 0; top: 100%;
-  max-height: calc(100dvh - 100%); overflow-y: auto; overscroll-behavior: contain;
-  display: grid; gap: var(--e4); padding: var(--e4) var(--e4) var(--e5);
-  background: var(--surface); border-bottom: 1px solid var(--line); box-shadow: 0 16px 32px rgb(0 0 0 / .18);
-}
-.menu-celular[hidden] { display: none; }
-.menu-celular-pessoa { display: flex; align-items: center; gap: var(--e3); }
-.menu-celular-pessoa .avatar { order: 0; }
-.menu-celular-pessoa p { display: grid; line-height: 1.3; }
-.menu-celular-pessoa p span { font-size: var(--t-pequeno); color: var(--inkSoft); }
-.menu-celular-links ul { list-style: none; margin: 0; padding: 0; display: grid; }
-.menu-celular-links li + li { border-top: 1px solid var(--line); }
-.menu-celular-links a {
-  display: flex; align-items: center; gap: var(--e3); min-height: 52px; padding: 0 var(--e2);
-  color: var(--ink); text-decoration: none; font-weight: 500;
-}
-.menu-celular-links a svg { flex: none; color: var(--inkSoft); }
-.menu-celular-links a[aria-current='page'] { color: var(--accent-ink); font-weight: 600; }
-.menu-celular-links a[aria-current='page'] svg { color: var(--accent-ink); }
-.menu-celular .acessibilidade-rapida { flex-wrap: wrap; }
-.menu-celular .aparencia-painel { position: static; width: auto; margin-top: var(--e2); box-shadow: none; }
-.menu-celular .aparencia { flex: 1; }
-
-/* Contexto recolhido */
-.contexto-celular { display: block; padding: 0; }
-.contexto-celular summary, .contexto-linha {
-  display: flex; align-items: center; justify-content: space-between; gap: var(--e3);
-  min-height: 48px; padding: var(--e1) var(--e4); cursor: pointer; list-style: none;
-}
-.contexto-linha { cursor: default; max-width: none; }
-.contexto-celular summary::-webkit-details-marker { display: none; }
-.contexto-resumo { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--e2); min-width: 0; font-size: var(--t-pequeno); }
-.contexto-resumo strong { font-size: var(--t-corpo); font-weight: 600; }
-.contexto-resumo span { color: var(--inkSoft); }
-.contexto-trocar { flex: none; display: inline-flex; align-items: center; gap: var(--e1); font-size: var(--t-pequeno); font-weight: 600; color: var(--accent-ink); }
-.contexto-trocar::after { content: ''; width: 7px; height: 7px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg) translateY(-2px); }
-.contexto-celular[open] .contexto-trocar::after { transform: rotate(-135deg) translateY(-2px); }
-.contexto-campos { display: grid; gap: var(--e3); padding: 0 var(--e4) var(--e4); }
-.contexto-campos .contexto-item, .contexto-campos .entrada { width: 100%; min-width: 0; }
-.contexto-campos .contexto-demo { margin-left: 0; }
-/* No computador, a escola fica ao lado das abas e os seletores abrem num painel flutuante. */
-.barra-navegacao .contexto-celular summary { padding: var(--e1) 0 var(--e1) var(--e3); }
-.barra-navegacao .contexto-resumo strong { font-size: var(--t-pequeno); }
-.barra-navegacao .contexto-linha { padding-right: 0; }
-.barra-navegacao .contexto-campos {
-  position: absolute; right: 0; top: calc(100% + var(--e1)); z-index: 30; width: min(380px, 90vw);
-  padding: var(--e4); background: var(--surface); border: 1px solid var(--line);
-  border-radius: var(--r-superficie); box-shadow: 0 8px 24px rgb(0 0 0 / .14);
-}
-
-@media (max-width: 980px) {
-  main { padding: var(--e5) var(--e4) var(--e7); }
-  .pagina { gap: var(--e5); }
-  .rodape-linha { padding: var(--e4) var(--e4) var(--e3); }
-  .rodape-nota { padding: 0 var(--e4) var(--e4); }
-}
-
-@media (max-width: 600px) {
-  h1 { font-size: 1.5rem; }
-  .faixa-demo { padding: 6px var(--e3); font-size: .75rem; }
-  .tela-avulsa main { padding: var(--e5) var(--e4); }
-  .acesso-coluna { gap: var(--e4); }
-}
-
-/* Campos com menos de 16px fazem o Safari do iPhone dar zoom ao tocar. */
-@media (max-width: 980px) {
-  input.entrada, select.entrada, textarea.entrada, .contexto-demo .entrada { font-size: max(1rem, 16px); }
-}
 .faixa-demo-curta { display: none; }
+
+@media (max-width: 1180px) {
+  main { padding: var(--e6) var(--e5) var(--e7); }
+  .rodape { padding-left: var(--e5); padding-right: var(--e5); }
+}
+
+@media (max-width: 980px) {
+  main { padding: var(--e5) var(--e4) var(--e6); }
+  .rodape { padding: var(--e4); }
+  .pagina { gap: var(--e5); }
+  /* Campos com menos de 16px fazem o Safari do iPhone dar zoom ao tocar. */
+  input.entrada, select.entrada, textarea.entrada, .contexto-demo .entrada { font-size: max(1rem, 16px); }
+  .acesso-lousa { flex-basis: 100%; padding: var(--e6) var(--e4) var(--e5) 44px; gap: var(--e4);
+    background-image:
+      linear-gradient(to right, transparent 28px, rgb(232 160 168 / .55) 28px, rgb(232 160 168 / .55) 29px, transparent 29px),
+      repeating-linear-gradient(to bottom, transparent 0, transparent 31px, rgb(233 239 233 / .16) 31px, rgb(233 239 233 / .16) 32px); }
+  .acesso-lousa-frase p:first-child { font-size: 1.375rem; line-height: 1.25; }
+  .acesso-lousa-frase p + p, .acesso-lousa-nota { display: none; }
+  .acesso-conteudo { padding: var(--e3) var(--e4) var(--e6); }
+  .acesso-coluna { margin-top: var(--e2); gap: var(--e5); }
+  .topo-publico { padding: var(--e2) var(--e4); }
+}
+
 @media (max-width: 600px) {
+  h1 { font-size: 1.625rem; }
+  .faixa-demo { padding: 6px var(--e3); font-size: .75rem; }
   .faixa-demo-longa { display: none; }
   .faixa-demo-curta { display: inline; }
+  .tela-avulsa main { padding: var(--e5) var(--e4); }
+  .topo-publico .acessibilidade-rapida { order: 3; width: 100%; }
 }
 
 /* Entrar (demonstração): pessoas em lista, uma por linha; o resto recolhido. */
@@ -271,3 +252,22 @@ main:focus, main:focus-visible { outline: none; }
 }
 .entrar-mais[open] > summary::before { transform: rotate(45deg); }
 .entrar-mais-conteudo { display: grid; gap: var(--e4); padding-top: var(--e3); }
+
+/* ---------- Caderno: o campo do relato é uma folha pautada com margem ---------- */
+.entrada.caderno {
+  line-height: 32px; padding-left: 60px; padding-top: 10px;
+  background-color: var(--surface);
+  background-image:
+    linear-gradient(to right, transparent 44px, var(--margem) 44px, var(--margem) 45px, transparent 45px),
+    repeating-linear-gradient(to bottom, transparent 0, transparent 31px, var(--pauta) 31px, var(--pauta) 32px);
+  background-position: 0 10px; background-attachment: local;
+}
+@media (max-width: 600px) {
+  .entrada.caderno { padding-left: 46px;
+    background-image:
+      linear-gradient(to right, transparent 34px, var(--margem) 34px, var(--margem) 35px, transparent 35px),
+      repeating-linear-gradient(to bottom, transparent 0, transparent 31px, var(--pauta) 31px, var(--pauta) 32px); }
+}
+.acesso-coluna-larga { max-width: 560px; }
+@media (min-width: 981px) { .so-celular { display: none !important; } }
+.app-lateral { background: linear-gradient(to right, var(--lousa) 264px, var(--paper) 264px); }

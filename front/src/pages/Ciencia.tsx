@@ -4,7 +4,7 @@ import { api, ErroDaApi, FalhaDeRede } from '../api/client';
 import { rotas, type CienciaPublica } from '../api/contract';
 import { Botao, CampoTexto } from '../components/controles';
 import { Aviso, EstadoDaCarga } from '../components/feedback';
-import { Rodape, Timbre } from '../layout/Estrutura';
+import { Marca, Rodape } from '../layout/Estrutura';
 import { ControlesDeAcessibilidade } from '../layout/MenuAparencia';
 import { useSessao } from '../state/sessao';
 import { useApi } from '../state/useApi';
@@ -47,15 +47,18 @@ export function Ciencia() {
 
   return (
     <div className="tela-avulsa">
-      <Timbre esquerda={<ControlesDeAcessibilidade />} />
+      <header className="topo-publico">
+        <span className="topo-publico-marca"><Marca /></span>
+        <ControlesDeAcessibilidade />
+      </header>
       <main id="conteudo">
         <div className="pagina ciencia">
           <EstadoDaCarga estado={carga.estado} tentarDeNovo={carga.tentarDeNovo} rotulo="Carregando a comunicação">
             {(c) => (
               <>
                 <div className="pagina-cabeca">
-                  <h1>Comunicação da escola</h1>
-                  <p>{c.escola}</p>
+                  <p>Mensagem da escola</p>
+                  <h1>{c.escola}</h1>
                 </div>
                 <article className="painel carta">
                   <p className="campo-ajuda">Para: {c.destinatario}. Enviada em {dataHoraPorExtenso(c.enviadaEm)}.</p>
@@ -68,16 +71,16 @@ export function Ciencia() {
                 ) : (
                   <form className="pilha" onSubmit={confirmar} noValidate>
                     <CampoTexto rotulo="Seu nome" autoComplete="name" value={nome} onChange={(e) => setNome(e.target.value)} erro={erro} />
-                    <div><Botao type="submit" carregando={enviando}>Confirmo que li esta comunicação</Botao></div>
+                    <div><Botao type="submit" carregando={enviando}>Confirmar leitura</Botao></div>
                     <p className="campo-ajuda">Confirmar a leitura não significa concordar. É só para a escola saber que a mensagem chegou.</p>
                   </form>
                 )}
               </>
             )}
           </EstadoDaCarga>
+          <Rodape />
         </div>
       </main>
-      <Rodape links={false} />
     </div>
   );
 }

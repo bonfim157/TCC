@@ -1,8 +1,8 @@
 // Confere contraste WCAG AA de todos os pares de cor usados na interface.
 import { readFileSync } from 'node:fs';
 const src = readFileSync(new URL('../src/design/themes.ts', import.meta.url), 'utf8');
-const js = src.replace(/export type[\s\S]*?};\n/g, '').replace(/: Record<[^=]+=/, ' =').replace(/ as const/g, '').replace(/export const/g, 'const') + '\nexport { redeThemes, base };';
-const { redeThemes, base } = await import('data:text/javascript,' + encodeURIComponent(js));
+const js = src.replace(/export type[\s\S]*?};\n/g, '').replace(/: RedeTheme =/, ' =').replace(/ as const/g, '').replace(/export const/g, 'const') + '\nexport { acento, base };';
+const { acento, base } = await import('data:text/javascript,' + encodeURIComponent(js));
 const lum = (hex) => { const c = hex.slice(1).match(/../g).map((h) => parseInt(h, 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
 const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
 let fail = 0;
@@ -15,7 +15,9 @@ for (const mode of ['light', 'dark']) {
   check('ok / fundo suave', b.ok, b.okSoft); check('aviso / fundo suave', b.warn, b.warnSoft); check('neutro / fundo suave', b.neutral, b.neutralSoft);
   check('borda forte / superfície (não-texto)', b.lineStrong, b.surface, 3);
   check('texto da faixa escura', b.onFaixa, b.faixa);
-  for (const [id, t] of Object.entries(redeThemes)) {
+  check('menu: texto / lousa', b.onLousa, b.lousa); check('menu: texto suave / lousa', b.lousaSuave, b.lousa); check('menu: item ativo', '#FFFFFF', b.lousaAtivo);
+  check('tinta / marca-texto', b.ink, b.marca); check('tinta / marca-texto suave', b.ink, b.marcaSoft); check('tinta suave / marca-texto suave', b.inkSoft, b.marcaSoft);
+  for (const [id, t] of Object.entries({ produto: acento })) {
     const p = t[mode];
     console.log(`-- ${id} ${mode}`);
     check('texto sobre acento', p.onAccent, p.accent); check('acento-texto / superfície', p.accentInk, b.surface);

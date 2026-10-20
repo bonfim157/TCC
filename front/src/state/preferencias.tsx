@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { base, redeThemes } from '../design/themes';
+import { acento, base } from '../design/themes';
 
 export type Tema = 'sistema' | 'claro' | 'escuro';
 export type Fonte = 100 | 115 | 130;
@@ -50,6 +50,13 @@ export function PreferenciasProvider({ children }: { children: ReactNode }) {
     raiz.style.colorScheme = modoEfetivo;
     const b = base[modoEfetivo];
     for (const [k, v] of Object.entries(b)) raiz.style.setProperty(`--${k}`, v);
+    const p = acento[modoEfetivo];
+    raiz.style.setProperty('--accent', p.accent);
+    raiz.style.setProperty('--on-accent', p.onAccent);
+    raiz.style.setProperty('--accent-ink', p.accentInk);
+    raiz.style.setProperty('--accent-soft', p.accentSoft);
+    raiz.style.setProperty('--decor', p.decor);
+    raiz.style.setProperty('--on-decor', p.onDecor);
   }, [modoEfetivo]);
 
   useEffect(() => {
@@ -73,20 +80,4 @@ export function usePreferencias() {
   const v = useContext(Ctx);
   if (!v) throw new Error('usePreferencias fora do provedor');
   return v;
-}
-
-/** Aplica o acento da rede como variáveis CSS. Sem rede, usa o azul institucional. */
-export function useTemaDaRede(redeId: string | null) {
-  const { modoEfetivo } = usePreferencias();
-  useEffect(() => {
-    const tema = redeThemes[redeId ?? ''] ?? redeThemes['rede-sp'];
-    const p = tema[modoEfetivo];
-    const raiz = document.documentElement.style;
-    raiz.setProperty('--accent', p.accent);
-    raiz.setProperty('--on-accent', p.onAccent);
-    raiz.setProperty('--accent-ink', p.accentInk);
-    raiz.setProperty('--accent-soft', p.accentSoft);
-    raiz.setProperty('--decor', p.decor);
-    raiz.setProperty('--on-decor', p.onDecor);
-  }, [redeId, modoEfetivo]);
 }

@@ -9,7 +9,7 @@ import type { Dialogo } from './tipos';
 export function Providencias({ o, pedir, pode }: { o: Ocorrencia; pedir: (d: Dialogo) => void; pode: boolean }) {
   const pendentes = o.providencias.filter((p) => p.obrigatoria && p.situacao === 'pendente').length;
   return (
-    <Painel titulo="Providências" className="providencias">
+    <Painel titulo="Próximos passos" className="providencias">
       <p className="campo-ajuda">
         Sugeridas pelo protocolo da rede para este tipo de caso. O sistema sugere; quem conduz decide.
         {pendentes > 0 && <strong> {pendentes} {pendentes === 1 ? 'obrigatória pendente' : 'obrigatórias pendentes'}.</strong>}

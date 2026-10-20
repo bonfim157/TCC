@@ -1,10 +1,11 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { api, apiReal, ErroDaApi, FalhaDeRede } from '../api/client';
 import { rotas, type Usuario } from '../api/contract';
 import { Botao, GrupoOpcoes } from '../components/controles';
 import { Aviso, Esqueleto } from '../components/feedback';
-import { MarcaDaRede, Rodape } from '../layout/Estrutura';
+import { IconeCasa, IconeCarta } from '../components/icones';
+import { Marca, Rodape } from '../layout/Estrutura';
 import { ControlesDeAcessibilidade } from '../layout/MenuAparencia';
 import type { Perfil } from '../api/contract';
 import { nomePerfil } from '../state/perfis';
@@ -21,27 +22,57 @@ export function Entrar() {
   const [parametros] = useSearchParams();
   const porSenha = apiReal && (!s.demonstracao || parametros.get('modo') === 'senha');
   return (
-    <div className="tela-avulsa tela-acesso">
-      <div className="acesso-topo"><ControlesDeAcessibilidade /></div>
-      <main id="conteudo">
-        <div className="acesso-coluna">
-        <MarcaDaRede />
-        <div className="acesso-cartao">
-        {s.conferindoSessao ? (
-          <div className="pagina entrar"><Esqueleto rotulo="Conferindo seu acesso" /></div>
-        ) : porSenha ? (
-          <EntrarComSenha />
-        ) : (
-          <EntrarDemonstracao />
-        )}
-        </div>
-        <p className="acesso-ajuda">
-          Primeira vez por aqui? <Link to="/duvidas">Veja as dúvidas frequentes</Link>
-        </p>
-        </div>
-      </main>
-      <Rodape links={false} />
+    <div className="tela-acesso">
+      <LousaDeAcesso />
+      <div className="acesso-conteudo">
+        <div className="acesso-topo"><ControlesDeAcessibilidade /></div>
+        <main id="conteudo" className="acesso-coluna">
+          {s.conferindoSessao ? (
+            <div className="pagina entrar"><Esqueleto rotulo="Conferindo seu acesso" /></div>
+          ) : porSenha ? (
+            <EntrarComSenha />
+          ) : (
+            <EntrarDemonstracao />
+          )}
+          <div className="acesso-portas">
+            <div className="acesso-porta">
+              <IconeCarta width={24} height={24} aria-hidden="true" />
+              <div>
+                <h2>Recebeu um convite?</h2>
+                <p>Abra o link que a escola mandou para você. Lá você cria a sua senha. Se você já tem conta, a escola nova aparece junto das outras.</p>
+              </div>
+            </div>
+            <div className="acesso-porta">
+              <IconeCasa width={24} height={24} aria-hidden="true" />
+              <div>
+                <h2>Sua escola ainda não usa?</h2>
+                <p>A direção cadastra a escola com o código INEP e depois convida os professores.</p>
+                <Link className="btn btn-secundario" to="/cadastrar-escola">Cadastrar minha escola</Link>
+              </div>
+            </div>
+          </div>
+          <Rodape />
+        </main>
+      </div>
     </div>
+  );
+}
+
+/** Lousa pautada das telas de acesso: o nome do sistema e para que ele serve. */
+export function LousaDeAcesso({ children }: { children?: ReactNode }) {
+  return (
+    <section className="acesso-lousa" aria-label="Sobre o sistema">
+      <Marca />
+      <div className="acesso-lousa-frase">
+        {children ?? (
+          <>
+            <p>O que acontece na escola, anotado para cuidar de quem estava lá.</p>
+            <p>Professores registram em poucos minutos. A coordenação acompanha cada caso até o fim, com a família e a rede de apoio.</p>
+          </>
+        )}
+      </div>
+      <p className="acesso-lousa-nota">Protótipo acadêmico (TCC). Sem vínculo oficial com a Secretaria da Educação.</p>
+    </section>
   );
 }
 

@@ -79,9 +79,7 @@ for (const esquema of ['light', 'dark']) {
     await auditar(ana, 'início (professora)');
     // No celular, o menu e o contexto ficam recolhidos: abre cada um e audita o conteúdo
     if (largura < 980) {
-      await ana.locator('.botao-menu').click();
-      await auditar(ana, 'menu do celular aberto');
-      await ana.keyboard.press('Escape');
+      await auditar(ana, 'abas do celular');
       await ana.locator('.contexto-celular summary').click();
       await auditar(ana, 'contexto do celular aberto');
     }
@@ -106,7 +104,7 @@ for (const esquema of ['light', 'dark']) {
     await porAba(carlos, 'caso 483');
     // 482 tem ações do plano em aberto: o diálogo mostra o aviso e a caixa de cancelamento
     await visitar(carlos, '/central/oc-sp-482', 'central › caso 482');
-    await carlos.getByRole('button', { name: 'Encerrar caso' }).click();
+    await carlos.getByRole('button', { name: 'Concluir acompanhamento' }).click();
     await auditar(carlos, 'diálogo encerrar com ações abertas');
     await carlos.keyboard.press('Escape');
     await visitar(carlos, '/buscar');

@@ -36,7 +36,7 @@ export function Buscar() {
       </div>
 
       <form className="painel filtros-busca" onSubmit={buscar} role="search" aria-label="Filtros de busca">
-        <CampoTexto rotulo="Protocolo ou local" opcional type="search" value={rascunho.texto} onChange={muda('texto')} />
+        <CampoTexto rotulo="Número do registro ou local" opcional type="search" value={rascunho.texto} onChange={muda('texto')} />
         <CampoTexto rotulo="De" opcional type="date" value={rascunho.de} onChange={muda('de')} />
         <CampoTexto rotulo="Até" opcional type="date" value={rascunho.ate} onChange={muda('ate')} />
         <CampoSelecao rotulo="Tipo" value={rascunho.categoriaId} onChange={muda('categoriaId')}>
@@ -76,7 +76,7 @@ export function Buscar() {
                   linhas={lista}
                   colunas={[
                     {
-                      chave: 'p', titulo: 'Protocolo',
+                      chave: 'p', titulo: 'Registro',
                       celula: (o) => (o.podeAbrir ? <Link to={s.perfil === 'diretoria_regional' ? `/casos/${o.id}` : `/central/${o.id}`}>{o.protocolo}</Link> : <span title="Seu perfil vê só o resumo">{o.protocolo}</span>),
                     },
                     { chave: 'd', titulo: 'Data', celula: (o) => diaPorExtenso(o.abertaEm.slice(0, 10)).replace(' de 2026', '') },
@@ -88,7 +88,7 @@ export function Buscar() {
                   ]}
                 />
                 {lista.some((o) => !o.podeAbrir) && (
-                  <p className="campo-ajuda">Protocolos sem link: seu perfil vê só o resumo desses casos.</p>
+                  <p className="campo-ajuda">Números sem link: seu perfil vê só o resumo desses registros.</p>
                 )}
               </section>
             )

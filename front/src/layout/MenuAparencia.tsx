@@ -4,7 +4,6 @@ import { usePreferencias, type Fonte, type Tema } from '../state/preferencias';
 
 /** Tema e tamanho do texto. Guardados só neste aparelho. */
 export function MenuAparencia() {
-  const { tema, fonte, definirTema, definirFonte } = usePreferencias();
   const [aberto, setAberto] = useState(false);
   const id = useId();
   const raiz = useRef<HTMLDivElement>(null);
@@ -28,10 +27,7 @@ export function MenuAparencia() {
     };
   }, [aberto]);
 
-  const temas: [Tema, string][] = [['sistema', 'Igual ao aparelho'], ['claro', 'Claro'], ['escuro', 'Escuro']];
-  const fontes: [Fonte, string][] = [[100, 'Normal'], [115, 'Grande'], [130, 'Maior']];
-
-  return (
+    return (
     <div className="aparencia" ref={raiz}>
       <button
         ref={botao}
@@ -45,28 +41,7 @@ export function MenuAparencia() {
         Aparência
       </button>
       <div className="aparencia-painel" id={`${id}-painel`} hidden={!aberto}>
-        <fieldset className="campo">
-          <legend>Tamanho do texto</legend>
-          <div className="opcoes">
-            {fontes.map(([v, r]) => (
-              <label className="opcao" key={v}>
-                <input type="radio" name={`${id}-fonte`} checked={fonte === v} onChange={() => definirFonte(v)} />
-                <span>{r}</span>
-              </label>
-            ))}
-          </div>
-        </fieldset>
-        <fieldset className="campo">
-          <legend>Cores</legend>
-          <div className="opcoes">
-            {temas.map(([v, r]) => (
-              <label className="opcao" key={v}>
-                <input type="radio" name={`${id}-tema`} checked={tema === v} onChange={() => definirTema(v)} />
-                <span>{r}</span>
-              </label>
-            ))}
-          </div>
-        </fieldset>
+        <OpcoesDeAparencia />
       </div>
     </div>
   );
@@ -90,5 +65,40 @@ export function ControlesDeAcessibilidade() {
       </div>
       <MenuAparencia />
     </div>
+  );
+}
+
+const temas: [Tema, string][] = [['sistema', 'Igual ao aparelho'], ['claro', 'Claro'], ['escuro', 'Escuro']];
+const fontes: [Fonte, string][] = [[100, 'Normal'], [115, 'Grande'], [130, 'Maior']];
+
+/** Tamanho do texto e tema: no painel de Aparência e em Minha conta. */
+export function OpcoesDeAparencia() {
+  const { tema, fonte, definirTema, definirFonte } = usePreferencias();
+  const id = useId();
+  return (
+    <>
+      <fieldset className="campo">
+        <legend>Tamanho do texto</legend>
+        <div className="opcoes">
+          {fontes.map(([v, r]) => (
+            <label className="opcao" key={v}>
+              <input type="radio" name={`${id}-fonte`} checked={fonte === v} onChange={() => definirFonte(v)} />
+              <span>{r}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+      <fieldset className="campo">
+        <legend>Tema</legend>
+        <div className="opcoes">
+          {temas.map(([v, r]) => (
+            <label className="opcao" key={v}>
+              <input type="radio" name={`${id}-tema`} checked={tema === v} onChange={() => definirTema(v)} />
+              <span>{r}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+    </>
   );
 }

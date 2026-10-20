@@ -1,7 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { aoExpirarSessao, api, apiReal, configurarCliente } from '../api/client';
 import { rotas, type Ambiente, type Escola, type Perfil, type Rede, type Sessao, type Usuario, type Vinculo } from '../api/contract';
-import { useTemaDaRede } from './preferencias';
 
 type EstadoSessao = {
   sessao: Sessao | null;
@@ -82,8 +81,6 @@ export function SessaoProvider({ children }: { children: ReactNode }) {
   const doEndereco = useMemo(() => redeDoEndereco(redes), [redes]);
 
   const redePrevia = redes.find((r) => r.id === redePreviaId) ?? null;
-  // Único lugar que aplica o tema: rede ativa, senão a escolhida no login, senão a do endereço.
-  useTemaDaRede(redeId ?? redePreviaId ?? doEndereco?.id ?? null);
 
   // Sincroniza o cliente HTTP durante a renderização: os efeitos das telas
   // filhas rodam antes dos efeitos deste provedor e já precisam dos cabeçalhos.

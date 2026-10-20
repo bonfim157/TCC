@@ -77,15 +77,14 @@ const novo = () => b.newContext({ viewport: { width: largura, height: 780 }, isM
   const ctx = await novo();
   const p = await entrar(ctx, 'Ana Ribeiro');
   await foto(p, 'inicio-professora');
-  await p.locator('.botao-menu').click(); await foto(p, 'menu-aberto');
-  await p.locator('.botao-menu').click();
+  await ir(p, '/conta'); await foto(p, 'minha-conta');
   await p.locator('.contexto-celular summary').click(); await foto(p, 'contexto-aberto');
   await ir(p, '/registrar'); await foto(p, 'registrar-1');
   await p.getByRole('button', { name: 'Continuar' }).click(); await foto(p, 'registrar-1-erros');
   await p.getByLabel('Convivência ou conflito').check();
   await escolherDataHora(p, 25, 'setembro de 2026', '09', '40');
     await p.getByLabel('Local').fill('Pátio');
-  await p.getByLabel('Relato do que aconteceu').fill('Dois estudantes discutiram na fila da cantina e um derrubou a bandeja do outro.');
+  await p.locator('#campo-relato').fill('Dois estudantes discutiram na fila da cantina e um derrubou a bandeja do outro.');
   await p.getByLabel('Não').check();
   await p.getByRole('button', { name: 'Continuar' }).click(); await p.waitForTimeout(500);
   await p.getByLabel('Buscar pessoa da escola').fill('7º'); await p.waitForTimeout(600);
@@ -106,7 +105,7 @@ const novo = () => b.newContext({ viewport: { width: largura, height: 780 }, isM
   await ir(p, '/central'); await foto(p, 'central');
   await ir(p, '/central/oc-sp-483'); await foto(p, 'central-caso-483');
   await ir(p, '/central/oc-sp-482');
-  await p.getByRole('button', { name: 'Encerrar caso' }).click(); await foto(p, 'dialogo-encerrar');
+  await p.getByRole('button', { name: 'Concluir acompanhamento' }).click(); await foto(p, 'dialogo-encerrar');
   await p.keyboard.press('Escape');
   await ir(p, '/buscar'); await p.getByRole('button', { name: 'Buscar' }).click(); await foto(p, 'buscar');
   await ctx.close();

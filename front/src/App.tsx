@@ -12,6 +12,9 @@ import { Buscar } from './pages/Buscar';
 import { Caso } from './pages/Caso';
 import { Central } from './pages/central/Central';
 import { Ciencia } from './pages/Ciencia';
+import { AceitarConvite } from './pages/AceitarConvite';
+import { CadastrarEscola } from './pages/CadastrarEscola';
+import { Conta } from './pages/Conta';
 import { Inicio } from './pages/Inicio';
 import { MeusRegistros } from './pages/MeusRegistros';
 import { Registrar } from './pages/registrar/Registrar';
@@ -41,6 +44,8 @@ export function App() {
     <Routes>
       <Route path="/entrar" element={s.sessao ? <Navigate to="/" replace /> : <Entrar />} />
       <Route path="/ciencia/:token" element={<Ciencia />} />
+      <Route path="/convite/:token" element={<AceitarConvite />} />
+      <Route path="/cadastrar-escola" element={s.sessao ? <Navigate to="/" replace /> : <CadastrarEscola />} />
       {/* Páginas públicas: com sessão, aparecem dentro da estrutura completa. */}
       <Route element={s.sessao ? <ComSessao><Estrutura /></ComSessao> : <EstruturaPublica />}>
         <Route path="duvidas" element={<Duvidas />} />
@@ -55,6 +60,7 @@ export function App() {
         <Route path="buscar" element={<Area_ area="buscar"><Buscar /></Area_>} />
         <Route path="relatorios" element={<Area_ area="relatorios"><Relatorios /></Area_>} />
         <Route path="administracao" element={<Area_ area="administracao"><Administracao /></Area_>} />
+        <Route path="conta" element={<Conta />} />
         <Route path="guia" element={<Guia />} />
         <Route path="sem-permissao" element={<SemPermissao />} />
         <Route path="erro" element={<ErroGeral />} />

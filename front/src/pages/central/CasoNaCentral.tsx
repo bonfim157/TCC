@@ -89,15 +89,15 @@ export function CasoNaCentral({ id, externo = 0, aoMudar }: { id: string; extern
     switch (dialogo.tipo) {
       case 'triagem':
         ok = await acao.executar(c('triagem'), { categoriaId: campo('categoriaId'), prioridade: campo('prioridade') as Prioridade, responsavelId: campo('responsavelId'), observacao: campo('observacao') });
-        aviso = 'Triagem concluída. O caso está em acompanhamento.';
+        aviso = 'Caso assumido. Ele está em acompanhamento.';
         break;
       case 'registro':
         ok = await acao.executar(c('registros'), { tipo: campo('tipo'), texto: campo('texto') });
-        aviso = campo('tipo') === 'escuta' ? 'Escuta registrada.' : 'Reavaliação registrada.';
+        aviso = campo('tipo') === 'escuta' ? 'Conversa registrada.' : 'Reavaliação registrada.';
         break;
       case 'encaminhar':
         ok = await acao.executar(c('encaminhamentos'), { orgao: campo('orgao'), orgaoNome: campo('orgaoNome'), canal: campo('canal'), protocoloExterno: campo('protocoloExterno'), devolutivaAte: campo('devolutivaAte') });
-        aviso = 'Encaminhamento registrado. A devolutiva entrou na agenda.';
+        aviso = 'Pedido de apoio registrado. A resposta entrou na agenda.';
         break;
       case 'devolutiva':
         ok = await acao.executar(c(`encaminhamentos/${dialogo.enc.id}/devolutiva`), { texto: campo('texto') });
@@ -116,7 +116,7 @@ export function CasoNaCentral({ id, externo = 0, aoMudar }: { id: string; extern
       }
       case 'providencia':
         ok = await acao.executar(c(`providencias/${dialogo.prov.id}`), { situacao: dialogo.acao, observacao: campo('observacao') });
-        aviso = dialogo.acao === 'feita' ? 'Providência cumprida.' : dialogo.acao === 'dispensada' ? 'Providência dispensada, com justificativa.' : 'Providência reaberta.';
+        aviso = dialogo.acao === 'feita' ? 'Passo feito.' : dialogo.acao === 'dispensada' ? 'Passo marcado como não se aplica, com justificativa.' : 'Passo reaberto.';
         break;
       case 'rede':
         ok = await acao.executar(c('registro-rede'), { codigo: campo('codigo') });
@@ -124,7 +124,7 @@ export function CasoNaCentral({ id, externo = 0, aoMudar }: { id: string; extern
         break;
       case 'encerrar':
         ok = await acao.executar(c('encerrar'), { justificativa: campo('justificativa'), reavaliarEm: campo('reavaliarEm') || null, cancelarAcoesAbertas: campo('cancelarAcoes') === 'sim' });
-        aviso = 'Caso encerrado. O histórico continua disponível.';
+        aviso = 'Acompanhamento concluído. O histórico continua disponível.';
         break;
     }
     if (ok) {
@@ -148,16 +148,16 @@ export function CasoNaCentral({ id, externo = 0, aoMudar }: { id: string; extern
   const redeSP = o.redeId === 'rede-sp';
 
   const tituloDialogo: Record<NonNullable<Dialogo>['tipo'], string> = {
-    triagem: 'Concluir triagem', registro: 'Registrar escuta ou reavaliação', encaminhar: 'Encaminhar a outro órgão', devolutiva: 'Registrar devolutiva',
+    triagem: 'Ler e assumir', registro: 'Registrar conversa ou reavaliação', encaminhar: 'Pedir apoio da rede', devolutiva: 'Registrar devolutiva',
     plano: 'Incluir ação no plano de apoio', comunicar: dialogo?.tipo === 'comunicar' && dialogo.para === 'conselho_tutelar' ? 'Ofício ao Conselho Tutelar' : 'Comunicar a família',
-    providencia: dialogo?.tipo === 'providencia' ? (dialogo.acao === 'feita' ? 'Marcar providência como cumprida' : dialogo.acao === 'dispensada' ? 'Providência que não se aplica' : 'Reabrir providência') : '',
-    rede: redeSP ? 'Código do Conviva SP' : 'Código no sistema da rede', encerrar: 'Encerrar caso',
+    providencia: dialogo?.tipo === 'providencia' ? (dialogo.acao === 'feita' ? 'Marcar passo como feito' : dialogo.acao === 'dispensada' ? 'Passo que não se aplica' : 'Reabrir providência') : '',
+    rede: redeSP ? 'Código do Conviva SP' : 'Código no sistema da rede', encerrar: 'Concluir acompanhamento',
   };
   const enviarRotulo: Record<NonNullable<Dialogo>['tipo'], string> = {
-    triagem: 'Concluir triagem', registro: 'Registrar', encaminhar: 'Registrar encaminhamento', devolutiva: 'Registrar devolutiva', plano: 'Incluir ação',
+    triagem: 'Assumir o caso', registro: 'Registrar', encaminhar: 'Registrar pedido de apoio', devolutiva: 'Registrar devolutiva', plano: 'Incluir ação',
     comunicar: dialogo?.tipo === 'comunicar' && dialogo.para === 'conselho_tutelar' ? 'Registrar envio do ofício' : 'Enviar à família',
     providencia: dialogo?.tipo === 'providencia' ? (dialogo.acao === 'feita' ? 'Marcar como cumprida' : dialogo.acao === 'dispensada' ? 'Dispensar com justificativa' : 'Reabrir') : '',
-    rede: 'Registrar código', encerrar: 'Encerrar caso',
+    rede: 'Registrar código', encerrar: 'Concluir acompanhamento',
   };
 
   return (
@@ -166,7 +166,7 @@ export function CasoNaCentral({ id, externo = 0, aoMudar }: { id: string; extern
         <p className="central-voltar"><Link to="/central">Voltar para a fila</Link></p>
         <div className="caso-central-titulo">
           <div>
-            <h2 id="t-caso">Caso {o.protocolo}</h2>
+            <h2 id="t-caso">Registro nº {o.protocolo}</h2>
             <p className="caso-meta">
               {nomeCategoria}. {o.local}, {diaPorExtenso(o.fato.data)}, {horaLegivel(o.fato.hora)}. Registrado por {o.criadoPorNome}.
             </p>
@@ -186,7 +186,7 @@ export function CasoNaCentral({ id, externo = 0, aoMudar }: { id: string; extern
           <h3 id="t-fato">O que aconteceu</h3>
           <p className="texto-relato">{o.fato.relato}</p>
           {o.fato.providenciaImediata && <p><strong>Feito no momento:</strong> {o.fato.providenciaImediata}</p>}
-          {o.fato.riscoImediato && <Aviso tipo="erro" titulo="Registrado com risco imediato">Confira se a emergência foi acionada e registrada nas providências.</Aviso>}
+          {o.fato.riscoImediato && <Aviso tipo="erro" titulo="Registrado com risco imediato">Confira se a emergência foi acionada e anotada nos próximos passos.</Aviso>}
         </section>
 
         <AcoesDoCaso o={o} encerrado={encerrado} emTriagem={emTriagem} temCt={temCt} ctPendente={ctPendente} podeEncerrar={podeEncerrar} abrir={abrir} />
@@ -197,7 +197,7 @@ export function CasoNaCentral({ id, externo = 0, aoMudar }: { id: string; extern
           <AbasDoCaso o={o} encerrado={encerrado} abrir={abrir} executar={acao.executar} />
         </div>
 
-        <aside className="caso-central-lado" aria-label="Providências e registro na rede">
+        <aside className="caso-central-lado" aria-label="Próximos passos e registro na rede">
           <Providencias o={o} pedir={abrir} pode={!encerrado} />
           <PainelDaRede o={o} redeSP={redeSP} encerrado={encerrado} abrir={abrir} />
         </aside>
@@ -217,7 +217,7 @@ export function CasoNaCentral({ id, externo = 0, aoMudar }: { id: string; extern
         >
           {dialogo.tipo === 'triagem' && (
             <>
-              <CampoSelecao rotulo="Tipo de ocorrência" ajuda="Corrija se o registro veio com o tipo errado. As providências se ajustam." value={campo('categoriaId')} onChange={muda('categoriaId')}>
+              <CampoSelecao rotulo="Tipo de ocorrência" ajuda="Corrija se o registro veio com o tipo errado. Os próximos passos se ajustam." value={campo('categoriaId')} onChange={muda('categoriaId')}>
                 {cats.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
               </CampoSelecao>
               <GrupoOpcoes
@@ -230,7 +230,7 @@ export function CasoNaCentral({ id, externo = 0, aoMudar }: { id: string; extern
                 <option value="" disabled>Escolha</option>
                 {pessoas.map((p) => <option key={p.id} value={p.id}>{p.nome}, {nomePerfil[p.perfil].toLowerCase()}</option>)}
               </CampoSelecao>
-              <CampoAreaTexto rotulo="Observação da triagem" opcional rows={3} maxLength={500} value={campo('observacao')} onChange={muda('observacao')} />
+              <CampoAreaTexto rotulo="Observação" opcional rows={3} maxLength={500} value={campo('observacao')} onChange={muda('observacao')} />
             </>
           )}
 
@@ -238,13 +238,13 @@ export function CasoNaCentral({ id, externo = 0, aoMudar }: { id: string; extern
             <>
               <GrupoOpcoes
                 rotulo="O que você está registrando"
-                opcoes={[{ valor: 'escuta', rotulo: 'Escuta com envolvidos' }, { valor: 'reavaliacao', rotulo: 'Reavaliação do caso' }]}
+                opcoes={[{ valor: 'escuta', rotulo: 'Conversa com quem estava junto' }, { valor: 'reavaliacao', rotulo: 'Reavaliação do caso' }]}
                 valor={campo('tipo')}
                 aoMudar={(v) => setForm((f) => ({ ...f, tipo: v }))}
               />
               <CampoAreaTexto
                 rotulo="Registro"
-                ajuda="Registre o que foi feito e combinado. Na escuta, não transcreva perguntas nem detalhes íntimos: isso cabe à rede de proteção."
+                ajuda="Registre o que foi feito e combinado. Na conversa, não transcreva perguntas nem detalhes íntimos: isso cabe à rede de proteção."
                 rows={5}
                 maxLength={1500}
                 value={campo('texto')}
@@ -310,7 +310,7 @@ export function CasoNaCentral({ id, externo = 0, aoMudar }: { id: string; extern
                 <CampoAreaTexto
                   rotulo={dialogo.acao === 'feita' ? 'O que foi feito' : 'Por que não se aplica a este caso'}
                   opcional={dialogo.acao === 'feita'}
-                  ajuda={dialogo.acao === 'dispensada' && dialogo.prov.obrigatoria ? 'Esta providência é obrigatória. A justificativa fica registrada no histórico do caso.' : undefined}
+                  ajuda={dialogo.acao === 'dispensada' && dialogo.prov.obrigatoria ? 'Este passo é obrigatório. A justificativa fica registrada no histórico do caso.' : undefined}
                   rows={3}
                   maxLength={600}
                   value={campo('observacao')}
@@ -332,7 +332,7 @@ export function CasoNaCentral({ id, externo = 0, aoMudar }: { id: string; extern
           {dialogo.tipo === 'encerrar' && (
             <>
               {pendentesObrig.length > 0 && (
-                <Aviso tipo="atencao" titulo={`${pendentesObrig.length} ${pendentesObrig.length === 1 ? 'providência obrigatória pendente' : 'providências obrigatórias pendentes'}`}>
+                <Aviso tipo="atencao" titulo={`${pendentesObrig.length} ${pendentesObrig.length === 1 ? 'passo obrigatório pendente' : 'passos obrigatórios pendentes'}`}>
                   <ul className="lista-compacta">{pendentesObrig.map((p) => <li key={p.id}>{p.descricao}</li>)}</ul>
                   <p>Cumpra ou marque “não se aplica” com justificativa antes de encerrar.</p>
                 </Aviso>

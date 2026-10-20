@@ -105,3 +105,20 @@ code { font-size: .92em; background: var(--neutralSoft); padding: 1px 6px; borde
 .lista-recursos > li > div { display: grid; gap: var(--e1); }
 .lista-recursos h2 { font-size: var(--t-destaque); }
 .lista-recursos p { color: var(--inkSoft); }
+
+/* ---------- Minha conta ---------- */
+.conta-cabeca { display: flex; align-items: center; gap: var(--e4); }
+.avatar-grande { width: 64px; height: 64px; font-size: 1.25rem; }
+.lista-linhas { list-style: none; margin: 0; padding: 0; display: grid; }
+.lista-linhas > li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--e2) var(--e4); padding: var(--e3) 0; border-bottom: 1px solid var(--line); }
+.lista-linhas > li:first-child { padding-top: 0; }
+.lista-linhas > li:last-child { border-bottom: 0; padding-bottom: 0; }
+.lista-linhas > li > div:first-child { display: grid; flex: 1 1 260px; min-width: 0; }
+.lista-linhas > li > div:first-child > span { color: var(--inkSoft); }
+.em-uso { display: inline-flex; align-items: center; gap: var(--e1); color: var(--ok); font-weight: 600; }
+.em-uso::before { content: ''; width: 6px; height: 11px; border-right: 2.5px solid currentColor; border-bottom: 2.5px solid currentColor; transform: rotate(45deg) translateY(-2px); margin-right: 4px; }
+.lista-links { list-style: none; margin: 0; padding: 0; display: grid; }
+.lista-links a { display: inline-flex; align-items: center; min-height: 44px; }
+.conta-sair { padding-top: var(--e4); border-top: 1px solid var(--line); }
+.btn-sair-conta { color: var(--urgent); border-color: var(--urgent); }
+.link-convite output { display: block; overflow-wrap: anywhere; padding: var(--e2) var(--e3); background: var(--surface); border: 1px solid var(--lineStrong); border-radius: var(--r-controle); }

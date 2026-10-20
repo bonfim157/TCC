@@ -41,7 +41,7 @@ export function PassoRevisao({ r, categorias, irPara, confirmado, setConfirmado,
           <p>Na mesma data e com o mesmo tipo, a escola já recebeu:</p>
           <ul className="lista-compacta">
             {semelhantes.estado.dados.map((o) => (
-              <li key={o.id}>Protocolo {o.protocolo}, {o.local}, registrado em {dataHoraCurta(o.abertaEm)}</li>
+              <li key={o.id}>Registro nº {o.protocolo}, {o.local}, registrado em {dataHoraCurta(o.abertaEm)}</li>
             ))}
           </ul>
           <p>Se for o mesmo acontecimento, fale com a coordenação antes de enviar. Se for outro, pode enviar normalmente.</p>
@@ -49,7 +49,7 @@ export function PassoRevisao({ r, categorias, irPara, confirmado, setConfirmado,
       )}
 
       <div className="painel revisao">
-        <Bloco titulo="O fato" passo={1} irPara={irPara}>
+        <Bloco titulo="O que aconteceu" passo={1} irPara={irPara}>
           <dl className="resumo">
             <div><dt>Tipo</dt><dd>{categoria}</dd></div>
             <div><dt>Quando</dt><dd>{f.data ? diaPorExtenso(f.data) : 'Não informado'}{f.hora ? `, ${horaLegivel(f.hora)}` : ''}</dd></div>
@@ -60,7 +60,7 @@ export function PassoRevisao({ r, categorias, irPara, confirmado, setConfirmado,
           </dl>
         </Bloco>
 
-        <Bloco titulo="Envolvidos e anexos" passo={2} irPara={irPara}>
+        <Bloco titulo="Quem estava junto e anexos" passo={2} irPara={irPara}>
           {r.envolvidos.length === 0 ? (
             <p>Nenhuma pessoa incluída.</p>
           ) : (

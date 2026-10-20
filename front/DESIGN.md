@@ -2,10 +2,15 @@
 name: Cuidar e Registrar
 description: Registro e acompanhamento de ocorrências escolares, para acolher e proteger
 colors:
-  azul-de-escola: "#1F5AA6"
-  azul-de-escola-tinta: "#1A4F93"
-  azul-de-escola-suave: "#E7EEF8"
-  azul-de-escola-decor: "#A9C3E6"
+  lousa: "#234A3F"
+  lousa-ativo: "#3E6158"
+  lousa-suave: "#EDF4F1"
+  caneta: "#2445B5"
+  marca-texto: "#FFE58A"
+  marca-texto-suave: "#FFF4C2"
+  decor: "#9CCBB8"
+  pauta: "#C9D6EA"
+  margem: "#E8A0A8"
   papel: "#F7F7F9"
   superficie: "#FFFFFF"
   tinta: "#1E1F2E"
@@ -104,7 +109,7 @@ spacing:
   e8: "64px"
 components:
   button-primary:
-    backgroundColor: "{colors.azul-de-escola}"
+    backgroundColor: "{colors.lousa}"
     textColor: "{colors.superficie}"
     rounded: "{rounded.controle}"
     padding: "0 24px"
@@ -159,26 +164,28 @@ components:
 
 O sistema se comporta como o livro de ocorrências da escola feito com cuidado: pauta limpa, data na margem, o fato escrito antes de qualquer decisão e nada que se apague. A linha do tempo do caso é literalmente uma folha de livro (data na margem com filete, texto na pauta), e os adendos aparecem como anotação à parte, nunca como edição do original.
 
-A densidade é de ferramenta de trabalho, não de vitrine: coordenação e direção leem e agem em sequência, professores registram com pressa no celular. Por isso a interface é sóbria e firme, com bordas finas, sem sombras de destaque, alvos de toque de 44px e cor reservada para ação e estado. O tom é institucional sem imitar órgão oficial: um azul calmo por rede, neutros frios e tipografia desenhada para baixa visão.
+A densidade é de ferramenta de trabalho, não de vitrine: coordenação e direção leem e agem em sequência, professores registram com pressa no celular. Por isso a interface é sóbria e firme, com bordas finas, sem sombras de destaque, alvos de toque de 44px e cor reservada para ação e estado. O tom é de material escolar, não de órgão oficial: a lousa verde no menu e nos botões principais, a caneta azul nos links, o marca-texto no que espera pela pessoa, a folha pautada no campo do relato. Neutros frios e tipografia desenhada para baixa visão.
 
 A cor nunca carrega sozinha um significado. Toda etiqueta de estado tem texto, e a urgente ganha um losango no lugar do ponto, para quem não distingue vermelho de âmbar.
 
 **Key Characteristics:**
 - O fato antes das ações: o relato abre o caso, a pergunta de risco abre o registro.
-- Um acento por rede; o resto é neutro e cores de estado.
+- Uma paleta só para todas as escolas e redes; o resto é neutro e cores de estado.
 - Planos chapados com borda de 1px; profundidade só no diálogo.
 - Tudo cabe numa coluna no celular; nada rola de lado escondido.
 - Contraste AA verificado por script nos modos claro e escuro.
 
 ## Colors
 
-Paleta fria e contida: um azul de rede sobre papel quase branco, com quatro cores de estado que só aparecem quando há algo a dizer.
+Caderno da escola: lousa verde, caneta azul e marca-texto sobre papel quase branco, com quatro cores de estado que só aparecem quando há algo a dizer.
 
 ### Primary
-- **Azul de Escola** (`azul-de-escola`): botão principal, aba e item de navegação ativos, anel de foco. É o acento da rede estadual de SP; cada rede declara o seu em `src/design/themes.ts`, com o próprio "texto sobre acento".
-- **Azul de Escola, tinta** (`azul-de-escola-tinta`): links e textos coloridos sobre superfície, mais escuro que o acento para passar de 4,5:1 em texto pequeno.
-- **Azul de Escola, suave** (`azul-de-escola-suave`): seleção (opção marcada, caso aberto na fila, grupo "Comunicar" aberto) e aviso informativo.
-- **Azul de Escola, decoração** (`azul-de-escola-decor`): círculos de ícone e filetes. Nunca leva texto nem foco.
+- **Lousa** (`lousa`): menu lateral (abas embaixo, no celular), botão principal, opção marcada. Item ativo do menu em `lousa-ativo`.
+- **Caneta** (`caneta`): links e anel de foco sobre a folha.
+- **Lousa suave** (`lousa-suave`): seleção (opção marcada, caso aberto na fila) e aviso informativo.
+- **Marca-texto** (`marca-texto`, `marca-texto-suave`): o que espera pela pessoa (rascunho, "Ler e assumir", "Prazo amanhã") e o botão "Registrar ocorrência" quando ela está registrando. Sobre a lousa, o amarelo é sempre #FFE58A, inclusive no foco.
+- **Decoração** (`decor`): avatar e círculos de ícone. Nunca leva texto nem foco.
+- **Pauta e margem** (`pauta`, `margem`): só as linhas do campo "O que aconteceu" (classe `caderno`) e da lousa das telas de acesso.
 
 ### Neutral
 - **Papel** (`papel`): fundo das páginas.
@@ -199,7 +206,7 @@ Paleta fria e contida: um azul de rede sobre papel quase branco, com quatro core
 ### Named Rules
 **The Um Vermelho Rule.** Vermelho é só para urgência real: risco, prioridade urgente, erro. Atraso e pendência são âmbar. Se três indicadores lado a lado ficam vermelhos, o alarme perde a força.
 
-**The Acento da Rede Rule.** O azul pertence à rede, não ao produto. Nenhum componente fixa o hex do azul; tudo passa por `--accent`, `--accent-ink`, `--accent-soft` e `--decor`.
+**The Uma Paleta Rule.** Todas as escolas usam a mesma paleta, definida em `src/design/themes.ts` e conferida por `npm run contrast`. Componentes usam os tokens (`--accent`, `--accent-ink`, `--lousa`, `--marca`...), nunca hex soltos, com uma exceção: sobre a lousa, branco e #FFE58A fixos, porque a lousa é escura nos dois temas.
 
 **The Contraste Conferido Rule.** Todo par novo de cor entra em `src/design/themes.ts` e passa por `npm run contrast` (AA, claro e escuro) antes de ser usado.
 
@@ -254,7 +261,7 @@ Quatro raios com regra: 4px para detalhes internos (código, esqueleto de carreg
 
 ### Buttons
 - **Shape:** cantos suaves (8px), altura mínima de 44px.
-- **Primary:** fundo no acento da rede, texto branco. Uma por grupo de ações, escolhida pela fase do caso.
+- **Primary:** fundo na lousa, texto branco. Uma por grupo de ações, escolhida pela fase do caso.
 - **Secondary:** superfície com borda de 1,5px em linha forte; a borda escurece no hover.
 - **Texto:** link sublinhado para ações de menor peso ("Encerrar caso", "Não se aplica").
 - **Perigo:** fundo urgente, só dentro de diálogo de confirmação destrutiva.
@@ -277,7 +284,7 @@ Quatro raios com regra: 4px para detalhes internos (código, esqueleto de carreg
 - **Error / Disabled:** borda urgente com `aria-invalid`; desabilitado em neutro suave.
 
 ### Navigation
-- Abas horizontais com ícone de 20px, texto em tinta suave e item atual em tinta do acento com filete de 3px embaixo. No celular, viram menu.
+- No computador, menu lateral na lousa: escola em uso (com "Trocar") no topo, "Registrar ocorrência" em branco, os itens do perfil e "Minha conta" sempre no fim. No celular, escola e avatar no topo e até cinco abas fixas embaixo; o conteúdo reserva espaço para elas.
 
 ### Data e horário
 - Componentes próprios (`CampoData`, `CampoHorario`), não os nativos do navegador, que seguem o idioma dele e mudam de cara em cada aparelho.
@@ -305,4 +312,4 @@ Quatro raios com regra: 4px para detalhes internos (código, esqueleto de carreg
 - **Don't** desenhar um quadrado vazio que pareça caixa de marcar sem ser clicável.
 - **Don't** colocar faixa grossa de cor num lado de aviso ou cartão.
 - **Don't** esconder casos ou abas em rolagem interna ou lateral.
-- **Don't** fixar o azul da rede num componente; use os tokens de acento.
+- **Don't** voltar a dar cor própria a cada rede; a escola aparece pelo nome, não pela cor.

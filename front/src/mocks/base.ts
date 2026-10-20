@@ -181,6 +181,6 @@ export function casoParaAgir(request: Request, id: string): { ctx: Contexto; o: 
     auditar(ctx, 'negado', `caso ${o.protocolo}`, 'negado', 'tentativa de alterar sem permissão');
     return erro(403, 'sem_permissao', 'Seu perfil não conduz casos nesta escola.');
   }
-  if (o.status === 'encerrado') return erro(409, 'conflito', 'Este caso está encerrado. Para retomar, registre uma reavaliação com a direção.');
+  if (o.status === 'encerrado') return erro(409, 'conflito', 'Este acompanhamento foi concluído. Para retomar, registre uma reavaliação com a direção.');
   return { ctx, o };
 }

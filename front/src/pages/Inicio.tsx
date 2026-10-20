@@ -31,7 +31,7 @@ function ListaDePrazos({ itens }: { itens: PrazoProximo[] }) {
             <div>
               <strong>{a.descricao}</strong>
               <span>
-                <Link to={`/casos/${a.ocorrenciaId}`}>Caso {a.protocolo}</Link>, {a.responsavel.toLowerCase()}, até {diaPorExtenso(a.prazo)}
+                <Link to={`/casos/${a.ocorrenciaId}`}>Registro nº {a.protocolo}</Link>, {a.responsavel.toLowerCase()}, até {diaPorExtenso(a.prazo)}
               </span>
             </div>
             <Etiqueta tipo={v.tipo}>{v.texto}</Etiqueta>
@@ -92,14 +92,14 @@ export function Inicio() {
     <div className="pagina">
       <div className="inicio-cabeca">
         <div className="pagina-cabeca">
-          <h1>{saudacao}, {primeiroNome}!</h1>
+          <h1>{saudacao}, {primeiroNome}</h1>
           <p>
             {nomePerfil[perfil]}
             {deEscola && s.escola ? <>, {s.escola.nome}</> : <>, {s.rede.nome}</>}.
           </p>
         </div>
         {registra && (
-          <Link className="btn btn-primario btn-grande" to="/registrar"><IconeMais />Registrar ocorrência</Link>
+          <Link className="btn btn-primario btn-grande so-celular" to="/registrar"><IconeMais />Registrar ocorrência</Link>
         )}
       </div>
 
@@ -114,9 +114,9 @@ export function Inicio() {
       )}
 
       {registra && rascunhos.length > 0 && (
-        <Aviso tipo="info" titulo={rascunhos.length === 1 ? 'Você tem 1 rascunho não enviado' : `Você tem ${rascunhos.length} rascunhos não enviados`}>
+        <Aviso tipo="marca" titulo={rascunhos.length === 1 ? 'Você tem um rascunho' : `Você tem ${rascunhos.length} rascunhos`}>
           <p>
-            <Link to={`/registrar/${rascunhos[0].id}`}>Continuar o último</Link>
+            <Link to={`/registrar/${rascunhos[0].id}`}>Continuar rascunho</Link>
             {rascunhos.length > 1 && <> ou <Link to="/meus-registros">ver todos</Link></>}.
           </p>
         </Aviso>
@@ -124,7 +124,7 @@ export function Inicio() {
 
       <div className="inicio-grade">
         {conduz && (
-          <Painel titulo="Situação da escola" acao={podeAcessar(perfil, 'central') ? <Link to="/central">Abrir central de gestão</Link> : undefined}>
+          <Painel titulo="Situação da escola" acao={podeAcessar(perfil, 'central') ? <Link to="/central">Ver acompanhamentos</Link> : undefined}>
             <EstadoDaCarga estado={lista.estado} tentarDeNovo={lista.tentarDeNovo} rotulo="Carregando situação">
               {(dados) => {
                 const aguardando = dados.filter((o) => o.status === 'recebido' || o.status === 'em_triagem');
@@ -134,7 +134,7 @@ export function Inicio() {
                   <>
                     <ul className="contagens">
                       <li className={urgentes.length ? 'contagem contagem-urgente' : 'contagem'}><strong>{urgentes.length}</strong> urgentes</li>
-                      <li className="contagem"><strong>{aguardando.length}</strong> aguardando triagem</li>
+                      <li className="contagem"><strong>{aguardando.length}</strong> esperando leitura</li>
                       <li className="contagem"><strong>{acompanhando.length}</strong> em acompanhamento</li>
                     </ul>
                     {urgentes.length > 0 && (
@@ -154,7 +154,7 @@ export function Inicio() {
         )}
 
         {deEscola && (
-          <Painel titulo="Prazos">
+          <Painel titulo="Precisa de você">
             <EstadoDaCarga estado={prazos.estado} tentarDeNovo={prazos.tentarDeNovo} rotulo="Carregando prazos">
               {(dados) => {
                 if (dados.length === 0) return <p>Nenhuma ação com prazo nos casos que você acompanha.</p>;
@@ -181,7 +181,7 @@ export function Inicio() {
         )}
 
         {registra && (
-          <Painel titulo="Meus registros recentes" acao={<Link to="/meus-registros">Ver todos</Link>}>
+          <Painel titulo="Seus últimos registros" acao={<Link to="/meus-registros">Ver todos</Link>}>
             <EstadoDaCarga estado={lista.estado} tentarDeNovo={lista.tentarDeNovo} rotulo="Carregando registros">
               {(dados) => {
                 const meus = dados.filter((o) => o.criadoPorId === s.sessao?.usuario.id).slice(0, 3);

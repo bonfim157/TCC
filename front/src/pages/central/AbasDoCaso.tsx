@@ -23,7 +23,7 @@ export function AbasDoCaso({ o, encerrado, abrir, executar }: {
       abas={[
         {
           id: 'envolvidos',
-          titulo: `Envolvidos (${o.envolvidos.length})`,
+          titulo: `Quem estava junto (${o.envolvidos.length})`,
           conteudo: (
             <div className="pilha">
               {o.envolvidos.length === 0 ? <p>Nenhuma pessoa identificada.</p> : (
@@ -42,7 +42,7 @@ export function AbasDoCaso({ o, encerrado, abrir, executar }: {
         { id: 'tempo', titulo: 'Linha do tempo', conteudo: <LinhaDoTempo eventos={o.eventos} maisRecentesPrimeiro /> },
         {
           id: 'enc',
-          titulo: `Encaminhamentos (${o.encaminhamentos.length})`,
+          titulo: `Rede de apoio (${o.encaminhamentos.length})`,
           conteudo: o.encaminhamentos.length === 0 ? <p>Nenhum encaminhamento externo.</p> : (
             <ul className="lista-encaminhamentos">
               {o.encaminhamentos.map((e) => {

@@ -30,7 +30,7 @@ await carlos.waitForTimeout(1200);
 const item484 = carlos.locator('.fila-item', { hasText: '2026-000484' });
 log('Carlos vê 484 antes:', await item484.locator('.fila-sinais .etiqueta').first().textContent(), '|', await item484.locator('.fila-meta').textContent());
 // Carlos deixa um diálogo aberto enquanto a direção age
-await carlos.getByRole('button', { name: 'Registrar escuta' }).click().catch(() => log('(sem botão Registrar escuta)'));
+await carlos.getByRole('button', { name: 'Registrar conversa' }).click().catch(() => log('(sem botão Registrar conversa)'));
 await carlos.waitForTimeout(300);
 const dialogoAntes = await dialogo(carlos).count();
 
@@ -45,10 +45,10 @@ const item484SemAviso = semAviso.locator('.fila-item', { hasText: '2026-000484' 
 const beatriz = await entrar('Beatriz Nunes');
 await beatriz.goto(`${B}/central/oc-sp-484`);
 await beatriz.waitForTimeout(1200);
-await beatriz.getByRole('button', { name: 'Concluir triagem' }).click();
+await beatriz.getByRole('button', { name: 'Ler e assumir' }).click();
 await beatriz.waitForTimeout(400);
 await dialogo(beatriz).getByLabel('Quem vai conduzir o caso').selectOption({ label: 'Carlos Mendes, coordenação' });
-await dialogo(beatriz).getByRole('button', { name: 'Concluir triagem' }).click();
+await dialogo(beatriz).getByRole('button', { name: 'Assumir o caso' }).click();
 await beatriz.waitForTimeout(1000);
 
 // Sem recarregar a página de Carlos

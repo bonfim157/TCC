@@ -1,9 +1,9 @@
-import { useEffect, useId, useRef, useState, type JSX, type ReactNode, type SVGProps } from 'react';
+import { useEffect, useRef, useState, type JSX, type SVGProps } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
-import { Brasao, DialogoConfirmacao } from '../components/estrutura';
+import { DialogoConfirmacao } from '../components/estrutura';
 import {
-  IconeAcessibilidade, IconeAjuda, IconeCasa, IconeDocumento, IconeEngrenagem, IconeGrafico, IconeLapis, IconeLupa, IconePainel,
-  IconeFechar, IconeMenu, IconeSair, IconeSemConexao, IconeTelefone,
+  IconeCasa, IconeCoracao, IconeDocumento, IconeGrafico, IconeLapis, IconeLupa, IconePessoas,
+  IconeSemConexao, IconeTelefone,
 } from '../components/icones';
 import { navegacao, nomePerfil, podeAcessar, type Area } from '../state/perfis';
 import { useGuardaDeRascunho } from '../state/rascunhos';
@@ -17,75 +17,30 @@ const icones: Record<Area, (p: SVGProps<SVGSVGElement>) => JSX.Element> = {
   inicio: IconeCasa,
   registrar: IconeLapis,
   'meus-registros': IconeDocumento,
-  central: IconePainel,
+  central: IconeCoracao,
   buscar: IconeLupa,
   relatorios: IconeGrafico,
-  administracao: IconeEngrenagem,
+  administracao: IconePessoas,
 };
 
 /** Iniciais para o avatar: primeira e última palavra do nome. */
-const iniciais = (nome = '') => {
+export const iniciais = (nome = '') => {
   const p = nome.trim().split(/\s+/);
   return ((p[0]?.[0] ?? '') + (p.length > 1 ? p[p.length - 1][0] : '')).toUpperCase();
 };
 
-/**
- * Cabeçalho enxuto: marca e rede à esquerda; atalhos de acessibilidade e a
- * pessoa à direita. Sem faixa institucional: é uma ferramenta da escola.
- */
-export function Timbre({ esquerda, children, menu }: { esquerda?: ReactNode; children?: ReactNode; menu?: ReactNode }) {
-  const { rede, redePrevia, redeDoEndereco, escola } = useSessao();
-  const r = rede ?? redePrevia ?? redeDoEndereco;
-  const identidade = (
-    <div className="timbre-identidade">
-      <Brasao sigla={r?.sigla ?? 'CR'} />
-      <div>
-        <p className="timbre-produto">Cuidar e Registrar</p>
-        <p className="timbre-rede">{escola?.nome ?? r?.nome ?? 'Ocorrências escolares'}</p>
-      </div>
-    </div>
-  );
-  // No celular: uma linha só, com a marca e o botão de menu; o resto vai para o menu.
-  if (menu) {
-    return (
-      <header className="timbre timbre-celular">
-        <div className="timbre-linha">
-          {identidade}
-          {menu}
-        </div>
-      </header>
-    );
-  }
+/** Nome do sistema, com o coração que é a marca. Na lousa das telas de acesso e no topo das páginas públicas. */
+export function Marca() {
   return (
-    <header className="timbre">
-      <div className="timbre-linha">
-        {identidade}
-        <div className="timbre-lado timbre-lado-fim">
-          {esquerda}
-          {children}
-        </div>
-      </div>
-    </header>
-  );
-}
-
-/** Marca das telas de acesso: sigla, nome do sistema e rede, numa linha. */
-export function MarcaDaRede() {
-  const { rede, redePrevia, redeDoEndereco } = useSessao();
-  const r = rede ?? redePrevia ?? redeDoEndereco;
-  return (
-    <div className="marca">
-      <Brasao sigla={r?.sigla ?? 'CR'} tamanho={44} />
-      <div>
-        <p className="timbre-produto">Cuidar e Registrar</p>
-        <p className="timbre-rede">{r?.nome ?? 'Ocorrências escolares'}</p>
-      </div>
-    </div>
+    <span className="marca">
+      <IconeCoracao width={26} height={26} aria-hidden="true" />
+      Cuidar e Registrar
+    </span>
   );
 }
 
 /** Telefones de ajuda que valem em qualquer escola do país, do mais urgente ao de apoio. */
-const contatos: [string, string][] = [
+export const contatos: [string, string][] = [
   ['192', 'SAMU'],
   ['190', 'Polícia Militar'],
   ['188', 'CVV'],
@@ -93,31 +48,20 @@ const contatos: [string, string][] = [
   ['180', 'Atendimento à Mulher'],
 ];
 
-/** Rodapé discreto: o que fazer em caso de risco, links de ajuda e o aviso do protótipo. */
-export function Rodape({ links = true }: { links?: boolean }) {
+/** Rodapé discreto: o que fazer em caso de risco e o aviso do protótipo. */
+export function Rodape() {
   const { demonstracao } = useSessao();
   return (
     <footer className="rodape">
-      <div className="rodape-linha">
-        <section className="rodape-risco" aria-labelledby="t-risco">
-          <h2 id="t-risco"><IconeTelefone width={18} height={18} /> Em caso de risco agora</h2>
-          <p>Acolha o estudante e chame a direção. Registre depois.</p>
-          <ul className="rodape-telefones">
-            {contatos.map(([n, r]) => (
-              <li key={n}><strong>{n}</strong> {r}</li>
-            ))}
-          </ul>
-        </section>
-        {links && (
-          <nav className="rodape-links" aria-label="Ajuda">
-            <ul>
-              <li><Link to="/guia">Guia da interface</Link></li>
-              <li><Link to="/duvidas">Dúvidas frequentes</Link></li>
-              <li><Link to="/acessibilidade">Acessibilidade</Link></li>
-            </ul>
-          </nav>
-        )}
-      </div>
+      <section className="rodape-risco" aria-labelledby="t-risco">
+        <h2 id="t-risco"><IconeTelefone width={18} height={18} /> Alguém corre risco agora?</h2>
+        <p>Acolha o estudante e chame a direção. Registre depois.</p>
+        <ul className="rodape-telefones">
+          {contatos.map(([n, r]) => (
+            <li key={n}><strong>{n}</strong> {r}</li>
+          ))}
+        </ul>
+      </section>
       {/* Na demonstração, a faixa do topo já diz isso em toda tela. */}
       {!demonstracao && (
         <p className="rodape-nota">Protótipo acadêmico (TCC), sem vínculo oficial com a Secretaria da Educação.</p>
@@ -126,93 +70,41 @@ export function Rodape({ links = true }: { links?: boolean }) {
   );
 }
 
-/**
- * Menu do celular: um botão que mostra e esconde o painel logo abaixo do cabeçalho.
- * Fecha ao trocar de página, com Esc (devolvendo o foco ao botão) e ao tocar fora.
- */
-function MenuCelular({ children }: { children: ReactNode }) {
-  const [aberto, setAberto] = useState(false);
-  const local = useLocation();
-  const id = useId();
-  const botao = useRef<HTMLButtonElement>(null);
-  const painel = useRef<HTMLDivElement>(null);
-
-  useEffect(() => setAberto(false), [local.pathname]);
-  useEffect(() => {
-    if (!aberto) return;
-    const esc = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return;
-      setAberto(false);
-      botao.current?.focus();
-    };
-    const fora = (e: PointerEvent) => {
-      const alvo = e.target as Node;
-      if (!painel.current?.contains(alvo) && !botao.current?.contains(alvo)) setAberto(false);
-    };
-    document.addEventListener('keydown', esc);
-    document.addEventListener('pointerdown', fora);
-    return () => {
-      document.removeEventListener('keydown', esc);
-      document.removeEventListener('pointerdown', fora);
-    };
-  }, [aberto]);
-
+/** Estrutura das páginas públicas (ajuda, acessibilidade) para quem ainda não entrou. */
+export function EstruturaPublica() {
   return (
-    <>
-      <button
-        ref={botao}
-        type="button"
-        className="btn btn-secundario botao-menu"
-        aria-expanded={aberto}
-        aria-controls={`${id}-menu`}
-        onClick={() => setAberto((a) => !a)}
-      >
-        {aberto ? <IconeFechar /> : <IconeMenu />}
-        {aberto ? 'Fechar' : 'Menu'}
-      </button>
-      <div ref={painel} id={`${id}-menu`} className="menu-celular" hidden={!aberto}>
-        {children}
-      </div>
-    </>
+    <div className="app app-publica">
+      <a className="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
+      <header className="topo-publico">
+        <Link to="/entrar" className="topo-publico-marca"><Marca /></Link>
+        <ControlesDeAcessibilidade />
+        <Link className="btn btn-primario" to="/entrar">Entrar</Link>
+      </header>
+      <main id="conteudo" tabIndex={-1}>
+        <Outlet />
+        <Rodape />
+      </main>
+    </div>
   );
 }
 
-/** Estrutura das páginas públicas (dúvidas, acessibilidade) para quem ainda não entrou. */
-export function EstruturaPublica() {
-  const celular = useMidia(CELULAR);
-  const links = (
-    <ul>
-      <li><NavLink to="/entrar"><IconeCasa />Página inicial</NavLink></li>
-      <li><NavLink to="/duvidas"><IconeAjuda />Dúvidas frequentes</NavLink></li>
-      <li><NavLink to="/acessibilidade"><IconeAcessibilidade />Acessibilidade</NavLink></li>
-    </ul>
-  );
+/** "Minha conta": sempre no mesmo lugar, com o nome e o perfil de quem está usando. */
+function LinkDaConta({ compacto }: { compacto?: boolean }) {
+  const s = useSessao();
+  const nome = s.sessao?.usuario.nome;
+  if (compacto) {
+    return (
+      <NavLink to="/conta" className="avatar avatar-link" aria-label={`Minha conta, ${nome}`}>{iniciais(nome)}</NavLink>
+    );
+  }
   return (
-    <div className="app">
-      <a className="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
-      {celular ? (
-        <Timbre
-          menu={
-            <MenuCelular>
-              <Link className="btn btn-primario btn-largo" to="/entrar">Entrar</Link>
-              <nav className="menu-celular-links" aria-label="Principal">{links}</nav>
-              <ControlesDeAcessibilidade />
-            </MenuCelular>
-          }
-        />
-      ) : (
-        <>
-          <Timbre esquerda={<ControlesDeAcessibilidade />}>
-            <Link className="btn btn-primario" to="/entrar">Entrar</Link>
-          </Timbre>
-          <nav className="navegacao" aria-label="Principal">{links}</nav>
-        </>
-      )}
-      <main id="conteudo" tabIndex={-1}>
-        <Outlet />
-      </main>
-      <Rodape />
-    </div>
+    <NavLink to="/conta" className="lateral-conta">
+      <span className="avatar" aria-hidden="true">{iniciais(nome)}</span>
+      <span>
+        <strong>Minha conta</strong>
+        <span>{nome}{s.perfil ? `, ${nomePerfil[s.perfil].toLowerCase()}` : ''}</span>
+      </span>
+    </NavLink>
   );
 }
 
@@ -223,6 +115,7 @@ export function Estrutura() {
   const [confirmarSaida, setConfirmarSaida] = useState(false);
   const local = useLocation();
   const principal = useRef<HTMLElement>(null);
+  const celular = useMidia(CELULAR);
 
   // Ao navegar, leva o foco ao conteúdo, como numa troca de página.
   // Na primeira carga o foco fica no início do documento.
@@ -236,101 +129,65 @@ export function Estrutura() {
     window.scrollTo(0, 0);
   }, [local.pathname]);
 
-  const itens = navegacao.filter((n) => s.perfil && podeAcessar(s.perfil, n.area));
+  const pode = (a: Area) => !!s.perfil && podeAcessar(s.perfil, a);
+  // A busca mora dentro de Acompanhamentos; só aparece sozinha para quem não acompanha casos.
+  const itens = navegacao.filter((n) => pode(n.area) && n.area !== 'registrar' && !(n.area === 'buscar' && pode('central')));
   const sair = () => (haRascunho ? setConfirmarSaida(true) : s.sair());
-  const registra = !!s.perfil && podeAcessar(s.perfil, 'registrar');
-  const celular = useMidia(CELULAR);
+
+  const offline = !online && (
+    <div className="faixa-offline" role="status">
+      <IconeSemConexao />
+      <p>
+        <strong>Sem internet agora.</strong> Pode continuar escrevendo: fica salvo neste aparelho e o envio volta quando a conexão voltar.
+      </p>
+    </div>
+  );
+
+  const link = (n: (typeof navegacao)[number], curto?: boolean) => {
+    const Icone = icones[n.area];
+    return (
+      <li key={n.area}>
+        <NavLink to={n.caminho} end={n.caminho === '/'}><Icone aria-hidden="true" />{curto ? n.curto ?? n.rotulo : n.rotulo}</NavLink>
+      </li>
+    );
+  };
 
   return (
-    <div className="app">
+    <div className={celular ? 'app app-celular' : 'app app-lateral'}>
       <a className="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
 
       {celular ? (
-        <Timbre
-          menu={
-            <MenuCelular>
-              <div className="menu-celular-pessoa">
-                <span className="avatar" aria-hidden="true">{iniciais(s.sessao?.usuario.nome)}</span>
-                <p>
-                  <strong>{s.sessao?.usuario.nome}</strong>
-                  <span>{s.perfil ? nomePerfil[s.perfil] : ''}</span>
-                </p>
-              </div>
-              {registra && (
-                <NavLink className="btn btn-primario btn-largo" to="/registrar"><IconeLapis width={20} height={20} />Registrar ocorrência</NavLink>
-              )}
-              <nav className="menu-celular-links" aria-label="Principal">
-                <ul>
-                  {itens.filter((n) => n.area !== 'registrar').map((n) => {
-                    const Icone = icones[n.area];
-                    return (
-                      <li key={n.area}>
-                        <NavLink to={n.caminho} end={n.caminho === '/'}><Icone />{n.rotulo}</NavLink>
-                      </li>
-                    );
-                  })}
-                  <li><NavLink to="/guia"><IconeAjuda />Guia da interface</NavLink></li>
-                  <li><NavLink to="/duvidas"><IconeAjuda />Dúvidas frequentes</NavLink></li>
-                </ul>
-              </nav>
-              <ControlesDeAcessibilidade />
-              <button type="button" className="btn btn-secundario btn-largo" onClick={sair}>
-                <IconeSair width={18} height={18} /> Sair
-              </button>
-            </MenuCelular>
-          }
-        />
+        <header className="topo-celular">
+          <BarraDeContexto />
+          <LinkDaConta compacto />
+        </header>
       ) : (
-        <>
-          <Timbre esquerda={<ControlesDeAcessibilidade />}>
-            <div className="timbre-usuario">
-              <span className="avatar" aria-hidden="true">{iniciais(s.sessao?.usuario.nome)}</span>
-              <p>
-                <strong>{s.sessao?.usuario.nome}</strong>
-                <span>{s.perfil ? nomePerfil[s.perfil] : ''}</span>
-              </p>
-              <button type="button" className="btn btn-secundario btn-sair" onClick={sair}>
-                <IconeSair width={18} height={18} /> Sair
-              </button>
-            </div>
-          </Timbre>
-
-          {/* No computador, abas simples com a escola ao lado; o destaque de "registrar" fica no Início. */}
-          <div className="barra-navegacao">
-            <nav className="navegacao" aria-label="Principal">
-              <ul>
-                {itens.map((n) => {
-                  const Icone = icones[n.area];
-                  return (
-                    <li key={n.area}>
-                      <NavLink to={n.caminho} end={n.caminho === '/'}><Icone />{n.rotulo}</NavLink>
-                    </li>
-                  );
-                })}
-                <li><NavLink to="/guia"><IconeAjuda />Guia</NavLink></li>
-              </ul>
-            </nav>
-            <BarraDeContexto />
-          </div>
-        </>
+        <nav className="lateral" aria-label="Principal">
+          <BarraDeContexto />
+          {pode('registrar') && (
+            <NavLink className="lateral-registrar" to="/registrar"><IconeLapis aria-hidden="true" />Registrar ocorrência</NavLink>
+          )}
+          <ul className="lateral-itens">{itens.map((n) => link(n))}</ul>
+          <LinkDaConta />
+        </nav>
       )}
 
-      {celular && <BarraDeContexto />}
+      <div className="area-conteudo">
+        {offline}
+        <main id="conteudo" ref={principal} tabIndex={-1}>
+          <Outlet context={{ sair }} />
+        </main>
+        <Rodape />
+      </div>
 
-      {!online && (
-        <div className="faixa-offline" role="status">
-          <IconeSemConexao />
-          <p>
-            <strong>Sem conexão.</strong> Você pode continuar preenchendo; o envio será liberado quando a conexão voltar.
-          </p>
-        </div>
+      {celular && (
+        <nav className="abas-celular" aria-label="Principal">
+          <ul>
+            {/* No máximo cinco abas: a matriz de acesso nunca dá mais que isso a um perfil. */}
+            {navegacao.filter((n) => pode(n.area) && !(n.area === 'buscar' && pode('central'))).map((n) => link(n, true))}
+          </ul>
+        </nav>
       )}
-
-      <main id="conteudo" ref={principal} tabIndex={-1}>
-        <Outlet />
-      </main>
-
-      <Rodape />
 
       <DialogoConfirmacao
         aberto={confirmarSaida}

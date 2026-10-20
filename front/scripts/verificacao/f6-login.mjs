@@ -105,7 +105,7 @@ log('com o código certo, Central:', await p.locator('h1').textContent(), '| cas
 log('seletor "ver como" (só demonstração):', await p.getByLabel(/Ver como/).count());
 
 // 6. Sair apaga a sessão no servidor
-await p.getByRole('button', { name: 'Sair' }).click();
+await p.getByRole('link', { name: /Minha conta/ }).click(); await p.getByRole('button', { name: 'Sair da conta' }).click();
 await p.waitForTimeout(1000);
 log('depois de sair:', new URL(p.url()).pathname, '| cookie de sessão:', (await ctx.cookies()).some((c) => c.name === 'sessao' && c.value) ? 'ainda existe' : 'apagado');
 await p.goto(`${B}/central`);
@@ -149,7 +149,7 @@ await t.getByLabel('Repita a nova senha').fill('uma frase comprida de teste');
 await t.getByRole('button', { name: 'Salvar e entrar' }).click();
 await t.waitForTimeout(1500);
 log('depois de trocar:', await t.locator('h1').textContent());
-await t.getByRole('button', { name: 'Sair' }).click();
+await t.getByRole('link', { name: /Minha conta/ }).click(); await t.getByRole('button', { name: 'Sair da conta' }).click();
 await t.waitForTimeout(800);
 await t.goto(`${B}/entrar?modo=senha&rede=sp`);
 await t.waitForTimeout(800);

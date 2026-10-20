@@ -130,9 +130,9 @@ export const handlersCentral = [
     const { ctx, o } = r;
     const p = (await request.json()) as PedidoProvidencia;
     const prov = o.providencias.find((x) => x.id === params.pid);
-    if (!prov) return erro(404, 'nao_encontrado', 'Providência não encontrada.');
+    if (!prov) return erro(404, 'nao_encontrado', 'Passo não encontrado.');
     if (p.situacao === 'dispensada' && p.observacao.trim().length < 15) {
-      return erro(422, 'validacao', 'Explique por que esta providência não se aplica (pelo menos 15 caracteres).');
+      return erro(422, 'validacao', 'Explique por que este passo não se aplica (pelo menos 15 caracteres).');
     }
     Object.assign(prov, {
       situacao: p.situacao,
@@ -140,7 +140,7 @@ export const handlersCentral = [
       registradaPor: p.situacao === 'pendente' ? undefined : ctx.usuario.nome,
       registradaEm: p.situacao === 'pendente' ? undefined : new Date().toISOString(),
     });
-    const verbo = p.situacao === 'feita' ? 'Providência cumprida' : p.situacao === 'dispensada' ? 'Providência dispensada' : 'Providência reaberta';
+    const verbo = p.situacao === 'feita' ? 'Passo feito' : p.situacao === 'dispensada' ? 'Passo marcado como não se aplica' : 'Passo reaberto';
     o.eventos.push(novoEvento(ctx, 'providencia', `${verbo}: ${prov.descricao.toLowerCase()}.${p.observacao.trim() ? ` ${p.observacao.trim()}` : ''}`));
     return salvar(o, ctx);
   }),
@@ -170,7 +170,7 @@ export const handlersCentral = [
     const { ctx, o } = r;
     const { texto } = (await request.json()) as PedidoDevolutiva;
     const enc = o.encaminhamentos.find((e) => e.id === params.eid);
-    if (!enc) return erro(404, 'nao_encontrado', 'Encaminhamento não encontrado.');
+    if (!enc) return erro(404, 'nao_encontrado', 'Pedido de apoio não encontrado.');
     if (texto.trim().length < 10) return erro(422, 'validacao', 'Descreva a devolutiva recebida.');
     enc.devolutiva = { em: new Date().toISOString(), texto: texto.trim() };
     o.eventos.push(novoEvento(ctx, 'encaminhamento', `Devolutiva de ${enc.orgaoNome}: ${texto.trim()}`));
@@ -268,13 +268,13 @@ export const handlersCentral = [
     const r = casoParaAgir(request, String(params.id));
     if (r instanceof Response) return r;
     const { ctx, o } = r;
-    if (!['coordenacao', 'direcao'].includes(ctx.vinculo.perfil)) return erro(403, 'sem_permissao', 'Só coordenação ou direção encerram casos.');
+    if (!['coordenacao', 'direcao'].includes(ctx.vinculo.perfil)) return erro(403, 'sem_permissao', 'Só coordenação ou direção concluem acompanhamentos.');
     const p = (await request.json()) as PedidoEncerramento;
     const pendentes = o.providencias.filter((x) => x.obrigatoria && x.situacao === 'pendente');
     if (pendentes.length) {
-      return erro(409, 'conflito', `Faltam ${pendentes.length} providências obrigatórias: ${pendentes.map((x) => x.descricao.toLowerCase()).join('; ')}. Cumpra ou dispense cada uma com justificativa.`);
+      return erro(409, 'conflito', `Faltam ${pendentes.length} passos obrigatórios: ${pendentes.map((x) => x.descricao.toLowerCase()).join('; ')}. Faça cada um ou explique por que não se aplica.`);
     }
-    if (p.justificativa.trim().length < 20) return erro(422, 'validacao', 'Explique o resultado e por que o caso pode ser encerrado (pelo menos 20 caracteres).');
+    if (p.justificativa.trim().length < 20) return erro(422, 'validacao', 'Explique o resultado e por que o acompanhamento pode ser concluído (pelo menos 20 caracteres).');
     // Caso encerrado não aceita mais ações: nada do plano pode ficar pendurado.
     const abertas = o.plano.filter(acaoEmAberto);
     if (abertas.length && !p.cancelarAcoesAbertas) {

@@ -220,14 +220,3 @@ export function DialogoFormulario({
   );
 }
 
-/* ---------- Brasão da rede ---------- */
-export function Brasao({ sigla, tamanho = 40 }: { sigla: string; tamanho?: number }) {
-  // Marca neutra: um quadrado arredondado com a sigla da rede. Sem escudo nem brasão,
-  // para não lembrar órgão policial.
-  return (
-    <svg className="brasao" width={tamanho} height={tamanho} viewBox="0 0 40 40" aria-hidden="true" focusable="false">
-      <rect width="40" height="40" rx="11" fill="var(--accent)" />
-      <text x="20" y="25.5" textAnchor="middle" fontFamily="var(--titulo)" fontWeight="600" fontSize="14" fill="var(--on-accent)">{sigla}</text>
-    </svg>
-  );
-}

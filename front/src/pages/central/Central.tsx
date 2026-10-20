@@ -4,6 +4,7 @@ import { rotas, type Categoria, type ItemDaAgenda, type ItemDaFila, type Priorid
 import { CaixaMarcar, CampoSelecao } from '../../components/controles';
 import { Painel } from '../../components/estrutura';
 import { Etiqueta, EtiquetaPrioridade, EtiquetaStatus, EstadoDaCarga, Vazio } from '../../components/feedback';
+import { podeAcessar } from '../../state/perfis';
 import { useSessao } from '../../state/sessao';
 import { useApi } from '../../state/useApi';
 import { useAtualizacao } from '../../state/useAtualizacao';
@@ -107,8 +108,11 @@ function CentralDaEscola() {
   return (
     <div className={id ? 'central central-com-caso' : 'central'}>
       <div className="pagina-cabeca central-cabeca">
-        <h1>Central de gestão</h1>
-        <p>{s.escola?.nome}</p>
+        <h1>Acompanhamentos</h1>
+        <p>
+          {s.escola?.nome}
+          {s.perfil && podeAcessar(s.perfil, 'buscar') && <>. <Link to="/buscar">Buscar em todos os registros</Link>, inclusive os concluídos.</>}
+        </p>
       </div>
 
       <EstadoDaCarga estado={fila.estado} tentarDeNovo={fila.tentarDeNovo} rotulo="Carregando a fila">
@@ -136,7 +140,7 @@ function CentralDaEscola() {
           return (
             <>
               <div className="indicadores" role="group" aria-label="Filtrar a fila pelo que pede atenção">
-                <Indicador ativo={filtro === 'novas'} valor={contagem.novas} rotulo="novas ou sem triagem" aoClicar={() => alternar('novas')} />
+                <Indicador ativo={filtro === 'novas'} valor={contagem.novas} rotulo="esperando leitura" aoClicar={() => alternar('novas')} />
                 <Indicador ativo={filtro === 'urgentes'} valor={contagem.urgentes} rotulo="urgentes" tom="urgente" aoClicar={() => alternar('urgentes')} />
                 <Indicador ativo={filtro === 'ct'} valor={contagem.ct} rotulo="a comunicar ao Conselho Tutelar" tom="atencao" aoClicar={() => alternar('ct')} />
                 <Indicador ativo={filtro === 'devolutivas'} valor={contagem.devolutivas} rotulo="com devolutiva atrasada" tom="atencao" aoClicar={() => alternar('devolutivas')} />
@@ -176,7 +180,7 @@ function CentralDaEscola() {
                               {i.ctPendente && <Etiqueta tipo="urgente">Comunicar Conselho Tutelar</Etiqueta>}
                               {i.devolutivasAtrasadas > 0 && <Etiqueta tipo="atencao">Devolutiva atrasada</Etiqueta>}
                               {!i.ctPendente && i.obrigatoriasPendentes > 0 && i.status !== 'encerrado' && (
-                                <Etiqueta tipo="neutra">{i.obrigatoriasPendentes} {i.obrigatoriasPendentes === 1 ? 'providência pendente' : 'providências pendentes'}</Etiqueta>
+                                <Etiqueta tipo="neutra">{i.obrigatoriasPendentes} {i.obrigatoriasPendentes === 1 ? 'passo pendente' : 'passos pendentes'}</Etiqueta>
                               )}
                             </span>
                           </Link>
@@ -191,7 +195,7 @@ function CentralDaEscola() {
                     <CasoNaCentral key={id} id={id} externo={externo} aoMudar={() => setVersao((v) => v + 1)} />
                   ) : (
                     <Vazio titulo="Escolha um caso na fila">
-                      O caso abre aqui com o resumo, as providências exigidas pelo tipo, os encaminhamentos e a linha do tempo.
+                      O registro abre aqui com o que aconteceu, os próximos passos, a rede de apoio e a linha do tempo.
                     </Vazio>
                   )}
                 </div>

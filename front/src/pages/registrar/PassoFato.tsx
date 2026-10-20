@@ -17,7 +17,7 @@ export function validarFato(r: RascunhoRegistro): Erros {
   // A pergunta de risco vem primeiro na tela, então o erro dela também.
   if (!r.risco) e.risco = 'Responda se alguém corre risco agora.';
   if (!f.categoriaId) e.categoria = 'Escolha o tipo de ocorrência.';
-  if (!f.data) e.data = 'Informe a data do fato.';
+  if (!f.data) e.data = 'Informe a data em que aconteceu.';
   else if (f.data > hojeISO()) e.data = 'A data não pode estar no futuro.';
   if (!f.hora) e.hora = 'Informe o horário aproximado.';
   if (!f.local.trim()) e.local = 'Informe onde aconteceu.';
@@ -113,7 +113,8 @@ export function PassoFato({ r, categorias, erros, atualizar }: {
 
       <CampoAreaTexto
         id="campo-relato"
-        rotulo="Relato do que aconteceu"
+        rotulo="O que aconteceu"
+        className="entrada caderno"
         ajuda={
           <>
             Conte o que você viu ou ouviu: o que aconteceu, quem estava e o que foi dito. Descreva o fato, não a pessoa:

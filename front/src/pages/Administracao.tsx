@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api, ErroDaApi, FalhaDeRede } from '../api/client';
 import {
-  rotas, type AcaoAuditada, type Categoria, type ContatosLocais, type ModeloDeComunicacao, type Perfil, type Pessoa,
+  perfisConvidaveis, rotas, type AcaoAuditada, type Categoria, type Convite, type ConviteComLink, type ContatosLocais, type PerfilConvidavel, type ModeloDeComunicacao, type Perfil, type Pessoa,
   type RegistroDeAuditoria, type RegraDoProtocolo, type TipoPessoa, type UsuarioDaRede,
 } from '../api/contract';
 import { Botao, CaixaMarcar, CampoAreaTexto, CampoSelecao, CampoTexto } from '../components/controles';
@@ -10,7 +10,7 @@ import { Aviso, Etiqueta, EstadoDaCarga, useNotificar } from '../components/feed
 import { acesso, navegacao, nomePerfil } from '../state/perfis';
 import { useSessao } from '../state/sessao';
 import { useApi } from '../state/useApi';
-import { dataHoraCurta } from '../util/formato';
+import { dataHoraCurta, dataHoraPorExtenso } from '../util/formato';
 import { nomeTipoPessoa } from './registrar/PassoEnvolvidos';
 
 /** Envia uma alteração e devolve a mensagem de erro, se houver. */
@@ -43,15 +43,15 @@ function Protocolo({ edita }: { edita: boolean }) {
     const e = await salvar(rotas.admin.regra(r.id), 'PUT', mudanca);
     if (e) return e;
     setVersao((v) => v + 1);
-    notificar('Protocolo atualizado. Vale para novos casos em todas as escolas da rede.');
+    notificar('Próximos passos atualizados. Valem para os registros novos.');
     return null;
   };
 
   return (
     <div className="pilha">
       <p>
-        Providências que o sistema sugere para cada tipo de caso, em todas as escolas da rede. Casos já abertos mantêm as
-        providências que tinham. Proposta inicial baseada na legislação; precisa de validação da rede e do jurídico.
+        Passos que o sistema sugere para cada tipo de ocorrência. Registros já abertos mantêm os
+        passos que tinham. Proposta inicial baseada na legislação; precisa de validação da rede e do jurídico.
       </p>
       {!edita && <AvisoSomenteLeitura quem="a secretaria da rede" />}
       <EstadoDaCarga estado={regras.estado} tentarDeNovo={regras.tentarDeNovo} rotulo="Carregando protocolo">
@@ -61,7 +61,7 @@ function Protocolo({ edita }: { edita: boolean }) {
             chaveLinha={(r) => r.id}
             linhas={lista}
             colunas={[
-              { chave: 'd', titulo: 'Providência', celula: (r) => <><strong>{r.descricao}</strong><br /><small>{r.base}</small></> },
+              { chave: 'd', titulo: 'Próximo passo', celula: (r) => <><strong>{r.descricao}</strong><br /><small>{r.base}</small></> },
               {
                 chave: 'q', titulo: 'Quando',
                 celula: (r) => (r.categoriaIds === 'todas' ? 'Todos os tipos' : r.categoriaIds.map((id) => cats.find((c) => c.id === id)?.nome ?? id).join(', ')) + (r.somenteComRisco ? ', com risco imediato' : ''),
@@ -82,7 +82,7 @@ function Protocolo({ edita }: { edita: boolean }) {
       </EstadoDaCarga>
       <DialogoFormulario
         aberto={!!editando}
-        titulo="Editar providência"
+        titulo="Editar próximo passo"
         enviar="Salvar"
         erro={erro}
         aoCancelar={() => setEditando(null)}
@@ -230,13 +230,13 @@ function Pessoas({ edita }: { edita: boolean }) {
   const [erro, setErro] = useState<string | null>(null);
   return (
     <div className="pilha">
-      <p>Estudantes e profissionais que podem ser citados em registros. Na versão real, virão da Secretaria Escolar Digital.</p>
+      <p>O professor escolhe as pessoas desta lista ao registrar. Guarde só o nome com a inicial do sobrenome e a turma: o sistema não pede CPF, foto ou data de nascimento.</p>
       {edita && (
         <form className="painel filtros-busca" onSubmit={async (e) => {
           e.preventDefault();
           const r = await salvar(rotas.admin.pessoas, 'POST', nova);
           setErro(r);
-          if (!r) { setNova({ nome: '', tipo: nova.tipo, turma: '' }); setVersao((v) => v + 1); notificar('Pessoa cadastrada.'); }
+          if (!r) { setNova({ nome: '', tipo: nova.tipo, turma: '' }); setVersao((v) => v + 1); notificar('Pessoa adicionada.'); }
         }}>
           <CampoTexto rotulo="Nome" ajuda="Estudantes: nome e inicial do sobrenome." value={nova.nome} onChange={(e) => setNova({ ...nova, nome: e.target.value })} />
           <CampoSelecao rotulo="Tipo" value={nova.tipo} onChange={(e) => setNova({ ...nova, tipo: e.target.value as TipoPessoa })}>
@@ -244,7 +244,7 @@ function Pessoas({ edita }: { edita: boolean }) {
             <option value="profissional">Profissional da escola</option>
           </CampoSelecao>
           {nova.tipo === 'estudante' && <CampoTexto rotulo="Turma" value={nova.turma} onChange={(e) => setNova({ ...nova, turma: e.target.value })} />}
-          <div className="filtros-acoes"><Botao type="submit" variante="secundario">Cadastrar</Botao></div>
+          <div className="filtros-acoes"><Botao type="submit" variante="secundario">Adicionar</Botao></div>
           {erro && <Aviso tipo="erro">{erro}</Aviso>}
         </form>
       )}
@@ -266,12 +266,92 @@ function Pessoas({ edita }: { edita: boolean }) {
   );
 }
 
-function Usuarios() {
+/**
+ * Convidar alguém para a equipe. Não há envio de e-mail: o convite gera um link
+ * que a direção copia e manda como quiser. O link aparece uma vez; depois, só
+ * gerando outro (o anterior deixa de valer).
+ */
+function Convites() {
+  const s = useSessao();
+  const [versao, setVersao] = useState(0);
+  const lista = useApi<Convite[]>(rotas.admin.convites, [s.escola?.id, versao], { manterAoAtualizar: true });
+  const [novo, setNovo] = useState<{ email: string; perfil: PerfilConvidavel }>({ email: '', perfil: 'professor' });
+  const [erro, setErro] = useState<string | null>(null);
+  const [link, setLink] = useState<{ email: string; url: string } | null>(null);
+  const [copiado, setCopiado] = useState(false);
+
+  async function pedir(caminho: string, corpo?: unknown) {
+    try {
+      const r = await api<ConviteComLink>(caminho, { method: 'POST', body: JSON.stringify(corpo ?? {}) });
+      setErro(null);
+      setCopiado(false);
+      setLink({ email: r.convite.email, url: `${location.origin}${r.link}` });
+      setVersao((v) => v + 1);
+      return true;
+    } catch (e) {
+      setErro(e instanceof FalhaDeRede ? 'Sem conexão. O convite não foi criado.' : e instanceof ErroDaApi ? e.message : 'Não foi possível criar o convite.');
+      return false;
+    }
+  }
+  async function cancelar(id: string) {
+    await api(rotas.admin.convite(id), { method: 'DELETE' }).catch(() => {});
+    setVersao((v) => v + 1);
+  }
+
+  return (
+    <div className="pilha">
+      <form className="painel pilha" onSubmit={async (e) => {
+        e.preventDefault();
+        if (await pedir(rotas.admin.convites, novo)) setNovo({ ...novo, email: '' });
+      }}>
+        <h3>Convidar alguém</h3>
+        <div className="filtros-busca">
+          <CampoTexto rotulo="E-mail da pessoa" type="email" inputMode="email" autoCapitalize="none" value={novo.email} onChange={(e) => setNovo({ ...novo, email: e.target.value })} />
+          <CampoSelecao rotulo="Vai entrar como" value={novo.perfil} onChange={(e) => setNovo({ ...novo, perfil: e.target.value as PerfilConvidavel })}>
+            {perfisConvidaveis.map((p) => <option key={p} value={p}>{nomePerfil[p]}</option>)}
+          </CampoSelecao>
+          <div className="filtros-acoes"><Botao type="submit">Criar convite</Botao></div>
+        </div>
+        <p className="campo-ajuda">O convite vale por 7 dias e só serve para esse e-mail. Se a pessoa já usa o sistema em outra escola, ela aceita com a conta que já tem.</p>
+        {erro && <Aviso tipo="erro">{erro}</Aviso>}
+        {link && (
+          <Aviso tipo="sucesso" titulo={`Convite para ${link.email}`}>
+            <p>Copie o link e mande para a pessoa, por e-mail ou mensagem. Ele aparece só agora.</p>
+            <p className="link-convite"><output>{link.url}</output></p>
+            <Botao variante="secundario" onClick={() => navigator.clipboard?.writeText(link.url).then(() => setCopiado(true)).catch(() => {})}>
+              {copiado ? 'Link copiado' : 'Copiar link'}
+            </Botao>
+          </Aviso>
+        )}
+      </form>
+      <EstadoDaCarga estado={lista.estado} tentarDeNovo={lista.tentarDeNovo} rotulo="Carregando convites">
+        {(cs) => cs.length > 0 && (
+          <Painel titulo="Convites esperando resposta">
+            <ul className="lista-linhas">
+              {cs.map((c) => (
+                <li key={c.id}>
+                  <div><strong>{c.email}</strong><span>{nomePerfil[c.perfil]}. Vale até {dataHoraPorExtenso(c.expiraEm)}.</span></div>
+                  <div className="acoes-linha">
+                    <Botao variante="secundario" onClick={() => pedir(rotas.admin.novoLink(c.id))}>Gerar link novo</Botao>
+                    <Botao variante="texto" onClick={() => cancelar(c.id)}>Cancelar convite</Botao>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </Painel>
+        )}
+      </EstadoDaCarga>
+    </div>
+  );
+}
+
+function Usuarios({ convida }: { convida: boolean }) {
   const s = useSessao();
   const lista = useApi<UsuarioDaRede[]>(rotas.admin.usuarios, [s.rede?.id, s.escola?.id]);
   return (
     <div className="pilha">
-      <p>Quem tem acesso e com qual perfil. Na versão real, o vínculo vem do cadastro de servidores da rede.</p>
+      {convida && <Convites />}
+      <p>Quem já usa o sistema e com qual perfil. Tirar alguém da escola não apaga o que a pessoa registrou.</p>
       <EstadoDaCarga estado={lista.estado} tentarDeNovo={lista.tentarDeNovo} rotulo="Carregando usuários">
         {(us) => (
           <Tabela
@@ -373,20 +453,20 @@ export function Administracao() {
   return (
     <div className="pagina">
       <div className="pagina-cabeca">
-        <h1>Administração</h1>
+        <h1>{rede ? 'Rede' : 'Escola'}</h1>
         <p>
-          {rede ? `Configuração da ${s.rede?.nome}, válida para todas as escolas.` : `Configuração da ${s.escola?.nome}. O protocolo, os tipos e os modelos vêm da rede.`}
+          {rede ? `Configuração da ${s.rede?.nome}, válida para todas as escolas.` : `${s.escola?.nome}: alunos, equipe e como a escola acompanha cada tipo de ocorrência.`}
         </p>
       </div>
       <Abas
-        rotulo="Áreas da administração"
+        rotulo={rede ? 'Partes da rede' : 'Partes da escola'}
         abas={[
-          { id: 'protocolo', titulo: 'Protocolo da rede', conteudo: <Protocolo edita={rede} /> },
+          { id: 'pessoas', titulo: 'Alunos', conteudo: <Pessoas edita={escola} /> },
+          { id: 'usuarios', titulo: 'Equipe', conteudo: <Usuarios convida={escola} /> },
           { id: 'tipos', titulo: 'Tipos de ocorrência', conteudo: <Tipos edita={rede} /> },
-          { id: 'modelos', titulo: 'Modelos', conteudo: <Modelos edita={rede} /> },
-          { id: 'contatos', titulo: 'Contatos da escola', conteudo: <Contatos edita={escola} /> },
-          { id: 'pessoas', titulo: 'Pessoas e turmas', conteudo: <Pessoas edita={escola} /> },
-          { id: 'usuarios', titulo: 'Usuários', conteudo: <Usuarios /> },
+          { id: 'protocolo', titulo: 'Próximos passos', conteudo: <Protocolo edita={rede} /> },
+          { id: 'contatos', titulo: 'Rede de apoio', conteudo: <Contatos edita={escola} /> },
+          { id: 'modelos', titulo: 'Modelos de mensagem', conteudo: <Modelos edita={rede} /> },
           { id: 'permissoes', titulo: 'Permissões', conteudo: <Permissoes /> },
           { id: 'auditoria', titulo: 'Auditoria', conteudo: <Auditoria /> },
         ]}

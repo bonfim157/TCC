@@ -36,6 +36,12 @@ await p.waitForTimeout(1500);
 log('indicadores:', (await p.locator('.indicador').allTextContents()).join(' | '));
 log('fila:', (await p.locator('.fila-item .fila-linha strong').allTextContents()).join(', '));
 await p.screenshot({ path: `${out}/40-central.png`, fullPage: true });
+// A busca mora dentro de Acompanhamentos: o link leva até ela e volta
+await p.getByRole('link', { name: 'Buscar em todos os registros' }).click();
+await p.waitForTimeout(800);
+log('busca a partir de Acompanhamentos:', new URL(p.url()).pathname, '|', await p.locator('h1').textContent());
+await p.goto(`${B}/central`);
+await p.waitForTimeout(1200);
 
 // Filtro CT
 await p.getByRole('button', { name: /a comunicar ao Conselho Tutelar/ }).click();
@@ -57,7 +63,7 @@ await p.screenshot({ path: `${out}/42-oficio.png` });
 await dialogo(p).getByRole('button', { name: 'Registrar envio do ofício' }).click();
 await p.waitForTimeout(1200);
 log('após ofício, CT pendente na fila:', await p.locator('.fila-item[aria-current=true] .etiqueta', { hasText: 'Comunicar Conselho Tutelar' }).count());
-log('encaminhamentos aba:', await p.getByRole('tab', { name: /Encaminhamentos/ }).textContent());
+log('encaminhamentos aba:', await p.getByRole('tab', { name: /Rede de apoio/ }).textContent());
 
 // Caso 482: comunicação à família com vazamento
 await p.locator('.fila-item', { hasText: '2026-000482' }).click();
@@ -79,16 +85,16 @@ const link = await p.locator('a', { hasText: 'abrir a página que a família ver
 log('link de ciência:', link);
 
 // Encerrar 482: deve bloquear? (providências obrigatórias já feitas?) tentar
-await p.getByRole('button', { name: 'Encerrar caso' }).click();
+await p.getByRole('button', { name: 'Concluir acompanhamento' }).click();
 await p.waitForTimeout(400);
-log('pendências no encerrar:', await dialogo(p).locator('.aviso-atencao', { hasText: 'providência' }).locator('li').allTextContents());
+log('pendências no encerrar:', await dialogo(p).locator('.aviso-atencao', { hasText: 'passo' }).locator('li').allTextContents());
 await dialogo(p).getByLabel('Resultado e motivo do encerramento').fill('Mediação realizada; os estudantes combinaram regras de convivência e as famílias foram informadas.');
 log('ações abertas no encerrar:', await dialogo(p).locator('.aviso-atencao', { hasText: 'plano de apoio' }).locator('li').allTextContents());
-await dialogo(p).getByRole('button', { name: 'Encerrar caso' }).click();
+await dialogo(p).getByRole('button', { name: 'Concluir acompanhamento' }).click();
 await p.waitForTimeout(1000);
 log('encerrar sem cancelar as ações:', await dialogo(p).count() ? (await dialogo(p).locator('.aviso-erro, .campo-erro').first().textContent().catch(() => '(sem mensagem)')) : '(fechou)');
 await dialogo(p).getByLabel(/Cancelar estas 2 ações ao encerrar/).check();
-await dialogo(p).getByRole('button', { name: 'Encerrar caso' }).click();
+await dialogo(p).getByRole('button', { name: 'Concluir acompanhamento' }).click();
 await p.waitForTimeout(1000);
 log('após confirmar o cancelamento, diálogo:', await dialogo(p).count() ? 'aberto' : '(fechou)');
 await p.getByRole('tab', { name: /Plano/ }).click().catch(() => {});
@@ -99,7 +105,7 @@ await dialogo(p).getByRole('button', { name: 'Cancelar' }).click().catch(() => {
 // 481: devolutiva atrasada
 await p.locator('.fila-item', { hasText: '2026-000481' }).click();
 await p.waitForTimeout(1200);
-await p.getByRole('tab', { name: /Encaminhamentos/ }).click();
+await p.getByRole('tab', { name: /Rede de apoio/ }).click();
 log('etiqueta devolutiva 481:', await p.locator('.lista-encaminhamentos .etiqueta').first().textContent());
 await p.getByRole('button', { name: /Registrar devolutiva/ }).click();
 await p.waitForTimeout(300);
@@ -111,10 +117,10 @@ log('etiqueta após devolutiva:', await p.locator('.lista-encaminhamentos .etiqu
 // 484: triagem
 await p.locator('.fila-item', { hasText: '2026-000484' }).click();
 await p.waitForTimeout(1200);
-await p.getByRole('button', { name: 'Concluir triagem' }).click();
+await p.getByRole('button', { name: 'Ler e assumir' }).click();
 await p.waitForTimeout(400);
 await dialogo(p).getByLabel('Quem vai conduzir o caso').selectOption({ label: 'Carlos Mendes, coordenação' });
-await dialogo(p).getByRole('button', { name: 'Concluir triagem' }).click();
+await dialogo(p).getByRole('button', { name: 'Assumir o caso' }).click();
 await p.waitForTimeout(1000);
 log('status 484:', await p.locator('.caso-central-titulo .etiqueta').first().textContent());
 // Dispensar providência obrigatória sem justificativa
@@ -135,7 +141,7 @@ await pub.goto(`${B}${link}`);
 await pub.waitForTimeout(1200);
 log('ciência título:', await pub.locator('h1').textContent());
 await pub.getByLabel('Seu nome').fill('Mãe de Gabriel M.');
-await pub.getByRole('button', { name: 'Confirmo que li esta comunicação' }).click();
+await pub.getByRole('button', { name: 'Confirmar leitura' }).click();
 await pub.waitForTimeout(900);
 log('ciência:', await pub.locator('.aviso h4').textContent());
 await pub.screenshot({ path: `${out}/45-ciencia.png`, fullPage: true });

@@ -125,7 +125,7 @@ export function MeusRegistros() {
                             <span className="cartao-registro-icone" aria-hidden="true"><Icone /></span>
                             <h3>
                               <Link to={`/casos/${o.id}`}>
-                                <span className="visualmente-oculto">Protocolo </span>{o.protocolo}
+                                <span className="visualmente-oculto">Registro nº </span>{o.protocolo}
                               </Link>
                             </h3>
                           </div>

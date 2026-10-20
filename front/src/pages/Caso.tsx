@@ -97,7 +97,7 @@ export function Caso() {
 
               <div className="caso-grade">
                 <div className="pilha-larga">
-                  <Painel titulo="O fato">
+                  <Painel titulo="O que aconteceu">
                     <dl className="resumo">
                       <div><dt>Quando</dt><dd>{diaPorExtenso(f.data)}, {horaLegivel(f.hora)}</dd></div>
                       <div><dt>Onde</dt><dd>{f.local}</dd></div>
@@ -116,7 +116,7 @@ export function Caso() {
                 </div>
 
                 <div className="pilha-larga">
-                  <Painel titulo="Envolvidos">
+                  <Painel titulo="Quem estava junto">
                     {o.envolvidos.length === 0 ? (
                       <p>Nenhuma pessoa identificada.</p>
                     ) : (
@@ -133,7 +133,7 @@ export function Caso() {
 
                   <Painel titulo="Plano de apoio">
                     {o.plano.length === 0 ? (
-                      <p>Ainda sem ações. A coordenação define o plano depois da triagem.</p>
+                      <p>Ainda sem ações. A coordenação define o plano depois de ler o registro.</p>
                     ) : (
                       <Tabela
                         legenda="Ações do plano de apoio"
@@ -154,7 +154,7 @@ export function Caso() {
                       {o.registroNaRede
                         ? `Lançado no sistema oficial da rede: ${o.registroNaRede}.`
                         : s.rede?.id === 'rede-sp'
-                          ? 'Ainda não lançado no Conviva SP. A coordenação faz esse lançamento na triagem.'
+                          ? 'Ainda não lançado no Conviva SP. A coordenação faz esse lançamento ao ler o registro.'
                           : 'Ainda não lançado no sistema oficial da rede.'}
                     </p>
                   </Painel>

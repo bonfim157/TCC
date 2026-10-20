@@ -6,14 +6,14 @@ import { dataHoraCurta } from '../util/formato';
 
 export const nomeEvento: Record<TipoEvento, string> = {
   registro: 'Registro criado',
-  triagem: 'Triagem',
-  escuta: 'Escuta realizada',
+  triagem: 'A coordenação leu e assumiu',
+  escuta: 'Conversa com os estudantes',
   comunicacao_familia: 'Comunicação com a família',
-  encaminhamento: 'Encaminhamento',
-  adendo: 'Adendo',
+  encaminhamento: 'Pedido de apoio à rede',
+  adendo: 'Informação acrescentada',
   reavaliacao: 'Reavaliação',
-  providencia: 'Providência',
-  encerramento: 'Caso encerrado',
+  providencia: 'Próximo passo',
+  encerramento: 'Acompanhamento concluído',
 };
 
 export const situacaoPlano = {

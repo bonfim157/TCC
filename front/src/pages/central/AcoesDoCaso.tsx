@@ -44,9 +44,9 @@ export function AcoesDoCaso({ o, encerrado, emTriagem, temCt, ctPendente, podeEn
   return (
     <div className="acoes-caso">
       <div className="barra-acoes" role="group" aria-label="Ações do caso">
-        {principal === 'triagem' && <Botao onClick={() => abrir({ tipo: 'triagem' })}>Concluir triagem</Botao>}
+        {principal === 'triagem' && <Botao onClick={() => abrir({ tipo: 'triagem' })}>Ler e assumir</Botao>}
         {principal === 'oficio' && <Botao onClick={() => abrir({ tipo: 'comunicar', para: 'conselho_tutelar' })}>Ofício ao Conselho Tutelar</Botao>}
-        <Botao variante={principal === 'escuta' ? 'primario' : 'secundario'} onClick={() => abrir({ tipo: 'registro' })}>Registrar escuta</Botao>
+        <Botao variante={principal === 'escuta' ? 'primario' : 'secundario'} onClick={() => abrir({ tipo: 'registro' })}>Registrar conversa</Botao>
         {oficioNoMenu ? (
           <Botao
             variante="secundario"
@@ -60,10 +60,10 @@ export function AcoesDoCaso({ o, encerrado, emTriagem, temCt, ctPendente, podeEn
         ) : (
           <Botao variante="secundario" onClick={() => abrir({ tipo: 'comunicar', para: 'familia' })}>Comunicar família</Botao>
         )}
-        <Botao variante="secundario" onClick={() => abrir({ tipo: 'encaminhar' })}>Encaminhar</Botao>
+        <Botao variante="secundario" onClick={() => abrir({ tipo: 'encaminhar' })}>Pedir apoio da rede</Botao>
         {/* O plano de apoio depende da triagem: quem conduz e qual a prioridade. */}
         {!emTriagem && <Botao variante="secundario" onClick={() => abrir({ tipo: 'plano' })}>Incluir no plano</Botao>}
-        {podeEncerrar && <Botao variante="texto" onClick={() => abrir({ tipo: 'encerrar' })}>Encerrar caso</Botao>}
+        {podeEncerrar && <Botao variante="texto" onClick={() => abrir({ tipo: 'encerrar' })}>Concluir acompanhamento</Botao>}
       </div>
       {oficioNoMenu && comunicarAberto && (
         <div id={idComunicar} className="barra-acoes barra-acoes-sub" role="group" aria-label="Comunicar">

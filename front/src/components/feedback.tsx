@@ -2,11 +2,11 @@ import { createContext, useCallback, useContext, useState, type ReactNode } from
 import { nomeStatus, type Prioridade, type StatusCaso } from '../api/contract';
 import type { EstadoCarga } from '../state/useApi';
 import { Botao } from './controles';
-import { IconeAtencao, IconeErro, IconeInfo, IconeOk, IconeSemConexao } from './icones';
+import { IconeAtencao, IconeErro, IconeInfo, IconeLapis, IconeOk, IconeSemConexao } from './icones';
 
 /* ---------- Aviso ---------- */
-type TipoAviso = 'info' | 'atencao' | 'erro' | 'sucesso';
-const iconeAviso = { info: IconeInfo, atencao: IconeAtencao, erro: IconeErro, sucesso: IconeOk };
+type TipoAviso = 'info' | 'atencao' | 'erro' | 'sucesso' | 'marca';
+const iconeAviso = { info: IconeInfo, atencao: IconeAtencao, erro: IconeErro, sucesso: IconeOk, marca: IconeLapis };
 
 export function Aviso({
   tipo = 'info', titulo, children, acoes, icone,

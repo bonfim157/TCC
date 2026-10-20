@@ -60,7 +60,7 @@ await p.getByLabel('Convivência ou conflito').focus();
 await p.keyboard.press('Space');
 await escolherDataHora(p, 25, 'setembro de 2026', '09', '40');
 await p.getByLabel('Local').fill('Pátio');
-await p.getByLabel('Relato do que aconteceu').fill('Dois estudantes discutiram na fila da cantina e um derrubou a bandeja do outro.');
+await p.locator('#campo-relato').fill('Dois estudantes discutiram na fila da cantina e um derrubou a bandeja do outro.');
 await p.getByLabel('Não').check();
 await p.waitForTimeout(300);
 log('salvo:', await p.locator('.registrar-salvo p').textContent());
@@ -69,7 +69,7 @@ log('url com rascunho:', p.url());
 // 3. Recarregar mantém o rascunho
 await p.reload();
 await p.waitForTimeout(1500);
-log('após recarregar, local =', await p.getByLabel('Local').inputValue(), '| relato tem', (await p.getByLabel('Relato do que aconteceu').inputValue()).length, 'caracteres');
+log('após recarregar, local =', await p.getByLabel('Local').inputValue(), '| relato tem', (await p.locator('#campo-relato').inputValue()).length, 'caracteres');
 
 await p.getByRole('button', { name: 'Continuar' }).click();
 await p.waitForTimeout(500);
@@ -102,17 +102,17 @@ await p.screenshot({ path: `${out}/33-revisao.png`, fullPage: true });
 await ctx.setOffline(true);
 await p.evaluate(() => dispatchEvent(new Event('offline')));
 await p.waitForTimeout(300);
-log('botão enviar desativado offline:', await p.getByRole('button', { name: 'Enviar para triagem' }).isDisabled());
+log('botão enviar desativado offline:', await p.getByRole('button', { name: 'Enviar registro' }).isDisabled());
 await ctx.setOffline(false);
 await p.evaluate(() => dispatchEvent(new Event('online')));
 await p.waitForTimeout(300);
 
 // Enviar sem confirmar
-await p.getByRole('button', { name: 'Enviar para triagem' }).click();
+await p.getByRole('button', { name: 'Enviar registro' }).click();
 await p.waitForTimeout(300);
 log('erro confirmação:', await p.locator('.resumo-erros li').allTextContents());
 await p.getByLabel(/Confirmo que o relato/).check();
-await p.getByRole('button', { name: 'Enviar para triagem' }).click();
+await p.getByRole('button', { name: 'Enviar registro' }).click();
 await p.waitForTimeout(1500);
 log('protocolo:', await p.locator('.protocolo-numero').textContent());
 await p.screenshot({ path: `${out}/34-enviado.png` });

@@ -20,8 +20,8 @@ import { Enviado } from './Enviado';
 
 export type Erros = Record<string, string>;
 
-const etapas = ['O fato', 'Envolvidos', 'Revisão'];
-const titulos = ['O que aconteceu?', 'Quem esteve envolvido?', 'Revise e envie'];
+const etapas = ['O que aconteceu', 'Quem estava junto', 'Revisar e enviar'];
+const titulos = ['O que aconteceu', 'Quem estava junto', 'Revisar e enviar'];
 
 function novoRascunho(): RascunhoRegistro {
   return {
@@ -167,8 +167,8 @@ function FormularioDeRegistro({ dono }: { dono: Dono }) {
 
       <div className="pagina-cabeca">
         <h1 ref={titulo} tabIndex={-1}>{titulos[r.passo - 1]}</h1>
-        {r.passo === 1 && <p>Descreva o fato de forma objetiva. Tudo o que você escrever fica salvo neste aparelho até o envio.</p>}
-        {r.passo === 2 && <p>Inclua apenas quem é necessário para entender o fato. Cada pessoa tem um nível de visibilidade.</p>}
+        {r.passo === 1 && <p>Conte o que você viu ou ouviu. O que você escrever fica salvo neste aparelho até enviar.</p>}
+        {r.passo === 2 && <p>Inclua só quem é preciso para entender o que aconteceu. Para cada pessoa, você escolhe quem pode ver o nome.</p>}
         {r.passo === 3 && <p>Confira antes de enviar. Depois do envio, correções entram como adendo identificado, sem apagar o que foi escrito.</p>}
       </div>
 
@@ -214,7 +214,7 @@ function FormularioDeRegistro({ dono }: { dono: Dono }) {
           {r.passo < 3 && <Botao onClick={continuar}>Continuar</Botao>}
           {r.passo === 3 && (
             <Botao onClick={enviar} carregando={enviando} disabled={!online}>
-              {r.risco === 'sim' ? 'Enviar e avisar a direção' : 'Enviar para triagem'}
+              {r.risco === 'sim' ? 'Enviar e avisar a direção' : 'Enviar registro'}
             </Botao>
           )}
         </div>

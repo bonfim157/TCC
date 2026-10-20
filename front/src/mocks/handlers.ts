@@ -23,6 +23,16 @@ function validar(n: NovaOcorrencia): string | null {
 }
 
 export const handlers = [
+  // Na demonstração o cadastro só confere o formato: não há login por senha para entrar depois.
+  http.post('/api/cadastro-escola', async ({ request }) => {
+    await delay(400);
+    const corpo = (await request.json()) as { inep?: string };
+    if (!/^\d{8}$/.test(String(corpo.inep ?? '').replace(/\D/g, ''))) {
+      return erro(422, 'validacao', 'O código INEP da escola tem 8 números. Ele aparece no Censo Escolar e no site do INEP.');
+    }
+    return json({ ok: true, redeId: `rede-e${corpo.inep}` }, 201);
+  }),
+
   http.get('/api/redes', async () => {
     await delay(200);
     return json(redes);

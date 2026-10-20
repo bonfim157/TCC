@@ -154,6 +154,9 @@ select.entrada {
 .aviso-info { border-color: var(--accent); background: var(--accent-soft); }
 .aviso-info .aviso-icone { color: var(--accent-ink); }
 .aviso-atencao { border-color: var(--warn); background: var(--warnSoft); }
+/* Marca-texto: o que é da pessoa e espera por ela (rascunho, prazo). */
+.aviso-marca { border-color: var(--marcaLinha); background: var(--marcaSoft); }
+.aviso-marca .aviso-icone { color: var(--ink); }
 .aviso-atencao .aviso-icone { color: var(--warn); }
 .aviso-erro { border-color: var(--urgent); background: var(--urgentSoft); }
 .aviso-erro .aviso-icone { color: var(--urgent); }

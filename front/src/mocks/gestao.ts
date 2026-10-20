@@ -1,6 +1,6 @@
 import { delay, http } from 'msw';
 import type {
-  Contagem, ContatosLocais, Exportacao, ModeloDeComunicacao, PedidoExportacao, PedidoNovaPessoa, Perfil, Relatorio,
+  Contagem, ContatosLocais, Convite, ConvitePublico, Exportacao, PedidoConvite, ModeloDeComunicacao, PedidoExportacao, PedidoNovaPessoa, Perfil, Relatorio,
   RegraDoProtocolo, ResultadoDeBusca, UsuarioDaRede,
 } from '../api/contract';
 import { rotuloStatus } from '../components/feedback';
@@ -12,6 +12,8 @@ import { categorias, contatos, escolas, ocorrencias, pessoas, regionais, usuario
 
 /** Grupos com menos casos que isso aparecem suprimidos, para não identificar pessoas. */
 const LIMITE_MINIMO = 3;
+
+const convitesDemo: (Convite & { token: string; escolaId: string; situacao: ConvitePublico['situacao'] })[] = [];
 
 const podeBuscar = (ctx: Contexto) => conduz(ctx) || ctx.vinculo.perfil === 'diretoria_regional';
 const podeRelatorio = (ctx: Contexto) => (['direcao', 'diretoria_regional', 'secretaria'] as Perfil[]).includes(ctx.vinculo.perfil);
@@ -163,7 +165,7 @@ export const handlersGestao = [
     const regra = regras.find((r) => r.id === params.id && r.redeId === ctx.vinculo.redeId);
     if (!regra) return erro(404, 'nao_encontrado', 'Regra não encontrada.');
     const p = (await request.json()) as Partial<RegraDoProtocolo>;
-    if (p.descricao !== undefined && p.descricao.trim().length < 10) return erro(422, 'validacao', 'Descreva a providência com pelo menos 10 caracteres.');
+    if (p.descricao !== undefined && p.descricao.trim().length < 10) return erro(422, 'validacao', 'Descreva o passo com pelo menos 10 caracteres.');
     Object.assign(regra, {
       descricao: p.descricao?.trim() ?? regra.descricao,
       base: p.base?.trim() ?? regra.base,
@@ -243,6 +245,67 @@ export const handlersGestao = [
     pessoas.push(nova);
     auditar(ctx, 'administracao', 'cadastro de pessoa', 'permitido', p.tipo);
     return json(nova, 201);
+  }),
+
+  // Convites na demonstração: ficam só na memória desta aba e não criam contas de verdade.
+  http.get('/api/admin/convites', async ({ request }) => {
+    await delay(200);
+    const ctx = contexto(request);
+    if (ctx instanceof Response) return ctx;
+    if (!administraEscola(ctx)) return negar(ctx, 'convites', 'Só a direção da escola vê os convites.');
+    return json(convitesDemo.filter((c) => c.escolaId === ctx.escolaId && c.situacao === 'pendente').map(({ id, email, perfil, expiraEm }) => ({ id, email, perfil, expiraEm })));
+  }),
+
+  http.post('/api/admin/convites', async ({ request }) => {
+    await delay(300);
+    const ctx = contexto(request);
+    if (ctx instanceof Response) return ctx;
+    if (!administraEscola(ctx) || !ctx.escolaId) return negar(ctx, 'convites', 'Só a direção da escola convida pessoas.');
+    const p = (await request.json()) as PedidoConvite;
+    const email = p.email.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return erro(422, 'validacao', 'Confira o e-mail.');
+    if (convitesDemo.some((c) => c.email === email && c.escolaId === ctx.escolaId && c.situacao === 'pendente')) {
+      return erro(409, 'conflito', 'Já existe um convite esperando resposta para este e-mail. Gere um link novo nele, se precisar.');
+    }
+    const c = { id: `cv-${Date.now()}`, token: `demo${Date.now()}`, email, perfil: p.perfil, escolaId: ctx.escolaId, expiraEm: new Date(Date.now() + 7 * 864e5).toISOString(), situacao: 'pendente' as ConvitePublico['situacao'] };
+    convitesDemo.push(c);
+    auditar(ctx, 'administracao', 'convite', 'permitido', `perfil ${p.perfil}`);
+    return json({ convite: { id: c.id, email, perfil: c.perfil, expiraEm: c.expiraEm } satisfies Convite, link: `/convite/${c.token}` }, 201);
+  }),
+
+  http.post('/api/admin/convites/:id/link', async ({ request, params }) => {
+    const ctx = contexto(request);
+    if (ctx instanceof Response) return ctx;
+    const c = convitesDemo.find((x) => x.id === params.id && x.escolaId === ctx.escolaId && x.situacao === 'pendente');
+    if (!c) return erro(404, 'nao_encontrado', 'Convite não encontrado.');
+    c.token = `demo${Date.now()}`;
+    return json({ convite: { id: c.id, email: c.email, perfil: c.perfil, expiraEm: c.expiraEm }, link: `/convite/${c.token}` });
+  }),
+
+  http.delete('/api/admin/convites/:id', async ({ request, params }) => {
+    const ctx = contexto(request);
+    if (ctx instanceof Response) return ctx;
+    const c = convitesDemo.find((x) => x.id === params.id && x.escolaId === ctx.escolaId);
+    if (!c) return erro(404, 'nao_encontrado', 'Convite não encontrado.');
+    c.situacao = 'cancelado';
+    return json({ ok: true });
+  }),
+
+  http.get('/api/convites/:token', async ({ params }) => {
+    await delay(200);
+    const c = convitesDemo.find((x) => x.token === params.token);
+    if (!c) return erro(404, 'nao_encontrado', 'Este convite não existe. Confira o link ou peça um novo à direção da escola.');
+    const escola = escolas.find((e) => e.id === c.escolaId)?.nome ?? '';
+    return json({ escola, perfil: c.perfil, email: c.email, expiraEm: c.expiraEm, situacao: c.situacao, temConta: false } satisfies ConvitePublico);
+  }),
+
+  http.post('/api/convites/:token/aceitar', async ({ params }) => {
+    await delay(300);
+    const c = convitesDemo.find((x) => x.token === params.token);
+    if (!c) return erro(404, 'nao_encontrado', 'Este convite não existe.');
+    if (c.situacao !== 'pendente') return erro(409, 'conflito', 'Este convite não vale mais.');
+    c.situacao = 'aceito';
+    return json({ novaConta: true });
   }),
 
   http.get('/api/admin/usuarios', async ({ request }) => {

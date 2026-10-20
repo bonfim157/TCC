@@ -114,3 +114,6 @@ export const IconeCalendario = (p: SVGProps<SVGSVGElement>) => (
 export const IconeRegra = (p: SVGProps<SVGSVGElement>) => (
   <svg {...base(p)}><circle cx="12" cy="12" r="9.5" /><path d="m5.5 5.5 13 13" /></svg>
 );
+export const IconeCarta = (p: SVGProps<SVGSVGElement>) => (
+  <svg {...base(p)}><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>
+);

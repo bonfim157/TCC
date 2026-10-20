@@ -23,16 +23,16 @@ export type Area =
   | 'relatorios'
   | 'administracao';
 
-export type ItemNav = { area: Area; rotulo: string; caminho: string; descricao: string };
+export type ItemNav = { area: Area; rotulo: string; curto?: string; caminho: string; descricao: string };
 
 export const navegacao: ItemNav[] = [
   { area: 'inicio', rotulo: 'Início', caminho: '/', descricao: 'Atalhos e prazos próximos.' },
   { area: 'registrar', rotulo: 'Registrar', caminho: '/registrar', descricao: 'Registrar uma ocorrência em três passos.' },
   { area: 'meus-registros', rotulo: 'Meus registros', caminho: '/meus-registros', descricao: 'Registros enviados e rascunhos.' },
-  { area: 'central', rotulo: 'Central de gestão', caminho: '/central', descricao: 'Fila, caso, providências e agenda em uma tela.' },
+  { area: 'central', rotulo: 'Acompanhamentos', curto: 'Acompanhar', caminho: '/central', descricao: 'Os registros da escola, do que chegou agora ao que já foi concluído.' },
   { area: 'buscar', rotulo: 'Buscar', caminho: '/buscar', descricao: 'Encontrar casos por período, tipo e situação.' },
   { area: 'relatorios', rotulo: 'Relatórios', caminho: '/relatorios', descricao: 'Números agregados, sem expor casos individuais.' },
-  { area: 'administracao', rotulo: 'Administração', caminho: '/administracao', descricao: 'Protocolo da rede, escolas, usuários e modelos.' },
+  { area: 'administracao', rotulo: 'Escola', caminho: '/administracao', descricao: 'Alunos, equipe, tipos de ocorrência, próximos passos e modelos.' },
 ];
 
 /** Matriz de acesso do front. O backend aplica a mesma regra; esconder na tela não é segurança. */

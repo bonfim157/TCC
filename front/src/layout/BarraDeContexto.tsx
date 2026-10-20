@@ -12,22 +12,51 @@ type Troca = { tipo: 'rede' | 'escola'; valor: string } | null;
  * "ver como" da demonstração) só aparecem ao tocar em "Trocar". Trocar de
  * contexto com um formulário alterado pede confirmação antes.
  */
-export function BarraDeContexto() {
+/**
+ * Trocar de escola ou de rede. Uma escola cadastrada pela própria direção é
+ * uma rede só dela, então "trocar de escola" pode ser trocar de rede. Com um
+ * formulário alterado, pede confirmação antes.
+ */
+export function useTrocaDeEscola() {
   const s = useSessao();
   const { haRascunho } = useGuardaDeRascunho();
   const [pendente, setPendente] = useState<Troca>(null);
+  const aplicar = (t: NonNullable<Troca>) => (t.tipo === 'rede' ? s.trocarRede(t.valor) : s.trocarEscola(t.valor));
+  const pedir = (t: NonNullable<Troca>) => (haRascunho ? setPendente(t) : aplicar(t));
+  const nomeDestino =
+    pendente?.tipo === 'rede'
+      ? s.redes.find((r) => r.id === pendente.valor)?.nome
+      : s.escolas.find((e) => e.id === pendente?.valor)?.nome;
+  const dialogo = (
+    <DialogoConfirmacao
+      aberto={pendente !== null}
+      titulo="Trocar de escola?"
+      confirmar="Descartar e trocar"
+      cancelar="Continuar editando"
+      perigoso
+      aoCancelar={() => setPendente(null)}
+      aoConfirmar={() => {
+        if (pendente) aplicar(pendente);
+        setPendente(null);
+      }}
+    >
+      <p>
+        Há um formulário com alterações não enviadas. Se você for para <strong>{nomeDestino}</strong> agora, essas
+        alterações serão descartadas.
+      </p>
+    </DialogoConfirmacao>
+  );
+  return { pedir, dialogo };
+}
+
+export function BarraDeContexto() {
+  const s = useSessao();
+  const { pedir, dialogo } = useTrocaDeEscola();
   const id = useId();
 
   if (!s.sessao || !s.rede) return null;
 
   const redesDoUsuario = s.redes.filter((r) => s.sessao!.usuario.vinculos.some((v) => v.redeId === r.id));
-  const aplicar = (t: NonNullable<Troca>) => (t.tipo === 'rede' ? s.trocarRede(t.valor) : s.trocarEscola(t.valor));
-  const pedir = (t: NonNullable<Troca>) => (haRascunho ? setPendente(t) : aplicar(t));
-
-  const nomeDestino =
-    pendente?.tipo === 'rede'
-      ? s.redes.find((r) => r.id === pendente.valor)?.nome
-      : s.escolas.find((e) => e.id === pendente?.valor)?.nome;
 
   const campos = (
     <>
@@ -74,7 +103,7 @@ export function BarraDeContexto() {
   // Recolhido numa linha com escola e perfil; os seletores abrem sob demanda.
   const resumo = (
     <span className="contexto-resumo">
-      <strong>{s.escola?.sigla ?? s.escola?.nome ?? s.rede.nome}</strong>
+      <strong>{s.escola?.nome ?? s.rede.nome}</strong>
       <span>{s.perfil ? nomePerfil[s.perfil] : ''}{s.perfilDemo ? ' (vendo como)' : ''}</span>
     </span>
   );
@@ -95,23 +124,7 @@ export function BarraDeContexto() {
     <>
       {barra}
 
-      <DialogoConfirmacao
-        aberto={pendente !== null}
-        titulo={pendente?.tipo === 'rede' ? 'Trocar de rede?' : 'Trocar de escola?'}
-        confirmar="Descartar e trocar"
-        cancelar="Continuar editando"
-        perigoso
-        aoCancelar={() => setPendente(null)}
-        aoConfirmar={() => {
-          if (pendente) aplicar(pendente);
-          setPendente(null);
-        }}
-      >
-        <p>
-          Há um formulário com alterações não enviadas. Se você for para <strong>{nomeDestino}</strong> agora, essas
-          alterações serão descartadas.
-        </p>
-      </DialogoConfirmacao>
+      {dialogo}
     </>
   );
 }

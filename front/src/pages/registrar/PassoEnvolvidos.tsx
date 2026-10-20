@@ -7,9 +7,9 @@ import type { RascunhoRegistro } from '../../state/rascunhosLocais';
 import type { Erros } from './Registrar';
 
 export const nomePapel: Record<PapelNoFato, string> = {
-  envolvido_direto: 'Envolvido diretamente',
-  afetado: 'Pessoa afetada',
-  testemunha: 'Testemunha',
+  envolvido_direto: 'Participou',
+  afetado: 'Foi afetado(a)',
+  testemunha: 'Viu o que aconteceu',
 };
 
 export const nomeVisibilidade: Record<Visibilidade, string> = {
