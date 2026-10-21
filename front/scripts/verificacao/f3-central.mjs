@@ -36,6 +36,12 @@ await p.waitForTimeout(1500);
 log('indicadores:', (await p.locator('.indicador').allTextContents()).join(' | '));
 log('fila:', (await p.locator('.fila-item .fila-linha strong').allTextContents()).join(', '));
 await p.screenshot({ path: `${out}/40-central.png`, fullPage: true });
+// A busca mora dentro de Acompanhamentos: o link leva até ela
+await p.getByRole('link', { name: 'Buscar em todos os registros' }).click();
+await p.waitForTimeout(800);
+log('busca a partir de Acompanhamentos:', new URL(p.url()).pathname, '|', await p.locator('h1').textContent());
+await p.goto(`${B}/central`);
+await p.waitForTimeout(1200);
 // A busca mora dentro de Acompanhamentos: o link leva até ela e volta
 await p.getByRole('link', { name: 'Buscar em todos os registros' }).click();
 await p.waitForTimeout(800);

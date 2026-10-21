@@ -291,6 +291,9 @@ export const handlersGestao = [
     return json({ ok: true });
   }),
 
+  // Convites recebidos: na demonstração as pessoas fictícias não têm convites de outras escolas.
+  http.get('/api/convites', () => json([])),
+
   http.get('/api/convites/:token', async ({ params }) => {
     await delay(200);
     const c = convitesDemo.find((x) => x.token === params.token);

@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useOutletContext } from 'react-router-dom';
 import { api, apiReal, ErroDaApi, FalhaDeRede } from '../api/client';
-import { rotas } from '../api/contract';
+import { rotas, type ConviteRecebido, type Usuario } from '../api/contract';
 import { Botao, CampoTexto } from '../components/controles';
 import { Painel } from '../components/estrutura';
 import { Aviso, useNotificar } from '../components/feedback';
@@ -10,6 +10,8 @@ import { iniciais } from '../layout/Estrutura';
 import { OpcoesDeAparencia } from '../layout/MenuAparencia';
 import { nomePerfil } from '../state/perfis';
 import { useSessao } from '../state/sessao';
+import { useApi } from '../state/useApi';
+import { dataHoraPorExtenso } from '../util/formato';
 
 /**
  * Minha conta: as escolas em que a pessoa atua (e a troca entre elas), senha,
@@ -52,6 +54,7 @@ export function Conta() {
               {l.emUso ? <span className="em-uso">Em uso agora</span> : <Botao variante="secundario" onClick={l.trocar}>Usar esta escola</Botao>}
             </li>
           ))}
+          <ConvitesRecebidos />
         </ul>
       </Painel>
 
@@ -140,5 +143,54 @@ function TrocarSenha() {
         <Botao variante="texto" onClick={() => setAberto(false)}>Cancelar</Botao>
       </div>
     </form>
+  );
+}
+
+/**
+ * Convites de outras escolas para o e-mail desta conta: aceitar aqui dispensa o
+ * link. Aceitar acrescenta a escola; recusar avisa a direção que mandou.
+ */
+function ConvitesRecebidos() {
+  const s = useSessao();
+  const notificar = useNotificar();
+  const [versao, setVersao] = useState(0);
+  const lista = useApi<ConviteRecebido[]>(rotas.convitesRecebidos, [versao]);
+  const [erro, setErro] = useState<string | null>(null);
+  if (lista.estado.tipo !== 'ok' || lista.estado.dados.length === 0) return erro ? <li><Aviso tipo="erro">{erro}</Aviso></li> : null;
+
+  async function responder(c: ConviteRecebido, aceitar: boolean) {
+    try {
+      await api(aceitar ? rotas.aceitarRecebido(c.id) : rotas.recusarRecebido(c.id), { method: 'POST', body: '{}' });
+      setErro(null);
+      if (aceitar) {
+        // Busca de novo os vínculos, agora com a escola nova.
+        const { usuario } = await api<{ usuario: Usuario }>(rotas.sessao);
+        s.entrarComUsuario(usuario);
+        notificar(`Convite aceito. ${c.escola} já está em Suas escolas.`);
+      } else {
+        notificar('Convite recusado.');
+      }
+      setVersao((v) => v + 1);
+    } catch (e) {
+      setErro(e instanceof FalhaDeRede ? 'Sem conexão. Tente de novo.' : e instanceof ErroDaApi ? e.message : 'Não foi possível responder ao convite.');
+    }
+  }
+
+  return (
+    <>
+      {erro && <li><Aviso tipo="erro">{erro}</Aviso></li>}
+      {lista.estado.dados.map((c) => (
+        <li key={c.id} className="convite-recebido">
+          <div>
+            <strong>Convite de {c.escola}</strong>
+            <span>Para entrar como {nomePerfil[c.perfil].toLowerCase()}. Vale até {dataHoraPorExtenso(c.expiraEm)}.</span>
+          </div>
+          <div className="acoes-linha">
+            <Botao onClick={() => responder(c, true)}>Aceitar convite</Botao>
+            <Botao variante="texto" onClick={() => responder(c, false)}>Recusar</Botao>
+          </div>
+        </li>
+      ))}
+    </>
   );
 }

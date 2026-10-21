@@ -301,10 +301,10 @@ export function rotasDeGestao(app: Hono) {
   /** Novo token para o convite: guarda só o hash (no convite e no índice público) e devolve o link uma vez. */
   async function novoLink(db: Cliente, redeId: string, id: string): Promise<string> {
     const token = novoToken();
-    const antigo = (await db.query<{ token_hash: string }>('select token_hash from convites where id = $1', [id])).rows[0];
-    if (antigo) await db.query('delete from tokens_convite where token_hash = $1', [antigo.token_hash]);
+    const antigo = (await db.query<{ token_hash: string; email: string }>('select token_hash, email from convites where id = $1', [id])).rows[0];
+    await db.query('delete from tokens_convite where token_hash = $1', [antigo.token_hash]);
     await db.query('update convites set token_hash = $2 where id = $1', [id, hashDoToken(token)]);
-    await db.query('insert into tokens_convite (token_hash, rede_id) values ($1, $2)', [hashDoToken(token), redeId]);
+    await db.query('insert into tokens_convite (token_hash, rede_id, convite_id, email) values ($1, $2, $3, $4)', [hashDoToken(token), redeId, id, antigo.email]);
     return `/convite/${token}`;
   }
 

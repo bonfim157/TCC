@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { api, apiReal, ErroDaApi, FalhaDeRede } from '../api/client';
 import { rotas, type Usuario } from '../api/contract';
 import { Botao, GrupoOpcoes } from '../components/controles';
@@ -87,6 +87,7 @@ const principais: Perfil[] = ['professor', 'coordenacao', 'direcao'];
 function EntrarDemonstracao() {
   const s = useSessao();
   const navegar = useNavigate();
+  const destino = (useLocation().state as { de?: string } | null)?.de ?? '/';
   const [redeId, setRedeId] = useState<string | null>(null);
   // A lista guarda a rede a que pertence: ao trocar de rede, a lista antiga nunca é exibida.
   const [carga, setCarga] = useState<{ redeId: string; lista: Usuario[] } | null>(null);
@@ -132,7 +133,7 @@ function EntrarDemonstracao() {
     setEnviando(true);
     try {
       await s.entrar(redeId!, usuarioId!);
-      navegar('/', { replace: true });
+      navegar(destino, { replace: true });
     } catch (err) {
       setErros({
         envio:

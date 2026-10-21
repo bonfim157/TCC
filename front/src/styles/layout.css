@@ -20,7 +20,7 @@
 
 /* ---------- Menu lateral (computador) ---------- */
 .lateral {
-  flex: none; width: 264px; position: sticky; top: 0; align-self: flex-start; height: 100dvh; overflow-y: auto;
+  flex: none; width: 264px; position: sticky; top: 0; align-self: flex-start; height: calc(100dvh - var(--faixa-altura, 0px)); overflow-y: auto;
   display: flex; flex-direction: column; gap: var(--e5); padding: var(--e5) var(--e4);
   background: var(--lousa); color: var(--onLousa);
 }
@@ -271,3 +271,5 @@ main.acesso-coluna { padding: 0; flex: none; }
 .acesso-coluna-larga { max-width: 560px; }
 @media (min-width: 981px) { .so-celular { display: none !important; } }
 .app-lateral { background: linear-gradient(to right, var(--lousa) 264px, var(--paper) 264px); }
+/* A faixa da demonstração (uma linha no computador) empurra o menu: sem descontar, "Minha conta" passa da primeira tela. */
+:root:has(.faixa-demo) { --faixa-altura: 36px; }

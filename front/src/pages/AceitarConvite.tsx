@@ -53,7 +53,7 @@ function Convite({ c, token }: { c: ConvitePublico; token: string }) {
   if (c.situacao !== 'pendente') {
     const texto = {
       aceito: 'Este convite já foi aceito. Entre com o seu e-mail e senha.',
-      cancelado: 'A escola cancelou este convite. Fale com a direção.',
+      cancelado: 'Este convite foi cancelado ou recusado. Fale com a direção da escola.',
       vencido: 'Este convite venceu. Peça um link novo à direção da escola.',
     }[c.situacao];
     return (
@@ -122,7 +122,7 @@ function Convite({ c, token }: { c: ConvitePublico; token: string }) {
         ) : (
           <>
             <p>Este e-mail já tem conta, por exemplo porque você já usa o sistema em outra escola. Entre com ela e abra este link de novo.</p>
-            <div><Link className="btn btn-primario" to="/entrar?modo=senha">Entrar com a minha conta</Link></div>
+            <div><Link className="btn btn-primario" to="/entrar?modo=senha" state={{ de: `/convite/${token}` }}>Entrar com a minha conta</Link></div>
           </>
         )}
       </div>

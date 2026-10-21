@@ -432,6 +432,9 @@ export type ConvitePublico = {
   /** O e-mail já tem conta: aceitar exige entrar com ela, e o convite só acrescenta a escola. */
   temConta: boolean;
 };
+/** Convite pendente para o e-mail de quem está logado, em Minha conta. */
+export type ConviteRecebido = { id: string; escola: string; perfil: PerfilConvidavel; expiraEm: string };
+
 /** Sem conta: nome e senha criam a conta. Com conta: corpo vazio, vale a sessão. */
 export type PedidoAceitarConvite = { nome?: string; senha?: string };
 
@@ -463,6 +466,9 @@ export const rotas = {
   cadastroEscola: '/api/cadastro-escola',
   convite: (token: string) => `/api/convites/${token}`,
   aceitarConvite: (token: string) => `/api/convites/${token}/aceitar`,
+  convitesRecebidos: '/api/convites',
+  aceitarRecebido: (id: string) => `/api/convites/recebidos/${id}/aceitar`,
+  recusarRecebido: (id: string) => `/api/convites/recebidos/${id}/recusar`,
   escolas: '/api/escolas',
   categorias: '/api/categorias',
   ocorrencias: '/api/ocorrencias',

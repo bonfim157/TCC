@@ -1,5 +1,5 @@
 import type { Context, Hono } from 'hono';
-import type { Ambiente, ConvitePublico, Perfil, RespostaEntrar, Usuario, Vinculo } from '@tcc/compartilhado/contrato';
+import type { Ambiente, ConvitePublico, ConviteRecebido, Perfil, RespostaEntrar, Usuario, Vinculo } from '@tcc/compartilhado/contrato';
 import { esquemaAceitarConvite, esquemaCadastroEscola, esquemaEntrar, esquemaSegundoFator, esquemaTrocaDeSenha } from '@tcc/compartilhado/esquemas';
 import { modelosDaRede, regrasBase } from '@tcc/compartilhado/protocolo';
 import { categoriasDaRede, categoriasSensiveis } from '@tcc/compartilhado/seed';
@@ -249,23 +249,28 @@ export function rotasDeAcesso(app: Hono) {
 
   /* ---------- Convite da escola: a página pública do link ---------- */
 
-  /** Acha o convite pelo token do link. Sem token válido, 404: não revela nada. */
-  async function conviteDoToken(db: Cliente, token: string) {
-    const th = hashDoToken(token);
-    const rede = (await db.query<{ rede_id: string }>('select rede_id from tokens_convite where token_hash = $1', [th])).rows[0]?.rede_id;
+  /** Acha o convite pelo token do link (ou, em Minha conta, pelo id). Sem convite, null: não revela nada. */
+  async function acharConvite(db: Cliente, onde: { token: string } | { id: string }) {
+    const porToken = 'token' in onde;
+    const valor = porToken ? hashDoToken(onde.token) : onde.id;
+    const rede = (await db.query<{ rede_id: string }>(
+      `select rede_id from tokens_convite where ${porToken ? 'token_hash' : 'convite_id'} = $1`, [valor],
+    )).rows[0]?.rede_id;
     if (!rede) return null;
     await definirRede(db, rede);
     const cv = (await db.query<{ id: string; rede_id: string; escola_id: string; email: string; perfil: Perfil; expira_em: string; aceito_em: string | null; cancelado_em: string | null; escola: string; vencido: boolean }>(
-      `select c.*, e.nome as escola, c.expira_em <= now() as vencido from convites c join escolas e on e.id = c.escola_id where c.token_hash = $1`, [th],
+      `select c.*, e.nome as escola, c.expira_em <= now() as vencido from convites c join escolas e on e.id = c.escola_id
+        where ${porToken ? 'c.token_hash' : 'c.id'} = $1`, [valor],
     )).rows[0];
     return cv ?? null;
   }
+  type ConviteAchado = NonNullable<Awaited<ReturnType<typeof acharConvite>>>;
   const situacao = (cv: { aceito_em: string | null; cancelado_em: string | null; vencido: boolean }): ConvitePublico['situacao'] =>
     cv.aceito_em ? 'aceito' : cv.cancelado_em ? 'cancelado' : cv.vencido ? 'vencido' : 'pendente';
 
   app.get('/convites/:token', async (c) => {
     const r = await naRede({ redeId: null }, async (db) => {
-      const cv = await conviteDoToken(db, c.req.param('token'));
+      const cv = await acharConvite(db, { token: c.req.param('token') });
       if (!cv) throw naoEncontrado('Este convite não existe. Confira o link ou peça um novo à direção da escola.');
       const temConta = Boolean((await db.query('select 1 from hash_da_senha($1)', [cv.email])).rowCount);
       return { escola: cv.escola, perfil: cv.perfil as ConvitePublico['perfil'], email: cv.email, expiraEm: cv.expira_em, situacao: situacao(cv), temConta } satisfies ConvitePublico;
@@ -278,52 +283,108 @@ export function rotasDeAcesso(app: Hono) {
    * Com conta: exige estar logado com ela e só acrescenta a escola. O link nunca
    * define nem troca a senha de uma conta que já existe.
    */
+  async function aceitar(db: Cliente, c: Context, cv: ConviteAchado | null, p: { nome?: string; senha?: string }, senhaHash: string | null) {
+    if (!cv) return naoEncontrado('Este convite não existe. Confira o link ou peça um novo à direção da escola.');
+    const s = situacao(cv);
+    if (s === 'aceito') return conflito('Este convite já foi aceito. Entre com o seu e-mail e senha.');
+    if (s === 'cancelado') return conflito('Este convite foi cancelado ou recusado. Fale com a direção da escola.');
+    if (s === 'vencido') return conflito('Este convite venceu. Peça um link novo à direção da escola.');
+
+    const conta = (await db.query<{ usuario_id: string }>('select usuario_id from hash_da_senha($1)', [cv.email])).rows[0];
+    let usuarioId: string;
+    if (conta) {
+      const sessao = await sessaoAtual(db, c);
+      if (!sessao || sessao.mfa_pendente || sessao.usuario_id !== conta.usuario_id) {
+        return semPermissao('Este e-mail já tem conta. Entre com ela e abra o link do convite de novo.');
+      }
+      usuarioId = conta.usuario_id;
+    } else {
+      if ((p.nome ?? '').trim().length < 3) return validacao('Informe seu nome completo.');
+      if (!senhaHash || !senhaAceitavel(p.senha!)) return validacao('A senha precisa ter pelo menos 12 caracteres. Uma frase é uma boa senha.');
+      usuarioId = (await db.query<{ id: string }>('select criar_conta_convidada($1, $2, $3) as id', [p.nome!.trim(), cv.email, senhaHash])).rows[0].id;
+    }
+    await db.query(`select set_config('app.usuario_id', $1, true)`, [usuarioId]);
+
+    // Uma pessoa tem um perfil só por rede. Já atua nela com o mesmo perfil: a escola entra nesse vínculo.
+    // Com outro perfil, recusa: aceitar daria a ela, na escola nova, um acesso que a direção não deu.
+    const atual = (await db.query<{ id: string; perfil: Perfil }>('select id, perfil from vinculos where usuario_id = $1 and rede_id = $2', [usuarioId, cv.rede_id])).rows[0];
+    if (atual && atual.perfil !== cv.perfil) {
+      return conflito('Você já atua nesta rede com outro perfil, e cada pessoa tem um perfil só por rede. Peça à direção um convite com o mesmo perfil.');
+    }
+    let vinculoId = atual?.id;
+    if (!vinculoId) {
+      vinculoId = (await db.query<{ id: string }>('insert into vinculos (usuario_id, rede_id, perfil) values ($1, $2, $3) returning id', [usuarioId, cv.rede_id, cv.perfil])).rows[0].id;
+    }
+    await db.query('insert into vinculo_escolas (vinculo_id, rede_id, escola_id) values ($1, $2, $3) on conflict do nothing', [vinculoId, cv.rede_id, cv.escola_id]);
+    await db.query('update convites set aceito_em = now() where id = $1', [cv.id]);
+    await db.query(
+      `insert into auditoria (rede_id, ator, perfil, acao, recurso, resultado, detalhe) values ($1, $2, $3, 'administracao', 'convite', 'permitido', 'aceito')`,
+      [cv.rede_id, p.nome?.trim() || cv.email, cv.perfil],
+    );
+    return { novaConta: !conta };
+  }
+
   app.post('/convites/:token/aceitar', async (c) => {
     const p = await corpo(c, esquemaAceitarConvite);
     const senhaHash = p.senha ? await hashDaSenha(p.senha) : null;
+    const resultado = await naRede<{ novaConta: boolean } | ErroApi>({ redeId: null }, async (db) =>
+      aceitar(db, c, await acharConvite(db, { token: c.req.param('token') }), p, senhaHash));
+    if (resultado instanceof ErroApi) throw resultado;
+    return c.json(resultado);
+  });
+
+  /* ---------- Convites recebidos, em Minha conta (só para quem já entrou) ---------- */
+
+  /** E-mail de quem está logado, com o segundo fator concluído. */
+  async function emailDaSessao(db: Cliente, c: Context) {
+    const sessao = await sessaoAtual(db, c);
+    if (!sessao || sessao.mfa_pendente) return null;
+    await db.query(`select set_config('app.usuario_id', $1, true)`, [sessao.usuario_id]);
+    return (await db.query<{ email: string }>('select lower(email) as email from usuarios where id = $1', [sessao.usuario_id])).rows[0]?.email ?? null;
+  }
+
+  app.get('/convites', async (c) => {
+    const lista = await naRede({ redeId: null }, async (db) => {
+      const email = await emailDaSessao(db, c);
+      if (!email) throw naoAutenticado();
+      const achados: ConviteRecebido[] = [];
+      const ids = (await db.query<{ convite_id: string }>('select convite_id from tokens_convite where email = $1', [email])).rows;
+      for (const { convite_id } of ids) {
+        const cv = await acharConvite(db, { id: convite_id });
+        if (cv && situacao(cv) === 'pendente') achados.push({ id: cv.id, escola: cv.escola, perfil: cv.perfil as ConviteRecebido['perfil'], expiraEm: cv.expira_em });
+      }
+      return achados;
+    });
+    return c.json(lista);
+  });
+
+  app.post('/convites/recebidos/:id/aceitar', async (c) => {
     const resultado = await naRede<{ novaConta: boolean } | ErroApi>({ redeId: null }, async (db) => {
-      const cv = await conviteDoToken(db, c.req.param('token'));
-      if (!cv) return naoEncontrado('Este convite não existe. Confira o link ou peça um novo à direção da escola.');
-      const s = situacao(cv);
-      if (s === 'aceito') return conflito('Este convite já foi aceito. Entre com o seu e-mail e senha.');
-      if (s === 'cancelado') return conflito('A escola cancelou este convite. Fale com a direção.');
-      if (s === 'vencido') return conflito('Este convite venceu. Peça um link novo à direção da escola.');
-
-      const conta = (await db.query<{ usuario_id: string }>('select usuario_id from hash_da_senha($1)', [cv.email])).rows[0];
-      let usuarioId: string;
-      if (conta) {
-        const sessao = await sessaoAtual(db, c);
-        if (!sessao || sessao.mfa_pendente || sessao.usuario_id !== conta.usuario_id) {
-          return semPermissao('Este e-mail já tem conta. Entre com ela e abra o link do convite de novo.');
-        }
-        usuarioId = conta.usuario_id;
-      } else {
-        if ((p.nome ?? '').trim().length < 3) return validacao('Informe seu nome completo.');
-        if (!senhaHash || !senhaAceitavel(p.senha!)) return validacao('A senha precisa ter pelo menos 12 caracteres. Uma frase é uma boa senha.');
-        usuarioId = (await db.query<{ id: string }>('select criar_conta_convidada($1, $2, $3) as id', [p.nome!.trim(), cv.email, senhaHash])).rows[0].id;
-      }
-      await db.query(`select set_config('app.usuario_id', $1, true)`, [usuarioId]);
-
-      // Uma pessoa tem um perfil só por rede. Já atua nela com o mesmo perfil: a escola entra nesse vínculo.
-      // Com outro perfil, recusa: aceitar daria a ela, na escola nova, um acesso que a direção não deu.
-      const atual = (await db.query<{ id: string; perfil: Perfil }>('select id, perfil from vinculos where usuario_id = $1 and rede_id = $2', [usuarioId, cv.rede_id])).rows[0];
-      if (atual && atual.perfil !== cv.perfil) {
-        return conflito('Você já atua nesta rede com outro perfil, e cada pessoa tem um perfil só por rede. Peça à direção um convite com o mesmo perfil.');
-      }
-      let vinculoId = atual?.id;
-      if (!vinculoId) {
-        vinculoId = (await db.query<{ id: string }>('insert into vinculos (usuario_id, rede_id, perfil) values ($1, $2, $3) returning id', [usuarioId, cv.rede_id, cv.perfil])).rows[0].id;
-      }
-      await db.query('insert into vinculo_escolas (vinculo_id, rede_id, escola_id) values ($1, $2, $3) on conflict do nothing', [vinculoId, cv.rede_id, cv.escola_id]);
-      await db.query('update convites set aceito_em = now() where id = $1', [cv.id]);
-      await db.query(
-        `insert into auditoria (rede_id, ator, perfil, acao, recurso, resultado, detalhe) values ($1, $2, $3, 'administracao', 'convite', 'permitido', 'aceito')`,
-        [cv.rede_id, p.nome?.trim() || cv.email, cv.perfil],
-      );
-      return { novaConta: !conta };
+      const email = await emailDaSessao(db, c);
+      if (!email) return naoAutenticado();
+      const cv = await acharConvite(db, { id: c.req.param('id') });
+      // O convite de outra pessoa não existe para quem consulta.
+      return aceitar(db, c, cv?.email === email ? cv : null, {}, null);
     });
     if (resultado instanceof ErroApi) throw resultado;
     return c.json(resultado);
+  });
+
+  app.post('/convites/recebidos/:id/recusar', async (c) => {
+    const resultado = await naRede<true | ErroApi>({ redeId: null }, async (db) => {
+      const email = await emailDaSessao(db, c);
+      if (!email) return naoAutenticado();
+      const cv = await acharConvite(db, { id: c.req.param('id') });
+      if (!cv || cv.email !== email || situacao(cv) !== 'pendente') return naoEncontrado('Convite não encontrado.');
+      await db.query('update convites set cancelado_em = now() where id = $1', [cv.id]);
+      await db.query(
+        `insert into auditoria (rede_id, ator, perfil, acao, recurso, resultado, detalhe) values ($1, $2, $3, 'administracao', 'convite', 'permitido', 'recusado')`,
+        [cv.rede_id, email, cv.perfil],
+      );
+      return true;
+    });
+    if (resultado instanceof ErroApi) throw resultado;
+    return c.json({ ok: true });
   });
 
   app.post('/sair', async (c) => {

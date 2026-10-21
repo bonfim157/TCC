@@ -40,9 +40,11 @@ function Area_({ area, children }: { area: Area; children: ReactNode }) {
 
 export function App() {
   const s = useSessao();
+  // Quem entrou volta para onde estava (tela protegida ou link de convite), não sempre para o Início.
+  const destino = (useLocation().state as { de?: string } | null)?.de ?? '/';
   return (
     <Routes>
-      <Route path="/entrar" element={s.sessao ? <Navigate to="/" replace /> : <Entrar />} />
+      <Route path="/entrar" element={s.sessao ? <Navigate to={destino} replace /> : <Entrar />} />
       <Route path="/ciencia/:token" element={<Ciencia />} />
       <Route path="/convite/:token" element={<AceitarConvite />} />
       <Route path="/cadastrar-escola" element={s.sessao ? <Navigate to="/" replace /> : <CadastrarEscola />} />

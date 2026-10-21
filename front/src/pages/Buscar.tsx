@@ -31,7 +31,7 @@ export function Buscar() {
   return (
     <div className="pagina">
       <div className="pagina-cabeca">
-        <h1>Buscar casos</h1>
+        <h1>Buscar registros</h1>
         <p>Resultados limitados ao que o seu perfil pode ver. Cada busca fica registrada na auditoria.</p>
       </div>
 

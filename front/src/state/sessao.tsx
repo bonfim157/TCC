@@ -148,6 +148,8 @@ export function SessaoProvider({ children }: { children: ReactNode }) {
     setEscolaId(null);
     setRedeId(redeInicial);
     setSessao({ token: '', usuario });
+    // A pessoa pode atuar numa rede criada depois que a página abriu (escola recém-cadastrada): busca a lista de novo.
+    if (usuario.vinculos.some((v) => !redes.some((r) => r.id === v.redeId))) api<Rede[]>(rotas.redes).then(setRedes).catch(() => {});
   }, [redes]);
 
   // Sessão vencida: o servidor respondeu 401 a quem estava logado. O que estava

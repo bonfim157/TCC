@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { api, ErroDaApi, FalhaDeRede } from '../api/client';
 import { rotas, type RespostaEntrar, type Usuario } from '../api/contract';
 import { Botao, CampoTexto } from '../components/controles';
@@ -26,6 +26,8 @@ const mensagemDoErro = (e: unknown) =>
 export function EntrarComSenha() {
   const s = useSessao();
   const navegar = useNavigate();
+  // Volta para onde a pessoa estava (uma tela protegida ou o link de um convite).
+  const destino = (useLocation().state as { de?: string } | null)?.de ?? '/';
   const [etapa, setEtapa] = useState<Etapa>({ nome: 'credenciais' });
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
@@ -47,7 +49,7 @@ export function EntrarComSenha() {
     } else if (r.etapa === 'pronto') {
       setSenha('');
       s.entrarComUsuario(r.usuario);
-      navegar('/', { replace: true });
+      navegar(destino, { replace: true });
     } else if (r.etapa === 'segundo_fator') {
       setEtapa({ nome: 'segundo_fator' });
     } else {
@@ -113,7 +115,7 @@ export function EntrarComSenha() {
       setNova('');
       setConfirmacao('');
       s.entrarComUsuario(etapa.usuario);
-      navegar('/', { replace: true });
+      navegar(destino, { replace: true });
     } catch (err) {
       setErros({ envio: mensagemDoErro(err) });
     } finally {

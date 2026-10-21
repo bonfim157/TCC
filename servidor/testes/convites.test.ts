@@ -119,4 +119,32 @@ describe('convites', () => {
     const { usuario } = (await sessao.json()) as { usuario: { vinculos: { perfil: string; escolaIds: string[] }[] } };
     expect(usuario.vinculos).toEqual([expect.objectContaining({ perfil: 'direcao', escolaIds: ['esc-teste'] })]);
   });
+  test('convites recebidos em Minha conta: só os do próprio e-mail; aceitar e recusar sem o link', async () => {
+    // Paulo (conta criada no segundo teste, professor na IMSIL) recebe um convite da escola de testes
+    const luis = await amb.entrar('u-luis', 'rede-teste', 'esc-teste');
+    expect((await post('/admin/convites', { email: 'paulo.souza@exemplo.tcc', perfil: 'professor' }, luis)).status).toBe(201);
+    // e um da outra escola da mesma rede, que ele vai recusar
+    await naRedeComoDono('rede-teste', `insert into convites (id, rede_id, escola_id, email, perfil, token_hash, criado_por, expira_em)
+      values ('cv-recusar', 'rede-teste', 'esc-teste-2', 'paulo.souza@exemplo.tcc', 'professor', $1, 'Direção', now() + interval '7 days')`, [hashDoToken('recusar')]);
+    await naRedeComoDono('rede-teste', `insert into tokens_convite (token_hash, rede_id, convite_id, email) values ($1, 'rede-teste', 'cv-recusar', 'paulo.souza@exemplo.tcc')`, [hashDoToken('recusar')]);
+
+    expect((await amb.pedir('/convites')).status).toBe(401);
+    const paulo = cookieDe(await post('/entrar', { email: 'paulo.souza@exemplo.tcc', senha: 'uma frase longa de senha' }));
+    const lista = (await (await amb.pedir('/convites', { cabecalhos: { cookie: paulo } })).json()) as { id: string; escola: string }[];
+    expect(lista.map((c) => c.escola).sort()).toEqual(['Escola Fictícia de Testes', 'Segunda Escola Fictícia']);
+    const daEscolaTeste = lista.find((c) => c.id !== 'cv-recusar')!;
+
+    // Outra pessoa não vê nem aceita o convite do Paulo
+    const roberto = cookieDe(await post('/entrar', { email: acessoDemo.email('u-roberto'), senha: acessoDemo.senha }));
+    expect(await (await amb.pedir('/convites', { cabecalhos: { cookie: roberto } })).json()).toEqual([]);
+    expect((await post(`/convites/recebidos/${daEscolaTeste.id}/aceitar`, {}, { cookie: roberto })).status).toBe(404);
+
+    expect(await (await post(`/convites/recebidos/${daEscolaTeste.id}/aceitar`, {}, { cookie: paulo })).json()).toEqual({ novaConta: false });
+    expect((await post('/convites/recebidos/cv-recusar/recusar', {}, { cookie: paulo })).status).toBe(200);
+    expect(await (await amb.pedir('/convites', { cabecalhos: { cookie: paulo } })).json()).toEqual([]);
+    expect((await post('/convites/recebidos/cv-recusar/aceitar', {}, { cookie: paulo })).status).toBe(409);
+
+    const { usuario } = (await (await amb.pedir('/sessao', { cabecalhos: { cookie: paulo } })).json()) as { usuario: { vinculos: { redeId: string; escolaIds: string[] }[] } };
+    expect(usuario.vinculos.find((v) => v.redeId === 'rede-teste')?.escolaIds).toEqual(['esc-teste']);
+  });
 });
