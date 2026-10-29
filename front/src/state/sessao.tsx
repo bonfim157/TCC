@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { aoExigirTrocaDeSenha, aoExpirarSessao, api, apiReal, configurarCliente } from '../api/client';
 import { rotas, type Ambiente, type Escola, type Perfil, type Rede, type Sessao, type Usuario, type Vinculo } from '../api/contract';
+import { apagarRascunhosDe } from './rascunhosLocais';
 
 type EstadoSessao = {
   sessao: Sessao | null;
@@ -139,9 +140,10 @@ export function SessaoProvider({ children }: { children: ReactNode }) {
   const sair = useCallback(() => {
     // No servidor real a sessão é um cookie: só o servidor consegue apagá-la.
     if (apiReal) api(rotas.sair, { method: 'POST' }).catch(() => {});
+    if (sessao) apagarRascunhosDe(sessao.usuario.id);
     setSessaoExpirada(false);
     limpar();
-  }, [limpar]);
+  }, [limpar, sessao]);
 
   const entrarComUsuario = useCallback((usuario: Usuario, temporaria = false) => {
     setSenhaTemporaria(temporaria);

@@ -479,6 +479,8 @@ export const rotas = {
   pessoas: (busca: string) => `/api/pessoas?busca=${encodeURIComponent(busca)}`,
   prazos: '/api/prazos',
   fila: '/api/central/fila',
+  /** Consulta leve: uma marca que muda quando algo mudou; a fila só recarrega então. */
+  mudancas: '/api/central/mudancas',
   agenda: '/api/central/agenda',
   equipe: '/api/equipe',
   modelos: '/api/modelos',

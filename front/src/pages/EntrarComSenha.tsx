@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
+import QRCode from 'qrcode';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { api, ErroDaApi, FalhaDeRede } from '../api/client';
 import { rotas, type RespostaEntrar, type Usuario } from '../api/contract';
@@ -44,6 +45,18 @@ export function EntrarComSenha() {
   useEffect(() => {
     if (etapa.nome !== 'credenciais') titulo.current?.focus();
   }, [etapa.nome]);
+
+  // QR code gerado aqui, no navegador: a chave não sai para outro serviço. A chave digitada continua na tela.
+  const [qr, setQr] = useState('');
+  const uriDoCadastro = etapa.nome === 'cadastrar_segundo_fator' ? etapa.uri : '';
+  useEffect(() => {
+    if (!uriDoCadastro) return;
+    let vivo = true;
+    QRCode.toDataURL(uriDoCadastro, { width: 192, margin: 1 }).then((imagem) => vivo && setQr(imagem)).catch(() => {});
+    return () => {
+      vivo = false;
+    };
+  }, [uriDoCadastro]);
 
   function concluir(r: RespostaEntrar) {
     if (r.etapa === 'pronto' && r.trocarSenha) {
@@ -205,7 +218,8 @@ export function EntrarComSenha() {
             Instale no celular um aplicativo autenticador, como Google Authenticator ou Microsoft Authenticator.
           </li>
           <li>
-            No aplicativo, adicione uma conta e escolha digitar a chave. Use esta:
+            No aplicativo, adicione uma conta e escolha ler o QR code. Se preferir, escolha digitar a chave:
+            {qr && <img className="qr-mfa" src={qr} width={192} height={192} alt="QR code para cadastrar a conta no aplicativo autenticador" />}
             <output className="segredo-mfa" aria-label="Chave para o aplicativo autenticador">
               {cadastro.segredo.match(/.{1,4}/g)?.join(' ')}
             </output>

@@ -54,6 +54,14 @@ const somaDias = (dias: number) => {
 };
 
 export const handlersCentral = [
+  // Demonstração: a marca muda a cada consulta, então a fila recarrega como antes (sem a consulta leve).
+  http.get('/api/central/mudancas', async ({ request }) => {
+    await delay(100);
+    const ctx = contexto(request);
+    if (ctx instanceof Response) return ctx;
+    if (!conduz(ctx)) return erro(403, 'sem_permissao', 'A Central de Gestão é para quem conduz casos na escola.');
+    return Response.json({ marca: String(Date.now()) });
+  }),
   http.get('/api/central/fila', async ({ request }) => {
     await delay(300);
     const ctx = contexto(request);

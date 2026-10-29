@@ -92,7 +92,10 @@ function CentralDaEscola() {
   const [versao, setVersao] = useState(0);
   // Mudanças feitas por outras pessoas chegam sozinhas, sem recarregar a página.
   const externo = useAtualizacao();
-  const fila = useApi<ItemDaFila[]>(rotas.fila, [s.escola?.id, versao, externo], { manterAoAtualizar: true });
+  // Consulta leve: a fila e o caso só recarregam quando a marca da rede muda.
+  const mudancas = useApi<{ marca: string }>(rotas.mudancas, [s.escola?.id, externo], { manterAoAtualizar: true });
+  const marca = mudancas.estado.tipo === 'ok' ? mudancas.estado.dados.marca : '';
+  const fila = useApi<ItemDaFila[]>(rotas.fila, [s.escola?.id, versao, marca], { manterAoAtualizar: true });
   const categorias = useApi<Categoria[]>(rotas.categorias, [s.rede?.id]);
   const [filtro, setFiltro] = useState<Filtro>('todos');
   const [situacao, setSituacao] = useState<Situacao>('abertos');
@@ -192,7 +195,7 @@ function CentralDaEscola() {
 
                 <div className="central-detalhe">
                   {id ? (
-                    <CasoNaCentral key={id} id={id} externo={externo} aoMudar={() => setVersao((v) => v + 1)} />
+                    <CasoNaCentral key={id} id={id} externo={marca} aoMudar={() => setVersao((v) => v + 1)} />
                   ) : (
                     <Vazio titulo="Escolha um caso na fila">
                       O registro abre aqui com o que aconteceu, os próximos passos, a rede de apoio e a linha do tempo.
@@ -201,7 +204,7 @@ function CentralDaEscola() {
                 </div>
               </div>
 
-              <Agenda versao={`${versao}-${externo}`} />
+              <Agenda versao={`${versao}-${marca}`} />
             </>
           );
         }}

@@ -126,7 +126,7 @@ Uma fase só é concluída quando todos os itens forem verificados em demonstra�
 - [x] Design system publicado com cores, tipografia, espaçamentos e ao menos 15 componentes
 - [x] Contraste AA verificado nos temas claro e escuro
 - [x] Troca de perfil simulado altera menus e telas visíveis
-- [ ] API simulada responde no formato combinado com o backend (contrato existe; falta validar com o backend)
+- [x] API simulada responde no formato combinado com o backend (validado com o servidor real; pendência 14)
 - [x] API simulada com duas redes; nenhuma tela mostra dados de uma rede estando na outra
 - [x] Rede e escola ativas sempre visíveis no topo; a troca pede confirmação se houver alteração não enviada
 - [x] Nome e brasão da secretaria carregados conforme a rede

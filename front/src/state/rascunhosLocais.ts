@@ -25,6 +25,7 @@ export type RascunhoRegistro = {
 export type Dono = { usuarioId: string; redeId: string; escolaId: string };
 
 const chave = (d: Dono) => `rascunhos:${d.usuarioId}:${d.redeId}:${d.escolaId}`;
+const VALIDADE_DO_RASCUNHO = 7 * 24 * 3600_000;
 const ouvintes = new Set<() => void>();
 const avisar = () => ouvintes.forEach((o) => o());
 const cache = new Map<string, { bruto: string | null; lista: RascunhoRegistro[] }>();
@@ -44,6 +45,8 @@ function ler(d: Dono): RascunhoRegistro[] {
   } catch {
     lista = [];
   }
+  // shortcut: a validade é conferida quando o conteúdo muda, não a cada leitura; some na próxima gravação.
+  lista = lista.filter((r) => Date.now() - Date.parse(r.atualizadoEm) < VALIDADE_DO_RASCUNHO);
   cache.set(chave(d), { bruto, lista });
   return lista;
 }
@@ -66,6 +69,16 @@ export function salvarRascunho(d: Dono, r: RascunhoRegistro) {
 
 export function apagarRascunho(d: Dono, id: string) {
   gravar(d, ler(d).filter((x) => x.id !== id));
+}
+
+/** Ao sair, nenhum rascunho da pessoa fica no aparelho (sala compartilhada). */
+export function apagarRascunhosDe(usuarioId: string) {
+  try {
+    for (const k of Object.keys(localStorage)) if (k.startsWith(`rascunhos:${usuarioId}:`)) localStorage.removeItem(k);
+  } catch {
+    /* armazenamento indisponível */
+  }
+  avisar();
 }
 
 export function obterRascunho(d: Dono, id: string) {

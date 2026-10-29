@@ -239,3 +239,17 @@ describe('código do segundo fator vale uma vez', () => {
     }
   });
 });
+
+describe('limite por endereço', () => {
+  test('muitas senhas erradas de um mesmo endereço bloqueiam o endereço, e outro endereço continua entrando', async () => {
+    const doisIps = { 'x-forwarded-for': '203.0.113.7' };
+    for (let i = 0; i < 20; i++) {
+      await amb.pedir('/entrar', { method: 'POST', body: JSON.stringify({ email: `desconhecida${i}@x.test`, senha: 'senha-errada-123' }), cabecalhos: doisIps });
+    }
+    const bloqueado = await amb.pedir('/entrar', { method: 'POST', body: JSON.stringify({ email: 'ana@demo.tcc', senha: 'nova-senha-da-ana-2026' }), cabecalhos: doisIps });
+    expect(bloqueado.status).toBe(403);
+    expect(((await bloqueado.json()) as { mensagem: string }).mensagem).toMatch(/deste endereço/);
+    const outro = await amb.pedir('/entrar', { method: 'POST', body: JSON.stringify({ email: 'ana@demo.tcc', senha: 'nova-senha-da-ana-2026' }), cabecalhos: { 'x-forwarded-for': '198.51.100.9' } });
+    expect(outro.status).toBe(200);
+  });
+});

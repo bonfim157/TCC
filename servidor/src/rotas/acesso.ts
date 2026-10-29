@@ -21,6 +21,8 @@ import { corpo } from '../util';
 
 export const HORAS_DE_SESSAO = 8;
 const MAX_TENTATIVAS = 5;
+/** Por endereço (uma escola inteira atrás do mesmo IP), o limite é mais alto que por conta. */
+const MAX_POR_ENDERECO = 20;
 const JANELA_MINUTOS = 15;
 
 /** Perfis que só registram não precisam de segundo fator; todos os outros precisam. */
@@ -59,12 +61,12 @@ async function sessaoAtual(db: Cliente, c: Context) {
   return r.rows[0] ? { ...r.rows[0], token } : null;
 }
 
-async function muitasTentativas(db: Cliente, email: string) {
+async function muitasTentativas(db: Cliente, chave: string, limite = MAX_TENTATIVAS) {
   const r = await db.query<{ n: number }>(
     `select count(*) n from tentativas_login where email = $1 and not sucesso and em > now() - make_interval(mins => $2)`,
-    [email, JANELA_MINUTOS],
+    [chave, JANELA_MINUTOS],
   );
-  return Number(r.rows[0].n) >= MAX_TENTATIVAS;
+  return Number(r.rows[0].n) >= limite;
 }
 
 export function rotasDeAcesso(app: Hono) {
@@ -73,17 +75,24 @@ export function rotasDeAcesso(app: Hono) {
   app.post('/entrar', async (c) => {
     const pedido = await corpo(c, esquemaEntrar, 'Informe o e-mail e a senha.');
     const email = pedido.email.trim().toLowerCase();
+    // Na Vercel o endereço de quem chama vem em x-forwarded-for. Sem ele (testes locais), só o limite por conta vale.
+    const endereco = c.req.header('x-forwarded-for')?.split(',')[0]?.trim();
+    const chaveEndereco = endereco ? `ip:${endereco}` : null;
 
     // As recusas são devolvidas como valor, e não lançadas, para a tentativa ficar gravada.
     const resultado = await naRede<RespostaEntrar & { token?: string } | ErroApi>({ redeId: null }, async (db) => {
       if (await muitasTentativas(db, email)) {
         return semPermissao(`Muitas tentativas. Aguarde ${JANELA_MINUTOS} minutos e tente de novo.`);
       }
+      if (chaveEndereco && (await muitasTentativas(db, chaveEndereco, MAX_POR_ENDERECO))) {
+        return semPermissao(`Muitas tentativas deste endereço. Aguarde ${JANELA_MINUTOS} minutos e tente de novo.`);
+      }
       const achado = (await db.query<{ usuario_id: string; senha_hash: string | null; senha_temporaria: boolean }>('select * from hash_da_senha($1)', [email])).rows[0];
       // Sem conta ou sem senha: confere contra um hash qualquer, para a resposta levar o mesmo tempo.
       const confere = await senhaConfere(pedido.senha, achado?.senha_hash ?? (await hashDeEngodo()));
       if (!achado?.senha_hash || !confere) {
         await db.query('insert into tentativas_login (email, sucesso) values ($1, false)', [email]);
+        if (chaveEndereco) await db.query('insert into tentativas_login (email, sucesso) values ($1, false)', [chaveEndereco]);
         if (achado) await auditarLogin(db, await usuarioCompleto(db, achado.usuario_id), 'negado', 'senha incorreta');
         return new ErroApi(401, 'nao_autenticado', 'E-mail ou senha incorretos.');
       }
