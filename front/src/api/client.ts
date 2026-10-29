@@ -18,6 +18,12 @@ export function aoExpirarSessao(fn: (() => void) | null) {
   aoExpirar = fn;
 }
 
+/** Chamado quando o servidor recusa as rotas de dados por senha temporária. */
+let aoExigirTroca: (() => void) | null = null;
+export function aoExigirTrocaDeSenha(fn: (() => void) | null) {
+  aoExigirTroca = fn;
+}
+
 export function configurarCliente(c: Partial<Credenciais>) {
   credenciais = { ...credenciais, ...c };
 }
@@ -64,6 +70,7 @@ export async function api<T>(caminho: string, init: RequestInit = {}): Promise<T
       codigo: 'erro_interno',
       mensagem: 'O servidor respondeu de forma inesperada.',
     }))) as ApiErro;
+    if (dados.codigo === 'troca_de_senha') aoExigirTroca?.();
     throw new ErroDaApi(resposta.status, dados);
   }
   return (await resposta.json()) as T;

@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
 import type { RespostaEntrar } from '@tcc/compartilhado/contrato';
 import { cargaInicial, criarConta } from '../src/administrar';
 import { naRede } from '../src/banco/conexao';
@@ -48,6 +48,15 @@ describe('carga inicial da rede SP', () => {
 describe('contas', () => {
   let temporaria = '';
   let segredo = '';
+  // Cada código do segundo fator vale uma vez: o relógio avança 30 s a cada código, como o celular faria.
+  let relogio = Date.now();
+  beforeAll(() => vi.useFakeTimers({ toFake: ['Date'] }));
+  afterAll(() => vi.useRealTimers());
+  const proximoCodigo = () => {
+    relogio += 30_000;
+    vi.setSystemTime(relogio);
+    return codigoTotp(segredo);
+  };
 
   test('valida os dados antes de criar', async () => {
     const base = { nome: 'Direção de Teste', email: 'direcao@escola.example', redeId: 'rede-sp', perfil: 'direcao' as const };
@@ -79,7 +88,7 @@ describe('contas', () => {
     expect(cadastro.etapa).toBe('cadastrar_segundo_fator');
     segredo = cadastro.segredo;
     const cookie = cookieDe(entrada);
-    const pronto = (await (await post('/entrar/segundo-fator', { codigo: codigoTotp(segredo) }, cookie)).json()) as RespostaEntrar;
+    const pronto = (await (await post('/entrar/segundo-fator', { codigo: proximoCodigo() }, cookie)).json()) as RespostaEntrar;
     expect(pronto).toMatchObject({ etapa: 'pronto', trocarSenha: true, usuario: { nome: 'Direção de Teste' } });
 
     // Troca: exige a atual, recusa senha curta e senha igual
@@ -92,7 +101,7 @@ describe('contas', () => {
     expect((await post('/entrar', { email: 'direcao@escola.example', senha: temporaria })).status).toBe(401);
     const nova = await post('/entrar', { email: 'direcao@escola.example', senha: NOVA_SENHA });
     expect(await nova.json()).toEqual({ etapa: 'segundo_fator' });
-    const fim = (await (await post('/entrar/segundo-fator', { codigo: codigoTotp(segredo) }, cookieDe(nova))).json()) as RespostaEntrar;
+    const fim = (await (await post('/entrar/segundo-fator', { codigo: proximoCodigo() }, cookieDe(nova))).json()) as RespostaEntrar;
     expect(fim).toMatchObject({ etapa: 'pronto' });
     expect('trocarSenha' in fim).toBe(false);
   });
@@ -101,7 +110,7 @@ describe('contas', () => {
     const abrir = async (senha: string) => {
       const e = await post('/entrar', { email: 'direcao@escola.example', senha });
       const cookie = cookieDe(e);
-      await post('/entrar/segundo-fator', { codigo: codigoTotp(segredo) }, cookie);
+      await post('/entrar/segundo-fator', { codigo: proximoCodigo() }, cookie);
       return cookie;
     };
     const a = await abrir(NOVA_SENHA);
@@ -123,7 +132,7 @@ describe('contas', () => {
   test('a direção criada usa o sistema: registra o primeiro caso real da rede', async () => {
     const entrada = await post('/entrar', { email: 'direcao@escola.example', senha: NOVA_SENHA });
     const cookie = cookieDe(entrada);
-    await post('/entrar/segundo-fator', { codigo: codigoTotp(segredo) }, cookie);
+    await post('/entrar/segundo-fator', { codigo: proximoCodigo() }, cookie);
     const r = await amb.pedir('/ocorrencias', {
       method: 'POST', cabecalhos: { cookie, 'x-rede-id': 'rede-sp', 'x-escola-id': 'esc-imsil' },
       body: JSON.stringify({

@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { aoExpirarSessao, api, apiReal, configurarCliente } from '../api/client';
+import { aoExigirTrocaDeSenha, aoExpirarSessao, api, apiReal, configurarCliente } from '../api/client';
 import { rotas, type Ambiente, type Escola, type Perfil, type Rede, type Sessao, type Usuario, type Vinculo } from '../api/contract';
 
 type EstadoSessao = {
@@ -14,7 +14,9 @@ type EstadoSessao = {
   carregandoEscolas: boolean;
   entrar: (redeId: string, usuarioId: string) => Promise<void>;
   /** Conclui o login por senha: a sessão está no cookie; aqui só guardamos quem é a pessoa. */
-  entrarComUsuario: (usuario: Usuario) => void;
+  entrarComUsuario: (usuario: Usuario, temporaria?: boolean) => void;
+  /** A senha é provisória: a tela só deixa trocá-la até a troca ser feita. */
+  senhaTemporaria: boolean;
   /**
    * Ambiente de demonstração: login escolhendo uma pessoa fictícia e seletor "ver como".
    * Sempre verdadeiro com a API simulada; no servidor real, só fora de produção.
@@ -66,6 +68,7 @@ export function SessaoProvider({ children }: { children: ReactNode }) {
   const [carregandoEscolas, setCarregandoEscolas] = useState(false);
   const [redePreviaId, setRedePreviaId] = useState<string | null>(null);
   const [sessaoExpirada, setSessaoExpirada] = useState(false);
+  const [senhaTemporaria, setSenhaTemporaria] = useState(false);
   const [demonstracao, setDemonstracao] = useState<boolean | null>(apiReal ? null : true);
   const [conferindoSessao, setConferindoSessao] = useState(apiReal && !guardado);
 
@@ -130,6 +133,7 @@ export function SessaoProvider({ children }: { children: ReactNode }) {
     setRedeId(null);
     setEscolaId(null);
     setPerfilDemo(null);
+    setSenhaTemporaria(false);
   }, []);
 
   const sair = useCallback(() => {
@@ -139,7 +143,8 @@ export function SessaoProvider({ children }: { children: ReactNode }) {
     limpar();
   }, [limpar]);
 
-  const entrarComUsuario = useCallback((usuario: Usuario) => {
+  const entrarComUsuario = useCallback((usuario: Usuario, temporaria = false) => {
+    setSenhaTemporaria(temporaria);
     // Rede: a do endereço, se a pessoa tiver vínculo com ela; senão, a primeira.
     const preferida = redeDoEndereco(redes)?.id;
     const redeInicial = usuario.vinculos.find((v) => v.redeId === preferida)?.redeId ?? usuario.vinculos[0]?.redeId ?? null;
@@ -159,13 +164,19 @@ export function SessaoProvider({ children }: { children: ReactNode }) {
     return () => aoExpirarSessao(null);
   }, [sessao, limpar]);
 
+  // Quem tem senha provisória recebe 403 nas telas de dados: a sessão passa a exigir a troca.
+  useEffect(() => {
+    aoExigirTrocaDeSenha(sessao ? () => setSenhaTemporaria(true) : null);
+    return () => aoExigirTrocaDeSenha(null);
+  }, [sessao]);
+
   // Ao abrir a página no modo real sem nada guardado (outra aba, por exemplo),
   // pergunta ao servidor se o cookie de sessão ainda vale.
   useEffect(() => {
     if (!conferindoSessao) return;
     let vivo = true;
-    api<{ usuario: Usuario }>(rotas.sessao)
-      .then(({ usuario }) => vivo && entrarComUsuario(usuario))
+    api<{ usuario: Usuario; trocarSenha?: boolean }>(rotas.sessao)
+      .then(({ usuario, trocarSenha }) => vivo && entrarComUsuario(usuario, Boolean(trocarSenha)))
       .catch(() => {})
       .finally(() => vivo && setConferindoSessao(false));
     return () => {
@@ -188,6 +199,7 @@ export function SessaoProvider({ children }: { children: ReactNode }) {
     entrarComUsuario,
     demonstracao: demonstracao ?? false,
     sessaoExpirada,
+    senhaTemporaria,
     conferindoSessao: conferindoSessao || demonstracao === null,
     sair,
     trocarRede: (id) => {

@@ -1,7 +1,7 @@
 import type { AcaoAuditada, Escola, Perfil, RegistroDeAuditoria, Usuario, Vinculo } from '@tcc/compartilhado/contrato';
 import { definirRede, naRede, type Cliente } from './banco/conexao';
 import { hashDoToken } from './seguranca';
-import { ErroApi, naoAutenticado, redeDivergente, semPermissao } from './erros';
+import { ErroApi, naoAutenticado, redeDivergente, semPermissao, trocaDeSenha } from './erros';
 
 /*
  * Contexto de cada requisição: quem é a pessoa, com qual vínculo na rede
@@ -45,8 +45,8 @@ export async function vinculosDe(c: Cliente, usuarioId: string): Promise<Vinculo
 
 async function usuarioDaSessao(c: Cliente, token: string | null) {
   if (!token) return null;
-  const s = await c.query<{ id: string; nome: string }>(
-    `select u.id, u.nome from sessoes s join usuarios u on u.id = s.usuario_id
+  const s = await c.query<{ id: string; nome: string; senha_temporaria: boolean }>(
+    `select u.id, u.nome, u.senha_temporaria from sessoes s join usuarios u on u.id = s.usuario_id
       where s.token_hash = $1 and s.expira_em > now() and not s.mfa_pendente`,
     [hashDoToken(token)],
   );
@@ -57,6 +57,7 @@ async function usuarioDaSessao(c: Cliente, token: string | null) {
 export async function resolverContexto(c: Cliente, h: Cabecalhos): Promise<Contexto> {
   const pessoa = await usuarioDaSessao(c, tokenDaRequisicao(h));
   if (!pessoa) throw naoAutenticado();
+  if (pessoa.senha_temporaria) throw trocaDeSenha();
   await c.query(`select set_config('app.usuario_id', $1, true)`, [pessoa.id]);
   const vinculos = await vinculosDe(c, pessoa.id);
   const usuario: Usuario = { ...pessoa, vinculos };

@@ -28,6 +28,7 @@ function ComSessao({ children }: { children: ReactNode }) {
   const local = useLocation();
   if (!s.sessao && s.conferindoSessao) return <main className="pagina"><Esqueleto rotulo="Conferindo seu acesso" /></main>;
   if (!s.sessao) return <Navigate to="/entrar" replace state={{ de: local.pathname }} />;
+  if (s.senhaTemporaria) return <Navigate to="/entrar?modo=senha" replace state={{ de: local.pathname }} />;
   if (!s.rede || !s.perfil) return <main className="pagina"><Esqueleto rotulo="Preparando sua rede" /></main>;
   return <>{children}</>;
 }
@@ -44,7 +45,7 @@ export function App() {
   const destino = (useLocation().state as { de?: string } | null)?.de ?? '/';
   return (
     <Routes>
-      <Route path="/entrar" element={s.sessao ? <Navigate to={destino} replace /> : <Entrar />} />
+      <Route path="/entrar" element={s.sessao && !s.senhaTemporaria ? <Navigate to={destino} replace /> : <Entrar />} />
       <Route path="/ciencia/:token" element={<Ciencia />} />
       <Route path="/convite/:token" element={<AceitarConvite />} />
       <Route path="/cadastrar-escola" element={s.sessao ? <Navigate to="/" replace /> : <CadastrarEscola />} />
