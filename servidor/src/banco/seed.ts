@@ -133,10 +133,11 @@ async function semear(c: Cliente) {
     // O contador de protocolo começa do maior número já usado em cada rede e ano.
     for (const r of redes) {
       await naRedeDaLinha(r.id);
+      // Restrito à rede do passe: sem o filtro, o dono do Neon (com RLS forçada) gerava chaves duplicadas.
       await c.query(`
         insert into contadores_protocolo (rede_id, ano, ultimo)
         select rede_id, split_part(protocolo, '-', 1)::int, max(split_part(protocolo, '-', 2)::int)
-        from ocorrencias group by 1, 2`);
+        from ocorrencias where rede_id = $1 group by 1, 2`, [r.id]);
     }
 
     await c.query('commit');
