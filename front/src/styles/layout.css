@@ -173,13 +173,17 @@ main:focus, main:focus-visible { outline: none; }
 .acesso-lousa {
   flex: 1 1 380px; display: flex; flex-direction: column; justify-content: space-between; gap: var(--e6);
   padding: var(--e7) var(--e6) var(--e7) 72px; color: var(--onLousa); background-color: var(--lousa);
-  background-image:
-    linear-gradient(to right, transparent 40px, rgb(232 160 168 / .55) 40px, rgb(232 160 168 / .55) 41px, transparent 41px),
-    repeating-linear-gradient(to bottom, transparent 0, transparent 35px, rgb(233 239 233 / .16) 35px, rgb(233 239 233 / .16) 36px);
+  background-image: linear-gradient(to right, transparent 40px, rgb(232 160 168 / .55) 40px, rgb(232 160 168 / .55) 41px, transparent 41px);
 }
 .acesso-lousa .marca { color: #FFFFFF; font-size: 1.375rem; }
-.acesso-lousa-frase { max-width: 30ch; display: grid; gap: var(--e4); }
-.acesso-lousa-frase p:first-child { font-size: 2.25rem; line-height: 1.15; font-weight: 700; letter-spacing: -0.02em; color: #FFFFFF; }
+/* Pauta só no texto: cada linha tem --linha-pauta de altura e a risca fica no fim dela.
+ * Tudo em rem, então o texto ampliado continua sobre as linhas. */
+.acesso-lousa-frase {
+  --linha-pauta: 2rem; max-width: 30ch; display: grid; line-height: var(--linha-pauta);
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(var(--linha-pauta) - 1px), rgb(233 239 233 / .16) calc(var(--linha-pauta) - 1px), rgb(233 239 233 / .16) var(--linha-pauta));
+}
+.acesso-lousa-frase p { margin: 0; }
+.acesso-lousa-frase p:first-child { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.01em; color: #FFFFFF; }
 .acesso-lousa-frase p + p { font-size: var(--t-destaque); }
 .acesso-lousa-nota { font-size: var(--t-pequeno); color: var(--lousaSuave); }
 .acesso-lousa :focus-visible { outline-color: #FFE58A; }
@@ -218,10 +222,8 @@ main.acesso-coluna { padding: 0; flex: none; }
   /* Campos com menos de 16px fazem o Safari do iPhone dar zoom ao tocar. */
   input.entrada, select.entrada, textarea.entrada, .contexto-demo .entrada { font-size: max(1rem, 16px); }
   .acesso-lousa { flex-basis: 100%; padding: var(--e6) var(--e4) var(--e5) 44px; gap: var(--e4);
-    background-image:
-      linear-gradient(to right, transparent 28px, rgb(232 160 168 / .55) 28px, rgb(232 160 168 / .55) 29px, transparent 29px),
-      repeating-linear-gradient(to bottom, transparent 0, transparent 31px, rgb(233 239 233 / .16) 31px, rgb(233 239 233 / .16) 32px); }
-  .acesso-lousa-frase p:first-child { font-size: 1.375rem; line-height: 1.25; }
+    background-image: linear-gradient(to right, transparent 28px, rgb(232 160 168 / .55) 28px, rgb(232 160 168 / .55) 29px, transparent 29px); }
+  .acesso-lousa-frase p:first-child { font-size: 1.375rem; }
   .acesso-lousa-frase p + p, .acesso-lousa-nota { display: none; }
   .acesso-conteudo { padding: var(--e3) var(--e4) var(--e6); }
   .acesso-coluna { margin-top: var(--e2); gap: var(--e5); }
