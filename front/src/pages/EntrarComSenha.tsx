@@ -207,7 +207,7 @@ export function EntrarComSenha() {
         <p>
           {cadastro
             ? 'Seu perfil acessa dados sensíveis. Além da senha, o sistema pede um código que muda a cada 30 segundos.'
-            : 'Abra o aplicativo autenticador no seu celular e digite o código do Cuidar e Registrar.'}
+            : 'Abra o aplicativo autenticador no seu celular e digite o código do Ocorre.'}
         </p>
       </div>
       {erros.envio && <Aviso tipo="erro" titulo="Não foi possível confirmar">{erros.envio}</Aviso>}

@@ -41,5 +41,5 @@ export function passoTotp(segredo: string, codigo: string, quando = Date.now()):
 }
 
 /** Endereço que o aplicativo autenticador lê (por QR code ou colado). */
-export const uriTotp = (segredo: string, conta: string, emissor = 'Cuidar e Registrar') =>
+export const uriTotp = (segredo: string, conta: string, emissor = 'Ocorre') =>
   `otpauth://totp/${encodeURIComponent(emissor)}:${encodeURIComponent(conta)}?secret=${segredo}&issuer=${encodeURIComponent(emissor)}&algorithm=SHA1&digits=6&period=30`;
