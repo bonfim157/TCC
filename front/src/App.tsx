@@ -15,6 +15,7 @@ import { Ciencia } from './pages/Ciencia';
 import { AceitarConvite } from './pages/AceitarConvite';
 import { CadastrarEscola } from './pages/CadastrarEscola';
 import { Conta } from './pages/Conta';
+import { Equipamentos } from './pages/Equipamentos';
 import { Inicio } from './pages/Inicio';
 import { MeusRegistros } from './pages/MeusRegistros';
 import { Registrar } from './pages/registrar/Registrar';
@@ -58,6 +59,7 @@ export function App() {
         <Route index element={<Inicio />} />
         <Route path="registrar/:rascunhoId?" element={<Area_ area="registrar"><Registrar /></Area_>} />
         <Route path="meus-registros" element={<Area_ area="meus-registros"><MeusRegistros /></Area_>} />
+        <Route path="equipamentos" element={<Area_ area="equipamentos"><Equipamentos /></Area_>} />
         <Route path="casos/:id" element={<Caso />} />
         <Route path="central/:id?" element={<Area_ area="central"><Central /></Area_>} />
         <Route path="buscar" element={<Area_ area="buscar"><Buscar /></Area_>} />

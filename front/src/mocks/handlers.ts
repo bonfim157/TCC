@@ -6,6 +6,7 @@ import {
   semAcento, sessoes, soProprios,
 } from './base';
 import { handlersCentral } from './central';
+import { handlersEquipamentos } from './equipamentos';
 import { handlersGestao } from './gestao';
 import { gerarProvidencias } from './protocolo';
 import { categorias, categoriasSensiveis, ocorrencias, pessoas, redes, usuarios } from './seed';
@@ -208,6 +209,7 @@ export const handlers = [
 
   ...handlersCentral,
   ...handlersGestao,
+  ...handlersEquipamentos,
 
   http.get('/api/diagnostico/falha', async () => {
     await delay(300);

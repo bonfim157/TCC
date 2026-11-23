@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { rotas, type OcorrenciaResumo, type Perfil, type PrazoProximo } from '../api/contract';
+import { rotas, type OcorrenciaResumo, type PedidoDeEquipamento, type Perfil, type PrazoProximo } from '../api/contract';
 import { Painel } from '../components/estrutura';
 import { Aviso, Etiqueta, EstadoDaCarga, EtiquetaStatus } from '../components/feedback';
 import { IconeMais } from '../components/icones';
+import { respondeEquipamentos } from './Equipamentos';
 import { nomePerfil, perfisDeEscola, podeAcessar } from '../state/perfis';
 import { useRascunhosLocais } from '../state/rascunhosLocais';
 import { useDono } from '../state/useDono';
@@ -76,6 +77,9 @@ export function Inicio() {
   const rascunhos = useRascunhosLocais(dono);
   const lista = useApi<OcorrenciaResumo[]>(rotas.ocorrencias, [s.rede?.id, s.escola?.id]);
   const prazos = useApi<PrazoProximo[]>(rotas.prazos, [s.rede?.id, s.escola?.id]);
+  // Pedidos de equipamento: a home só mostra aviso e resumo; a lista completa fica em /equipamentos.
+  const pedidosPodemVer = !!s.perfil && podeAcessar(s.perfil, 'equipamentos');
+  const pedidos = useApi<PedidoDeEquipamento[]>(pedidosPodemVer ? rotas.equipamentos : null, [s.rede?.id, s.escola?.id]);
   if (!s.perfil || !s.rede) return null;
 
   const perfil = s.perfil;
@@ -123,6 +127,42 @@ export function Inicio() {
       )}
 
       <div className="inicio-grade">
+        {pedidosPodemVer && (
+          <Painel
+            titulo={respondeEquipamentos(perfil) ? 'Pedidos de equipamento' : 'Seus pedidos de equipamento'}
+            acao={<Link to="/equipamentos">Ver todos</Link>}
+          >
+            <EstadoDaCarga estado={pedidos.estado} tentarDeNovo={pedidos.tentarDeNovo} rotulo="Carregando pedidos">
+              {(dados) => {
+                if (respondeEquipamentos(perfil)) {
+                  const aguardando = dados.filter((p) => p.anotacoes.length === 0).length;
+                  return aguardando > 0 ? (
+                    <Aviso tipo="marca" titulo={aguardando === 1 ? '1 pedido aguardando resposta' : `${aguardando} pedidos aguardando resposta`}>
+                      <p>Responda para o professor ver a resposta no próprio pedido. <Link to="/equipamentos">Abrir pedidos</Link>.</p>
+                    </Aviso>
+                  ) : (
+                    <p>Nenhum pedido aguardando resposta.</p>
+                  );
+                }
+                if (dados.length === 0) return <p>Você ainda não pediu nenhum equipamento.</p>;
+                return (
+                  <ul className="lista-registros">
+                    {dados.slice(0, 3).map((p) => {
+                      const ultima = p.anotacoes[p.anotacoes.length - 1];
+                      return (
+                        <li key={p.id}>
+                          <strong>{p.item}</strong> <span>{p.local}</span> <Etiqueta tipo={ultima ? 'ok' : 'atencao'}>{ultima ? 'Respondido' : 'Aguardando resposta'}</Etiqueta>
+                          {ultima && <p className="resposta-resumo">{ultima.texto}</p>}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                );
+              }}
+            </EstadoDaCarga>
+          </Painel>
+        )}
+
         {conduz && (
           <Painel titulo="Situação da escola" acao={podeAcessar(perfil, 'central') ? <Link to="/central">Ver acompanhamentos</Link> : undefined}>
             <EstadoDaCarga estado={lista.estado} tentarDeNovo={lista.tentarDeNovo} rotulo="Carregando situação">

@@ -3,7 +3,7 @@ import type {
   AcaoAuditada, ApiErro, Envolvimento, Evento, Ocorrencia, OcorrenciaResumo, Perfil, RegistroDeAuditoria, Usuario, Vinculo,
 } from '../api/contract';
 import { modelos, regras } from './protocolo';
-import { categorias, contatos, escolas, ocorrencias, pessoas, usuarios } from './seed';
+import { categorias, contatos, escolas, ocorrencias, pedidosDeEquipamento, pessoas, usuarios } from './seed';
 
 /*
  * Regras comuns da API simulada. O acesso é decidido aqui, como o backend
@@ -22,7 +22,7 @@ export const auditoria: RegistroDeAuditoria[] = [];
  * "Restaurar dados de demonstração", no Guia da interface, apaga esta chave.
  */
 export const CHAVE_BANCO = 'demo.banco.v7';
-const colecoes: Record<string, unknown[]> = { ocorrencias, auditoria, regras, modelos, categorias, contatos, pessoas };
+const colecoes: Record<string, unknown[]> = { ocorrencias, auditoria, regras, modelos, categorias, contatos, pessoas, pedidosDeEquipamento };
 let ultimoSalvo: string | null = null;
 
 /** Traz para a memória o que outra aba gravou. Chamado a cada requisição. */

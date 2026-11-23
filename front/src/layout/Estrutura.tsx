@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type JSX, type SVGProps } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { DialogoConfirmacao } from '../components/estrutura';
 import {
-  IconeCasa, IconeCoracao, IconeDocumento, IconeGrafico, IconeLapis, IconeLupa, IconePessoas,
+  IconeAtencao, IconeCasa, IconeCoracao, IconeDocumento, IconeGrafico, IconeLapis, IconeLupa, IconePessoas,
   IconeSemConexao, IconeTelefone,
 } from '../components/icones';
 import { navegacao, nomePerfil, podeAcessar, type Area } from '../state/perfis';
@@ -17,6 +17,7 @@ const icones: Record<Area, (p: SVGProps<SVGSVGElement>) => JSX.Element> = {
   inicio: IconeCasa,
   registrar: IconeLapis,
   'meus-registros': IconeDocumento,
+  equipamentos: IconeAtencao,
   central: IconeCoracao,
   buscar: IconeLupa,
   relatorios: IconeGrafico,
