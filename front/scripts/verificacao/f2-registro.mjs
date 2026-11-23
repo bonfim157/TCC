@@ -11,14 +11,14 @@ await fetch(`${B}/api/diagnostico/restaurar`, { method: 'POST' }).catch(() => {}
 const b = await chromium.launch();
 const log = (...a) => console.log(...a);
 
-// Data e horário são componentes próprios (calendário em português), não <input type="date|time">.
+// Data é componente próprio (calendário em português); horário é o campo de hora do navegador.
 async function escolherDataHora(page, dia, mesAno, hora, minuto) {
   await page.getByLabel('Outro dia').check();
   const alvo = page.getByRole('button', { name: new RegExp(`, ${dia} de ${mesAno}`) });
   for (let i = 0; i < 24 && !(await alvo.isVisible()); i++) await page.getByRole('button', { name: 'Mês anterior' }).click();
   await alvo.click();
-  await page.getByLabel('Hora', { exact: true }).selectOption(hora);
-  await page.getByLabel('Minuto', { exact: true }).selectOption(minuto);
+  // Horário: campo de hora do navegador (aceita qualquer minuto).
+  await page.getByLabel('Hora e minuto (24 h)', { exact: true }).fill(`${hora}:${minuto}`);
 }
 
 async function entrar(page, nome) {

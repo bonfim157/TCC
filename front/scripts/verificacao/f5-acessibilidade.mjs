@@ -43,6 +43,8 @@ async function entrar(ctx, nome, rede = 'sp') {
   await p.waitForTimeout(700);
   if (rede === 'sp') await auditar(p, 'entrar');
   // Perfis fora do dia a dia da escola ficam recolhidos em "Outros perfis e redes de teste".
+  // Espera a lista carregar: o bloco pode já vir aberto, e clicar nele antes fecharia.
+  await p.locator("input[name=pessoa]").first().waitFor();
   if (!(await p.getByLabel(nome, { exact: false }).isVisible())) await p.locator(".entrar-mais > summary").click();
   await p.getByLabel(nome, { exact: false }).check();
   await p.getByRole('button', { name: 'Entrar' }).click();
