@@ -186,14 +186,24 @@ export type TipoEvento =
   | 'providencia'
   | 'encerramento';
 
-/** Evento da linha do tempo. Nunca é editado nem apagado; correções entram como adendo. */
+/*
+ * Evento da linha do tempo. Nunca é apagado. Um adendo pode ser corrigido só pelo
+ * próprio autor: `texto` passa a ser a versão atual e `anteriores` guarda cada versão
+ * que foi substituída, do texto original até a penúltima.
+ */
 export type Evento = {
   id: string;
   tipo: TipoEvento;
   autorNome: string;
   autorPerfil: Perfil;
+  /** Quem escreveu (para decidir se pode corrigir). Ausente em eventos antigos. */
+  autorId?: string;
   em: string;                // ISO 8601
   texto: string;
+  /** Quando a versão atual foi escrita. Só existe se o adendo foi corrigido. */
+  editadoEm?: string;
+  /** Versões anteriores, da mais antiga para a mais recente. */
+  anteriores?: { texto: string; em: string }[];
 };
 
 export type AcaoDoPlano = {
@@ -494,6 +504,7 @@ export const rotas = {
   ocorrencias: '/api/ocorrencias',
   ocorrencia: (id: string) => `/api/ocorrencias/${id}`,
   adendos: (id: string) => `/api/ocorrencias/${id}/adendos`,
+  corrigirAdendo: (id: string, eventoId: string) => `/api/ocorrencias/${id}/adendos/${eventoId}/versoes`,
   equipamentos: '/api/equipamentos',
   anotarEquipamento: (id: string) => `/api/equipamentos/${id}/anotacoes`,
   semelhantes: (q: { data: string; categoriaId: string }) =>

@@ -165,6 +165,29 @@ export function rotasDeRegistro(app: Hono) {
     });
   });
 
+  /* Correção de um adendo: só quem o escreveu. Entra como nova versão; a anterior fica no histórico. */
+  app.post('/ocorrencias/:id/adendos/:eventoId/versoes', async (c) => {
+    const { texto } = await corpo(c, esquemaNovoAdendo, 'O adendo precisa ter pelo menos 10 caracteres.');
+    return comContexto(c.req.raw.headers, async (db, ctx) => {
+      const o = await casoParaConsulta(db, ctx, c.req.param('id'), 'Seu perfil não pode corrigir informações deste registro.');
+      const e = await db.query<{ id: string; autor_id: string | null }>(
+        `select id, autor_id from eventos where ocorrencia_id = $1 and id = $2 and tipo = 'adendo'`,
+        [o.id, c.req.param('eventoId')],
+      );
+      if (!e.rows[0]) throw naoEncontrado('Não encontramos este adendo.');
+      if (e.rows[0].autor_id !== ctx.usuario.id) {
+        throw semPermissao('Só quem escreveu o adendo pode corrigi-lo.').registrar(`caso ${o.protocolo}`, 'não é o autor do adendo');
+      }
+      if (texto.trim().length < 10) throw validacao('O adendo precisa ter pelo menos 10 caracteres.');
+      await db.query(
+        `insert into versoes_eventos (rede_id, ocorrencia_id, evento_id, texto, autor_nome) values ($1, $2, $3, $4, $5)`,
+        [ctx.vinculo.redeId, o.id, e.rows[0].id, texto.trim(), ctx.usuario.nome],
+      );
+      await auditar(db, ctx, 'alteracao', `caso ${o.protocolo}`, 'permitido', 'adendo corrigido');
+      return c.json(paraQuemConsulta(ctx, (await carregarCaso(db, o.id))!));
+    });
+  });
+
   app.get('/prazos', (c) =>
     comContexto(c.req.raw.headers, async (db, ctx) => {
       const escolas = await alcance(db, ctx);

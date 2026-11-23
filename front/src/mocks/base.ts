@@ -160,7 +160,7 @@ export const resumo = (o: Ocorrencia): OcorrenciaResumo => ({
 export function novoEvento(ctx: Contexto, tipo: Evento['tipo'], texto: string): Evento {
   return {
     id: `ev-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-    tipo, autorNome: ctx.usuario.nome, autorPerfil: ctx.vinculo.perfil, em: new Date().toISOString(), texto,
+    tipo, autorNome: ctx.usuario.nome, autorPerfil: ctx.vinculo.perfil, autorId: ctx.usuario.id, em: new Date().toISOString(), texto,
   };
 }
 

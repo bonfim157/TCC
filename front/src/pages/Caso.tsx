@@ -42,7 +42,7 @@ export function FormAdendo({ id, aoRegistrar }: { id: string; aoRegistrar: (o: O
     <div className="pilha">
       <CampoAreaTexto
         rotulo="Acrescentar ou corrigir informação"
-        ajuda="O texto original não muda. Seu adendo entra na linha do tempo com seu nome e horário."
+        ajuda="Seu adendo entra na linha do tempo com seu nome e horário. Depois você pode corrigi-lo; a versão anterior fica no histórico."
         value={texto}
         maxLength={1000}
         rows={4}
@@ -108,7 +108,7 @@ export function Caso() {
                   </Painel>
 
                   <Painel titulo="Linha do tempo">
-                    <LinhaDoTempo eventos={o.eventos} />
+                    <LinhaDoTempo eventos={o.eventos} ocorrenciaId={o.id} aoCorrigir={setAtual} />
                     <div className="caso-adendo">
                       <FormAdendo id={o.id} aoRegistrar={setAtual} />
                     </div>
