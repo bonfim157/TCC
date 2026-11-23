@@ -76,18 +76,20 @@ export function LousaDeAcesso({ children }: { children?: ReactNode }) {
   );
 }
 
-/** Perfis que aparecem logo de cara na demonstração: quem está no dia a dia da escola. */
-const principais: Perfil[] = ['professor', 'coordenacao', 'direcao'];
+/** As duas contas de apresentação: uma professora e a direção (gestão). */
+const principais: Perfil[] = ['professor', 'direcao'];
 
 /**
  * Login de demonstração. A rede vem do endereço (subdomínio ou ?rede=) ou é a
- * primeira da lista. Aparecem só três pessoas (professora, coordenação e
- * direção); os outros perfis de teste e a troca de rede ficam recolhidos.
+ * primeira da lista. Aparecem só as duas contas de apresentação; com ?todos=1
+ * (usado pelos roteiros de verificação) aparecem também os outros perfis e a
+ * troca de rede.
  */
 function EntrarDemonstracao() {
   const s = useSessao();
   const navegar = useNavigate();
   const destino = (useLocation().state as { de?: string } | null)?.de ?? '/';
+  const completo = useSearchParams()[0].has('todos');
   const [redeId, setRedeId] = useState<string | null>(null);
   // A lista guarda a rede a que pertence: ao trocar de rede, a lista antiga nunca é exibida.
   const [carga, setCarga] = useState<{ redeId: string; lista: Usuario[] } | null>(null);
@@ -174,7 +176,7 @@ function EntrarDemonstracao() {
                 aoMudar={setUsuarioId}
                 erro={erros.usuario}
               />
-              <details className="entrar-mais" open={escolhidoEmOutros || (s.redes.length > 1 && redeId !== s.redes[0]?.id) || undefined}>
+              {completo && <details className="entrar-mais" open={escolhidoEmOutros || (s.redes.length > 1 && redeId !== s.redes[0]?.id) || undefined}>
                 <summary>Outros perfis e redes de teste</summary>
                 <div className="entrar-mais-conteudo">
                   {outros.length > 0 && (
@@ -197,7 +199,7 @@ function EntrarDemonstracao() {
                     />
                   )}
                 </div>
-              </details>
+              </details>}
             </>
           )}
 

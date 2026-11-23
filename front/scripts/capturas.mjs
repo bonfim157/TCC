@@ -9,7 +9,7 @@ const B = 'http://localhost:5173';
 const b = await chromium.launch();
 
 async function entrar(p, nome) {
-  await p.goto(`${B}/entrar?rede=sp`);
+  await p.goto(`${B}/entrar?todos=1&rede=sp`);
   await p.waitForTimeout(700);
   // Perfis fora do dia a dia da escola ficam recolhidos em "Outros perfis e redes de teste".
   if (!(await p.getByLabel(nome, { exact: false }).isVisible())) await p.locator(".entrar-mais > summary").click();
@@ -24,7 +24,7 @@ for (const [largura, sufixo] of [[1280, ''], [390, '-celular']]) {
     const p = await ctx.newPage();
     const tema = esquema === 'dark' ? '-escuro' : '';
     const foto = async (nome) => p.screenshot({ path: `${out}/${nome}${sufixo}${tema}.png`, fullPage: true });
-    await p.goto(`${B}/entrar?rede=sp`);
+    await p.goto(`${B}/entrar?todos=1&rede=sp`);
     await p.waitForTimeout(800);
     await foto('01-entrar');
     if (esquema === 'dark' && largura !== 1280) { await ctx.close(); continue; }

@@ -39,7 +39,7 @@ async function auditar(p, nome) {
 async function entrar(ctx, nome, rede = 'sp') {
   const p = await ctx.newPage();
   p.on('pageerror', (e) => log('PAGEERROR', e.message));
-  await p.goto(`${B}/entrar?rede=${rede}`);
+  await p.goto(`${B}/entrar?todos=1&rede=${rede}`);
   await p.waitForTimeout(700);
   if (rede === 'sp') await auditar(p, 'entrar');
   // Perfis fora do dia a dia da escola ficam recolhidos em "Outros perfis e redes de teste".

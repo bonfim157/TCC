@@ -12,7 +12,7 @@ const b = await chromium.launch();
 const sw = (p) => p.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
 // 2. Uma paleta só: o acento não muda com a rede; o tema sobrevive à troca claro/escuro
 { const p = await (await b.newContext({ viewport: { width: 1280, height: 800 } })).newPage();
-  await p.goto(B + '/entrar?rede=sp'); await p.waitForTimeout(700);
+  await p.goto(B + '/entrar?todos=1&rede=sp'); await p.waitForTimeout(700);
   await p.locator('.entrar-mais > summary').click(); await p.getByLabel('Rede Fictícia de Testes').check(); await p.waitForTimeout(300);
   const acc = () => p.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--accent').trim());
   console.log('acento após escolher a rede de testes (esperado #234A3F):', await acc());
@@ -26,7 +26,7 @@ const sw = (p) => p.evaluate(() => document.documentElement.scrollWidth - docume
 const ctx = await b.newContext({ viewport: { width: 360, height: 800 } });
 await ctx.addInitScript(() => localStorage.setItem('pref.fonte', '130'));
 const p = await ctx.newPage();
-await p.goto(B + '/entrar?rede=sp'); await p.waitForTimeout(800);
+await p.goto(B + '/entrar?todos=1&rede=sp'); await p.waitForTimeout(800);
 console.log('/entrar 130% rolagem lateral:', await sw(p));
 await p.screenshot({ path: `${out}/20-entrar-360-130.png` });
 await p.getByLabel('Beatriz Nunes').check(); await p.getByRole('button', { name: 'Entrar' }).click(); await p.waitForTimeout(1000);
