@@ -97,8 +97,7 @@ select.entrada {
 .horario-linha { display: flex; align-items: flex-end; gap: var(--e2); flex-wrap: wrap; }
 .horario-parte { display: grid; gap: var(--e1); }
 .horario-parte > label { font-size: var(--t-pequeno); color: var(--inkSoft); }
-.horario-parte select.entrada { width: 5.5rem; font-variant-numeric: tabular-nums; }
-.horario-separador { align-self: flex-end; padding-bottom: 10px; font-weight: 600; color: var(--inkSoft); }
+.horario-parte input.entrada { width: 8.5rem; font-variant-numeric: tabular-nums; }
 .horario-agora { margin-left: var(--e2); padding: 0 var(--e4); }
 
 /* ---------- Opções (rádio em forma de etiqueta) ---------- */

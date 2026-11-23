@@ -9,6 +9,7 @@ import { auditar, comContexto, escolasDoVinculo, vinculosDe } from './contexto';
 import { ErroApi, naoEncontrado, semPermissao } from './erros';
 import { rotasDeAcesso } from './rotas/acesso';
 import { rotasDaCentral } from './rotas/central';
+import { rotasDeEquipamentos } from './rotas/equipamentos';
 import { rotasDeGestao } from './rotas/gestao';
 import { rotasDeRegistro } from './rotas/registro';
 import { corpo } from './util';
@@ -133,6 +134,7 @@ export function criarApp() {
   rotasDeRegistro(app);
   rotasDaCentral(app);
   rotasDeGestao(app);
+  rotasDeEquipamentos(app);
 
   return app;
 }

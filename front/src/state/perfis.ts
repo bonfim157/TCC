@@ -18,6 +18,7 @@ export type Area =
   | 'inicio'
   | 'registrar'
   | 'meus-registros'
+  | 'equipamentos'
   | 'central'
   | 'buscar'
   | 'relatorios'
@@ -29,6 +30,7 @@ export const navegacao: ItemNav[] = [
   { area: 'inicio', rotulo: 'Início', caminho: '/', descricao: 'Atalhos e prazos próximos.' },
   { area: 'registrar', rotulo: 'Registrar', caminho: '/registrar', descricao: 'Registrar uma ocorrência em três passos.' },
   { area: 'meus-registros', rotulo: 'Meus registros', caminho: '/meus-registros', descricao: 'Registros enviados e rascunhos.' },
+  { area: 'equipamentos', rotulo: 'Equipamentos', caminho: '/equipamentos', descricao: 'Pedidos de conserto e reposição, com a resposta da direção.' },
   { area: 'central', rotulo: 'Acompanhamentos', curto: 'Acompanhar', caminho: '/central', descricao: 'Os registros da escola, do que chegou agora ao que já foi concluído.' },
   { area: 'buscar', rotulo: 'Buscar', caminho: '/buscar', descricao: 'Encontrar casos por período, tipo e situação.' },
   { area: 'relatorios', rotulo: 'Relatórios', caminho: '/relatorios', descricao: 'Números agregados, sem expor casos individuais.' },
@@ -37,10 +39,10 @@ export const navegacao: ItemNav[] = [
 
 /** Matriz de acesso do front. O backend aplica a mesma regra; esconder na tela não é segurança. */
 export const acesso: Record<Perfil, Area[]> = {
-  professor: ['inicio', 'registrar', 'meus-registros'],
-  apoio: ['inicio', 'registrar', 'meus-registros'],
-  coordenacao: ['inicio', 'registrar', 'meus-registros', 'central', 'buscar'],
-  direcao: ['inicio', 'registrar', 'central', 'buscar', 'relatorios', 'administracao'],
+  professor: ['inicio', 'registrar', 'meus-registros', 'equipamentos'],
+  apoio: ['inicio', 'registrar', 'meus-registros', 'equipamentos'],
+  coordenacao: ['inicio', 'registrar', 'meus-registros', 'equipamentos', 'central', 'buscar'],
+  direcao: ['inicio', 'registrar', 'equipamentos', 'central', 'buscar', 'relatorios', 'administracao'],
   referente_protecao: ['inicio', 'registrar', 'central', 'buscar'],
   diretoria_regional: ['inicio', 'buscar', 'relatorios'],
   secretaria: ['inicio', 'relatorios', 'administracao'],

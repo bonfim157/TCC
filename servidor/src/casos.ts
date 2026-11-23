@@ -87,6 +87,7 @@ export async function carregarCasos(c: Cliente, onde = 'true', parametros: unkno
   const envolvimentos = await filhos('envolvimentos', 'ordem');
   const anexos = await filhos('anexos', 'nome');
   const eventos = await filhos('eventos', 'em, id');
+  const versoes = await filhos('versoes_eventos', 'em, id');
   const providencias = await filhos('providencias', 'ordem');
   const encaminhamentos = await filhos('encaminhamentos', 'em');
   const plano = await filhos('acoes_plano', 'ordem');
@@ -105,7 +106,7 @@ export async function carregarCasos(c: Cliente, onde = 'true', parametros: unkno
       pessoaId: e.pessoa_id, nome: e.nome, tipo: e.tipo, turma: e.turma, papel: e.papel, visibilidade: e.visibilidade,
     })),
     anexos: (anexos.get(o.id) ?? []).map((a): Anexo => ({ id: a.id, nome: a.nome, tamanhoKb: a.tamanho_kb, justificativa: a.justificativa })),
-    eventos: (eventos.get(o.id) ?? []).map((e): Evento => ({ id: e.id, tipo: e.tipo, autorNome: e.autor_nome, autorPerfil: e.autor_perfil, em: e.em, texto: e.texto })),
+    eventos: (eventos.get(o.id) ?? []).map((e): Evento => comVersoes(e as LinhaDeEvento, ((versoes.get(o.id) ?? []) as LinhaDeVersao[]).filter((v) => v.evento_id === e.id))),
     plano: (plano.get(o.id) ?? []).map((a): AcaoDoPlano => ({ id: a.id, descricao: a.descricao, responsavel: a.responsavel, prazo: a.prazo, situacao: a.situacao })),
     providencias: (providencias.get(o.id) ?? []).map((p): Providencia => semNulos({
       id: p.id, descricao: p.descricao, base: p.base, obrigatoria: p.obrigatoria, situacao: p.situacao,
@@ -133,7 +134,29 @@ export async function carregarCaso(c: Cliente, id: string): Promise<Ocorrencia |
 /** Novo evento na linha do tempo, em nome de quem fez a requisição. */
 export async function novoEvento(c: Cliente, ctx: Contexto, ocorrenciaId: string, tipo: Evento['tipo'], texto: string) {
   await c.query(
-    `insert into eventos (rede_id, ocorrencia_id, tipo, autor_nome, autor_perfil, texto) values ($1, $2, $3, $4, $5, $6)`,
-    [ctx.vinculo.redeId, ocorrenciaId, tipo, ctx.usuario.nome, ctx.vinculo.perfil, texto],
+    `insert into eventos (rede_id, ocorrencia_id, tipo, autor_nome, autor_perfil, autor_id, texto) values ($1, $2, $3, $4, $5, $6, $7)`,
+    [ctx.vinculo.redeId, ocorrenciaId, tipo, ctx.usuario.nome, ctx.vinculo.perfil, ctx.usuario.id, texto],
   );
+}
+
+type LinhaDeEvento = { id: string; tipo: Evento['tipo']; autor_nome: string; autor_perfil: Evento['autorPerfil']; autor_id: string | null; em: string; texto: string };
+type LinhaDeVersao = { evento_id: string; texto: string; em: string };
+
+/**
+ * Evento com as correções do autor. O texto atual é a última versão; as anteriores
+ * (começando pelo texto original) ficam em `anteriores`. Nada é sobrescrito.
+ */
+function comVersoes(e: LinhaDeEvento, versoes: LinhaDeVersao[]): Evento {
+  const base: Evento = {
+    id: e.id, tipo: e.tipo, autorNome: e.autor_nome, autorPerfil: e.autor_perfil, em: e.em, texto: e.texto,
+    ...(e.autor_id ? { autorId: e.autor_id } : {}),
+  };
+  if (versoes.length === 0) return base;
+  const ultima = versoes[versoes.length - 1];
+  return {
+    ...base,
+    texto: ultima.texto,
+    editadoEm: ultima.em,
+    anteriores: [{ texto: e.texto, em: e.em }, ...versoes.slice(0, -1).map((v) => ({ texto: v.texto, em: v.em }))],
+  };
 }

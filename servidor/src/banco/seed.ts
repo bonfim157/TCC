@@ -4,7 +4,7 @@ import { exigeSegundoFator } from '../rotas/acesso';
 import { hashDoToken } from '../seguranca';
 import { hashDaSenha } from '../senha';
 import { modelos, regras } from '@tcc/compartilhado/protocolo';
-import { acessoDemo, categorias, categoriasSensiveis, contatos, escolas, ocorrencias, pessoas, redes, regionais, usuarios } from '@tcc/compartilhado/seed';
+import { acessoDemo, categorias, categoriasSensiveis, contatos, escolas, ocorrencias, pedidosDeEquipamento, pessoas, redes, regionais, usuarios } from '@tcc/compartilhado/seed';
 
 /*
  * Carrega os dados fictícios da demonstração (os mesmos da API simulada).
@@ -15,7 +15,7 @@ import { acessoDemo, categorias, categoriasSensiveis, contatos, escolas, ocorren
 
 /** Tabelas com dados, na ordem em que podem ser esvaziadas (filhas antes das mães). */
 const TABELAS = [
-  'tokens_convite', 'convites', 'tentativas_login', 'fatores_mfa', 'tokens_ciencia', 'auditoria', 'sessoes', 'comunicacoes', 'acoes_plano', 'encaminhamentos', 'providencias', 'eventos', 'anexos',
+  'anotacoes_equipamento', 'pedidos_equipamento', 'tokens_convite', 'convites', 'tentativas_login', 'fatores_mfa', 'tokens_ciencia', 'auditoria', 'sessoes', 'comunicacoes', 'acoes_plano', 'encaminhamentos', 'providencias', 'eventos', 'anexos',
   'envolvimentos', 'ocorrencias', 'contadores_protocolo', 'responsaveis', 'pessoas', 'contatos_locais',
   'modelos_comunicacao', 'regras_protocolo', 'categorias', 'vinculo_escolas', 'vinculos', 'usuarios', 'escolas',
   'regionais', 'redes',
@@ -82,6 +82,12 @@ async function semear(c: Cliente) {
       await ins('contatos_locais', { escola_id: ct.escolaId, rede_id: rede, conselho_tutelar: ct.conselhoTutelar, cras: ct.cras, creas: ct.creas, delegacia: ct.delegacia, saude: ct.saude });
     }
     for (const p of pessoas) await ins('pessoas', { id: p.id, rede_id: p.redeId, escola_id: p.escolaId, nome: p.nome, tipo: p.tipo, turma: p.turma ?? null });
+    for (const e of pedidosDeEquipamento) {
+      await ins('pedidos_equipamento', { id: e.id, rede_id: e.redeId, escola_id: e.escolaId, criado_por_id: e.criadoPorId, criado_por_nome: e.criadoPorNome, criado_em: e.criadoEm, item: e.item, local: e.local, descricao: e.descricao });
+      for (const a of e.anotacoes) {
+        await ins('anotacoes_equipamento', { id: a.id, rede_id: e.redeId, pedido_id: e.id, autor_id: 'u-beatriz', autor_nome: a.autorNome, em: a.em, texto: a.texto });
+      }
+    }
 
     for (const o of ocorrencias) {
       const r = o.redeId;

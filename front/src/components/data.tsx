@@ -4,9 +4,9 @@ import { Erro, Rotulo, descritores } from './controles';
 import { IconeAnterior, IconeProximo, IconeRelogio } from './icones';
 
 /*
- * Data e horário feitos aqui, e não com <input type="date|time">: o calendário e o
- * relógio nativos seguem o idioma do navegador (muitas vezes inglês) e mudam de cara
- * em cada aparelho. Estes ficam em português e com o visual do sistema em todo lugar.
+ * Data feita aqui, e não com <input type="date">: o calendário nativo segue o idioma do
+ * navegador (muitas vezes inglês) e muda de cara em cada aparelho. O horário usa o campo nativo
+ * de hora, que aceita qualquer minuto.
  */
 
 const somarDias = (dia: string, n: number) => {
@@ -202,12 +202,10 @@ export function CampoData({ id: idExterno, rotulo, valor, aoMudar, min, max, err
 }
 
 /* ---------- Horário ---------- */
-const horas = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
-const minutos = Array.from({ length: 12 }, (_, i) => String(i * 5).padStart(2, '0'));
-
 /**
- * Horário em duas listas (hora e minuto, de 5 em 5), que abrem como lista simples no
- * celular. "Agora" preenche com o horário atual arredondado.
+ * Horário com o campo de hora do próprio navegador: aceita qualquer minuto (digitando
+ * ou pela roda do celular), sem o passo de 5 minutos das listas antigas. "Agora"
+ * preenche com o horário atual, sem arredondar.
  */
 export function CampoHorario({ id: idExterno, rotulo, valor, aoMudar, erro, ajuda, opcional }: {
   id?: string;
@@ -220,13 +218,9 @@ export function CampoHorario({ id: idExterno, rotulo, valor, aoMudar, erro, ajud
 }) {
   const gerado = useId();
   const id = idExterno ?? gerado;
-  const [h, m] = valor ? valor.split(':') : ['', ''];
-  // Um minuto fora do passo de 5 (rascunho antigo) continua aparecendo na lista.
-  const opcoesMinuto = m && !minutos.includes(m) ? [...minutos, m].sort() : minutos;
   const agora = () => {
     const d = new Date();
-    const arredondado = Math.floor(d.getMinutes() / 5) * 5;
-    aoMudar(`${String(d.getHours()).padStart(2, '0')}:${String(arredondado).padStart(2, '0')}`);
+    aoMudar(`${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`);
   };
   const invalido = erro ? true : undefined;
   return (
@@ -235,26 +229,15 @@ export function CampoHorario({ id: idExterno, rotulo, valor, aoMudar, erro, ajud
       {ajuda && <p className="campo-ajuda" id={`${id}-ajuda`}>{ajuda}</p>}
       <div className="horario-linha">
         <div className="horario-parte">
-          <label htmlFor={`${id}-h`}>Hora</label>
-          <select id={`${id}-h`} className="entrada" value={h} aria-invalid={invalido} onChange={(e) => aoMudar(`${e.target.value}:${m || '00'}`)}>
-            <option value="" disabled>--</option>
-            {horas.map((x) => <option key={x} value={x}>{x}</option>)}
-          </select>
-        </div>
-        <span className="horario-separador" aria-hidden="true">:</span>
-        <div className="horario-parte">
-          <label htmlFor={`${id}-m`}>Minuto</label>
-          <select id={`${id}-m`} className="entrada" value={m} aria-invalid={invalido} onChange={(e) => aoMudar(`${h || '00'}:${e.target.value}`)}>
-            <option value="" disabled>--</option>
-            {opcoesMinuto.map((x) => <option key={x} value={x}>{x}</option>)}
-          </select>
+          <label htmlFor={`${id}-valor`}>Hora e minuto (24 h)</label>
+          <input id={`${id}-valor`} type="time" className="entrada" value={valor} aria-invalid={invalido} onChange={(e) => aoMudar(e.target.value)} />
         </div>
         <button type="button" className="btn btn-secundario horario-agora" onClick={agora}>
           <IconeRelogio width={18} height={18} />
           Agora
         </button>
       </div>
-      {valor && <p className="data-escolhida">Por volta das <strong>{Number(h)}h{m}</strong></p>}
+      {valor && <p className="data-escolhida">Por volta das <strong>{valor.replace(':', 'h')}</strong></p>}
       <Erro id={`${id}-erro`} erro={erro} />
     </fieldset>
   );

@@ -6,6 +6,7 @@ import {
   semAcento, sessoes, soProprios,
 } from './base';
 import { handlersCentral } from './central';
+import { handlersEquipamentos } from './equipamentos';
 import { handlersGestao } from './gestao';
 import { gerarProvidencias } from './protocolo';
 import { categorias, categoriasSensiveis, ocorrencias, pessoas, redes, usuarios } from './seed';
@@ -195,6 +196,27 @@ export const handlers = [
     return json(paraQuemConsulta(ctx, item), 201);
   }),
 
+  http.post('/api/ocorrencias/:id/adendos/:eventoId/versoes', async ({ request, params }) => {
+    await delay(400);
+    const ctx = contexto(request);
+    if (ctx instanceof Response) return ctx;
+    const item = ocorrencias.find((o) => o.id === params.id);
+    if (!item || item.redeId !== ctx.vinculo.redeId) return erro(404, 'nao_encontrado', 'Não encontramos este registro.');
+    if (!podeAbrir(ctx, item)) return erro(403, 'sem_permissao', 'Seu perfil não pode corrigir informações deste registro.');
+    const evento = item.eventos.find((e) => e.id === params.eventoId && e.tipo === 'adendo');
+    if (!evento) return erro(404, 'nao_encontrado', 'Não encontramos este adendo.');
+    if (evento.autorId !== ctx.usuario.id) return erro(403, 'sem_permissao', 'Só quem escreveu o adendo pode corrigi-lo.');
+    const { texto } = (await request.json()) as NovoAdendo;
+    if (!texto?.trim() || texto.trim().length < 10) return erro(422, 'validacao', 'O adendo precisa ter pelo menos 10 caracteres.');
+    // A versão substituída vai para o histórico; nada se perde.
+    evento.anteriores = [...(evento.anteriores ?? []), { texto: evento.texto, em: evento.editadoEm ?? evento.em }];
+    evento.texto = texto.trim();
+    evento.editadoEm = new Date().toISOString();
+    persistir();
+    auditar(ctx, 'alteracao', `caso ${item.protocolo}`, 'permitido', 'adendo corrigido');
+    return json(paraQuemConsulta(ctx, item));
+  }),
+
   http.get('/api/prazos', async ({ request }) => {
     await delay(250);
     const ctx = contexto(request);
@@ -208,6 +230,7 @@ export const handlers = [
 
   ...handlersCentral,
   ...handlersGestao,
+  ...handlersEquipamentos,
 
   http.get('/api/diagnostico/falha', async () => {
     await delay(300);

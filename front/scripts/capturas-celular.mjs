@@ -51,7 +51,7 @@ async function foto(p, nome) {
 
 async function entrar(ctx, nome) {
   const p = await ctx.newPage();
-  await p.goto(`${B}/entrar?rede=sp`);
+  await p.goto(`${B}/entrar?todos=1&rede=sp`);
   await p.waitForTimeout(700);
   // Perfis fora do dia a dia da escola ficam recolhidos em "Outros perfis e redes de teste".
   if (!(await p.getByLabel(nome, { exact: false }).isVisible())) await p.locator(".entrar-mais > summary").click();
@@ -67,7 +67,7 @@ const novo = () => b.newContext({ viewport: { width: largura, height: 780 }, isM
 {
   const ctx = await novo();
   const p = await ctx.newPage();
-  await ir(p, '/entrar?rede=sp'); await foto(p, 'entrar');
+  await ir(p, '/entrar?todos=1&rede=sp'); await foto(p, 'entrar');
   await ir(p, '/duvidas'); await foto(p, 'duvidas-publica');
   await ir(p, '/ciencia/demo-482-gabriel'); await foto(p, 'ciencia');
   await ctx.close();

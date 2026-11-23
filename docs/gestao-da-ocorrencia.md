@@ -73,7 +73,7 @@ Toda a atuação de quem conduz casos acontece numa única tela, a Central de Ge
 | --- | --- | --- |
 | Indicadores | Novas, urgentes, a comunicar ao Conselho Tutelar, devolutivas atrasadas | Clicar filtra a fila; nenhum ranking de estudante ou professor |
 | Fila | Casos da escola, ordenados por prioridade, pendências e prazo | Urgentes no topo |
-| Caso aberto | Resumo, linha do tempo, encaminhamentos, plano de apoio, comunicações | Correção vira adendo; dados de terceiros ocultos |
+| Caso aberto | Resumo, linha do tempo, encaminhamentos, plano de apoio, comunicações | Correção do relato vira adendo; o autor pode corrigir o próprio adendo, com as versões anteriores guardadas; dados de terceiros ocultos |
 | Providências | Lista gerada pelo tipo do caso | O sistema sugere, quem conduz decide; obrigatórias bloqueiam o encerramento, salvo justificativa |
 | Encaminhamentos | Órgão, data, canal, protocolo externo, devolutiva esperada | Atraso aparece na fila e na agenda |
 | Documentos | Ofício ao Conselho Tutelar e comunicação à família a partir de modelos | Envio bloqueado se o texto cita outro estudante |

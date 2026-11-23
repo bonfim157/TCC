@@ -82,6 +82,10 @@ Entradas, recusas e trocas de senha ficam na auditoria de cada rede em que a pes
 | `POST /api/ocorrencias` | Quem registra | `NovaOcorrencia` | `Ocorrencia` (201) | Escola do corpo = `X-Escola-Id`; relato ≥ 20 caracteres; gera protocolo e providências pelo protocolo da rede. Audita `criacao` |
 | `GET /api/ocorrencias/:id` | Autor ou quem conduz | | `Ocorrencia` | Filtrado: nomes com visibilidade restrita chegam como "Pessoa com visibilidade restrita"; quem só registrou não recebe providências, encaminhamentos nem comunicações. Audita `consulta` e cada negação. A consulta da mesma pessoa ao mesmo caso conta uma vez a cada 15 min, porque a tela recarrega o caso sozinha (decisão a validar com o encarregado de dados) |
 | `POST /api/ocorrencias/:id/adendos` | Autor ou quem conduz | `NovoAdendo` | `Ocorrencia` (201) | Correção nunca edita o relato; vira adendo. Texto ≥ 10 |
+| `POST /api/ocorrencias/:id/adendos/:eventoId/versoes` | Só o autor do adendo | `NovoAdendo` | `Ocorrencia` | Nova versão do adendo; a anterior vai para `anteriores` (nada é sobrescrito). Adendos sem `autor_id` (antigos) não podem ser corrigidos. Texto ≥ 10 |
+| `GET /api/equipamentos` | Professor, apoio, coordenação, direção (só os próprios, exceto coordenação e direção, que veem todos da escola) | — | `PedidoDeEquipamento[]` | Pedidos de equipamento e espaço, com as anotações da direção. Não são registros de pessoas |
+| `POST /api/equipamentos` | Professor, apoio, coordenação, direção | `NovoPedidoDeEquipamento` | `PedidoDeEquipamento` (201) | Item (até 80), local (até 120) e descrição (até 1000) |
+| `POST /api/equipamentos/:id/anotacoes` | Coordenação ou direção | `NovaAnotacaoDePedido` | `PedidoDeEquipamento` | Resposta da gestão, mostrada ao professor no próprio pedido. Texto até 1000 |
 | `GET /api/prazos` | Todos de escola | | `PrazoProximo[]` | Ações do plano com prazo próximo, para o Início |
 
 ### Central de Gestão (quem conduz)

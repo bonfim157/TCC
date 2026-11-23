@@ -22,7 +22,7 @@ const duvidas: Duvida[] = [
   ),
   duvida(
     'Enviei com um erro. Como corrijo?',
-    'Abra o caso e use “Acrescentar ou corrigir informação”. A correção entra como um adendo com seu nome e horário, sem apagar o que foi escrito antes. Assim o histórico do caso fica completo.',
+    'Se o erro está no relato, abra o caso e use “Acrescentar ou corrigir informação” para escrever o que faltou ou estava errado. Se o erro está num adendo que você escreveu, use “Corrigir o que escrevi” nele. A versão anterior nunca some: fica em “Versões anteriores”, na própria linha do tempo.',
   ),
   duvida(
     'Como descrevo o que aconteceu?',
