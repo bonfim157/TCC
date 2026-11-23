@@ -10,4 +10,6 @@ Thumbs.db
 
 .vercel
 .env*
+!.env.example
 api/_app.cjs
+.neon
