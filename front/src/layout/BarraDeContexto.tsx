@@ -1,5 +1,4 @@
 import { useId, useState } from 'react';
-import type { Perfil } from '../api/contract';
 import { DialogoConfirmacao } from '../components/estrutura';
 import { nomePerfil } from '../state/perfis';
 import { useGuardaDeRascunho } from '../state/rascunhos';
@@ -82,21 +81,6 @@ export function BarraDeContexto() {
         </div>
       )}
 
-      {s.demonstracao && (
-      <div className="contexto-item contexto-demo">
-        <label htmlFor={`${id}-perfil`}>Ver como (demonstração)</label>
-        <select
-          id={`${id}-perfil`}
-          className="entrada"
-          value={s.perfil ?? ''}
-          onChange={(e) => s.definirPerfilDemo(e.target.value === s.vinculo?.perfil ? null : (e.target.value as Perfil))}
-        >
-          {(Object.keys(nomePerfil) as Perfil[]).map((p) => (
-            <option key={p} value={p}>{nomePerfil[p]}{p === s.vinculo?.perfil ? ' (perfil real)' : ''}</option>
-          ))}
-        </select>
-      </div>
-      )}
     </>
   );
 
@@ -104,7 +88,7 @@ export function BarraDeContexto() {
   const resumo = (
     <span className="contexto-resumo">
       <strong>{s.escola?.nome ?? s.rede.nome}</strong>
-      <span>{s.perfil ? nomePerfil[s.perfil] : ''}{s.perfilDemo ? ' (vendo como)' : ''}</span>
+      <span>{s.perfil ? nomePerfil[s.perfil] : ''}</span>
     </span>
   );
   const podeTrocar = redesDoUsuario.length > 1 || s.escolas.length > 1 || s.demonstracao;

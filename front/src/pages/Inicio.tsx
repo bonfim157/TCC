@@ -83,7 +83,6 @@ export function Inicio() {
   if (!s.perfil || !s.rede) return null;
 
   const perfil = s.perfil;
-  const perfilReal = s.vinculo?.perfil ?? perfil;
   const primeiroNome = s.sessao?.usuario.nome.split(' ')[0];
   const hora = new Date().getHours();
   const saudacao = hora < 12 ? 'Bom dia' : hora < 18 ? 'Boa tarde' : 'Boa noite';
@@ -108,14 +107,6 @@ export function Inicio() {
       </div>
 
       <ConhecaOSistema />
-
-      {s.perfilDemo && (
-        <Aviso tipo="atencao" titulo="Você está vendo como outro perfil">
-          “Ver como” muda os menus e as telas liberadas. Os dados continuam limitados pelo vínculo real de{' '}
-          {s.sessao?.usuario.nome} ({nomePerfil[perfilReal].toLowerCase()}), porque quem decide o que cada pessoa vê é o
-          servidor, não a tela.
-        </Aviso>
-      )}
 
       {registra && rascunhos.length > 0 && (
         <Aviso tipo="marca" titulo={rascunhos.length === 1 ? 'Você tem um rascunho' : `Você tem ${rascunhos.length} rascunhos`}>
