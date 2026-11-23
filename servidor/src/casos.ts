@@ -127,8 +127,9 @@ export async function carregarCasos(c: Cliente, onde = 'true', parametros: unkno
   }));
 }
 
+/** Pelo id interno ou pelo número de protocolo. A RLS limita a busca à rede; o protocolo é único nela. */
 export async function carregarCaso(c: Cliente, id: string): Promise<Ocorrencia | null> {
-  return (await carregarCasos(c, 'o.id = $1', [id]))[0] ?? null;
+  return (await carregarCasos(c, 'o.id = $1 or o.protocolo = $1', [id]))[0] ?? null;
 }
 
 /** Novo evento na linha do tempo, em nome de quem fez a requisição. */
