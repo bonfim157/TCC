@@ -170,22 +170,23 @@ main:focus, main:focus-visible { outline: none; }
 
 /* Entrar, convite e cadastro: a lousa pautada à esquerda e o formulário na folha. */
 .tela-acesso { flex: 1; display: flex; flex-wrap: wrap; background: var(--paper); }
+/* Pauta da faixa inteira: uma linha a cada 2rem. Tudo que ocupa altura na faixa é
+ * múltiplo de 2rem (marca, espaços e linhas de texto), então cada texto fica sobre
+ * uma risca. Tudo em rem: quando o texto é ampliado, as linhas acompanham. */
 .acesso-lousa {
-  flex: 1 1 380px; display: flex; flex-direction: column; justify-content: space-between; gap: var(--e6);
-  padding: var(--e7) var(--e6) var(--e7) 72px; color: var(--onLousa); background-color: var(--lousa);
-  background-image: linear-gradient(to right, transparent 40px, rgb(232 160 168 / .55) 40px, rgb(232 160 168 / .55) 41px, transparent 41px);
+  --pauta: 2rem;
+  flex: 1 1 380px; display: flex; flex-direction: column;
+  padding: 4rem 2rem 4rem 72px; color: var(--onLousa); background-color: var(--lousa);
+  background-image:
+    linear-gradient(to right, transparent 40px, rgb(232 160 168 / .55) 40px, rgb(232 160 168 / .55) 41px, transparent 41px),
+    repeating-linear-gradient(to bottom, transparent 0, transparent calc(var(--pauta) - 1px), rgb(233 239 233 / .16) calc(var(--pauta) - 1px), rgb(233 239 233 / .16) var(--pauta));
 }
-.acesso-lousa .marca { color: #FFFFFF; font-size: 1.375rem; }
-/* Pauta só no texto: cada linha tem --linha-pauta de altura e a risca fica no fim dela.
- * Tudo em rem, então o texto ampliado continua sobre as linhas. */
-.acesso-lousa-frase {
-  --linha-pauta: 2rem; max-width: 30ch; display: grid; line-height: var(--linha-pauta);
-  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(var(--linha-pauta) - 1px), rgb(233 239 233 / .16) calc(var(--linha-pauta) - 1px), rgb(233 239 233 / .16) var(--linha-pauta));
-}
+.acesso-lousa .marca { color: #FFFFFF; font-size: 1.375rem; height: var(--pauta); display: flex; align-items: center; }
+.acesso-lousa-frase { margin-top: 6rem; max-width: 30ch; display: grid; line-height: var(--pauta); }
 .acesso-lousa-frase p { margin: 0; }
 .acesso-lousa-frase p:first-child { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.01em; color: #FFFFFF; }
 .acesso-lousa-frase p + p { font-size: var(--t-destaque); }
-.acesso-lousa-nota { font-size: var(--t-pequeno); color: var(--lousaSuave); }
+.acesso-lousa-nota { margin-top: 6rem; font-size: var(--t-pequeno); line-height: var(--pauta); color: var(--lousaSuave); }
 .acesso-lousa :focus-visible { outline-color: #FFE58A; }
 .acesso-conteudo { flex: 999 1 480px; min-width: 0; display: flex; flex-direction: column; align-items: center; padding: var(--e5) var(--e5) var(--e7); }
 .acesso-topo { align-self: flex-end; }
@@ -221,8 +222,10 @@ main.acesso-coluna { padding: 0; flex: none; }
   .pagina { gap: var(--e5); }
   /* Campos com menos de 16px fazem o Safari do iPhone dar zoom ao tocar. */
   input.entrada, select.entrada, textarea.entrada, .contexto-demo .entrada { font-size: max(1rem, 16px); }
-  .acesso-lousa { flex-basis: 100%; padding: var(--e6) var(--e4) var(--e5) 44px; gap: var(--e4);
-    background-image: linear-gradient(to right, transparent 28px, rgb(232 160 168 / .55) 28px, rgb(232 160 168 / .55) 29px, transparent 29px); }
+  .acesso-lousa { flex-basis: 100%; padding: 2rem 1rem 2rem 44px;
+    background-image:
+      linear-gradient(to right, transparent 28px, rgb(232 160 168 / .55) 28px, rgb(232 160 168 / .55) 29px, transparent 29px),
+      repeating-linear-gradient(to bottom, transparent 0, transparent calc(var(--pauta) - 1px), rgb(233 239 233 / .16) calc(var(--pauta) - 1px), rgb(233 239 233 / .16) var(--pauta)); }
   .acesso-lousa-frase p:first-child { font-size: 1.375rem; }
   .acesso-lousa-frase p + p, .acesso-lousa-nota { display: none; }
   .acesso-conteudo { padding: var(--e3) var(--e4) var(--e6); }
