@@ -8,9 +8,9 @@ Tudo o que ficou para depois de o front estar completo, em um só lugar. Atualiz
 
 | # | Pendência | Fase | Depende de | Situação | Notas |
 | --- | --- | --- | --- | --- | --- |
-| 1 | Teste de usabilidade na IMSIL com professores, coordenação e ao menos uma pessoa com deficiência | F2 e F5 | Agenda da escola | Aberta | Roteiro de teste ainda a preparar |
+| 1 | Teste de usabilidade na IMSIL com professores, coordenação e ao menos uma pessoa com deficiência | F2 e F5 | Agenda da escola | Em andamento | 29/10/2026: professores testaram; faltam coordenação, pessoa com deficiência e o registro dos achados |
 | 2 | Registro completo feito só com teclado e com leitor de tela (NVDA) | F2 e F5 | Equipe do TCC | Aberta | Ordem de foco verificada por script; axe sem violações nas telas principais |
-| 3 | Aprovação do design system e da navegação pela gestão | F1 | Gestão | Aberta | Mostrar em `/guia` |
+| 3 | Aprovação do design system e da navegação pela gestão | F1 | Gestão | Resolvida | 29/10/2026: aprovado pela gestão (informado pelo usuário) |
 | 4 | Revisão das telas de comunicação pelo encarregado de dados | F3 | Encarregado de dados | Aberta | Comunicação à família, ofício ao CT, página de ciência. Incluir: consultas repetidas ao mesmo caso contam uma vez a cada 15 min na auditoria, e a supressão complementar (pendência 31) |
 | 5 | Teste de leitura com o texto em 130% em aparelhos reais da escola | F5 | Equipe do TCC | Aberta | Em 360px já não há rolagem lateral |
 
@@ -41,7 +41,7 @@ Tudo o que ficou para depois de o front estar completo, em um só lugar. Atualiz
 | 16 | Login com a conta institucional da rede, com MFA para perfis de gestão | F1 | Seduc-SP e backend | Em andamento | 30/09/2026: login próprio com senha e segundo fator (TOTP) para perfis de gestão. Falta a conta institucional, que depende da Seduc-SP |
 | 17 | Relação com o Conviva SP: lançamento manual com código (atual) ou integração | F3 | Seduc-SP | Aberta | |
 | 18 | Anexos reais em armazenamento privado, com verificação de arquivo | F2 | Backend | Aberta | Servidor guarda os metadados; o arquivo depende do armazenamento na Vercel |
-| 19 | Rascunhos em aparelho compartilhado: prazo de expiração ou rascunho no servidor | F2 | Backend e direção | Aberta | Hoje ficam no navegador até enviar ou descartar |
+| 19 | Rascunhos em aparelho compartilhado: prazo de expiração ou rascunho no servidor | F2 | Backend e direção | Resolvida | 29/10/2026: expiram em 7 dias e são apagados ao sair; rascunho no servidor segue como alternativa se a direção preferir |
 | 20 | Envio real de comunicações às famílias (e-mail, SMS ou aplicativo) e link de ciência seguro | F3 | Backend | Em andamento | 30/09/2026: link com token de 256 bits, só o hash no banco, validade de 30 dias, confirmação única. Falta o envio por e-mail e o cadastro de responsáveis |
 | 21 | Turmas e estudantes vindos da Secretaria Escolar Digital, em vez de cadastro manual | F4 | Seduc-SP | Aberta | |
 
@@ -60,5 +60,5 @@ Tudo o que ficou para depois de o front estar completo, em um só lugar. Atualiz
 | 30 | Bloqueio de nome de outro estudante na comunicação à família também no servidor | F3 | Resolvida | 30/09/2026: o servidor real também recusa e audita |
 | 31 | Supressão complementar nos relatórios | F4 | Aberta | Com só um grupo suprimido, o total menos os outros grupos revela o número escondido (vale para tipos, meses e escolas). Decidir com o encarregado de dados se suprime também um segundo grupo ou se mostra o total arredondado |
 | 32 | Recuperação de senha por e-mail e criação de contas pela tela | B2 | Aberta | Hoje quem administra cria a conta e a senha temporária pela linha de comando (`npm run cli -w servidor -- conta ...`). Depende do serviço de e-mail |
-| 33 | QR code no cadastro do segundo fator | B2 | Aberta | Hoje a chave é digitada no aplicativo ou aberta por link no celular |
+| 33 | QR code no cadastro do segundo fator | B2 | Resolvida | 29/10/2026: QR gerado no navegador; a chave continua na tela |
 | 34 | Texto do rodapé e da faixa para o piloto real | B7 | Aberta | Hoje dizem "protótipo acadêmico"; definir com a gestão o texto para quando houver dados reais |

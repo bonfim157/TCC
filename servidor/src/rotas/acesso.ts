@@ -7,10 +7,10 @@ import { loginDemoAtivo } from '../ambiente';
 import { definirRede, naRede, type Cliente } from '../banco/conexao';
 import { cifrar, decifrar } from '../cifra';
 import { auditar, tokenDaRequisicao, vinculosDe } from '../contexto';
-import { conflito, ErroApi, naoAutenticado, naoEncontrado, semPermissao, validacao } from '../erros';
+import { conflito, ErroApi, naoAutenticado, naoEncontrado, semPermissao, trocaDeSenha, validacao } from '../erros';
 import { hashDoToken, novoToken } from '../seguranca';
 import { hashDaSenha, hashDeEngodo, senhaAceitavel, senhaConfere } from '../senha';
-import { novoSegredoTotp, totpConfere, uriTotp } from '../totp';
+import { novoSegredoTotp, passoTotp, uriTotp } from '../totp';
 import { corpo } from '../util';
 
 /*
@@ -21,6 +21,8 @@ import { corpo } from '../util';
 
 export const HORAS_DE_SESSAO = 8;
 const MAX_TENTATIVAS = 5;
+/** Por endereço (uma escola inteira atrás do mesmo IP), o limite é mais alto que por conta. */
+const MAX_POR_ENDERECO = 20;
 const JANELA_MINUTOS = 15;
 
 /** Perfis que só registram não precisam de segundo fator; todos os outros precisam. */
@@ -59,12 +61,12 @@ async function sessaoAtual(db: Cliente, c: Context) {
   return r.rows[0] ? { ...r.rows[0], token } : null;
 }
 
-async function muitasTentativas(db: Cliente, email: string) {
+async function muitasTentativas(db: Cliente, chave: string, limite = MAX_TENTATIVAS) {
   const r = await db.query<{ n: number }>(
     `select count(*) n from tentativas_login where email = $1 and not sucesso and em > now() - make_interval(mins => $2)`,
-    [email, JANELA_MINUTOS],
+    [chave, JANELA_MINUTOS],
   );
-  return Number(r.rows[0].n) >= MAX_TENTATIVAS;
+  return Number(r.rows[0].n) >= limite;
 }
 
 export function rotasDeAcesso(app: Hono) {
@@ -73,17 +75,24 @@ export function rotasDeAcesso(app: Hono) {
   app.post('/entrar', async (c) => {
     const pedido = await corpo(c, esquemaEntrar, 'Informe o e-mail e a senha.');
     const email = pedido.email.trim().toLowerCase();
+    // Na Vercel o endereço de quem chama vem em x-forwarded-for. Sem ele (testes locais), só o limite por conta vale.
+    const endereco = c.req.header('x-forwarded-for')?.split(',')[0]?.trim();
+    const chaveEndereco = endereco ? `ip:${endereco}` : null;
 
     // As recusas são devolvidas como valor, e não lançadas, para a tentativa ficar gravada.
     const resultado = await naRede<RespostaEntrar & { token?: string } | ErroApi>({ redeId: null }, async (db) => {
       if (await muitasTentativas(db, email)) {
         return semPermissao(`Muitas tentativas. Aguarde ${JANELA_MINUTOS} minutos e tente de novo.`);
       }
+      if (chaveEndereco && (await muitasTentativas(db, chaveEndereco, MAX_POR_ENDERECO))) {
+        return semPermissao(`Muitas tentativas deste endereço. Aguarde ${JANELA_MINUTOS} minutos e tente de novo.`);
+      }
       const achado = (await db.query<{ usuario_id: string; senha_hash: string | null; senha_temporaria: boolean }>('select * from hash_da_senha($1)', [email])).rows[0];
       // Sem conta ou sem senha: confere contra um hash qualquer, para a resposta levar o mesmo tempo.
       const confere = await senhaConfere(pedido.senha, achado?.senha_hash ?? (await hashDeEngodo()));
       if (!achado?.senha_hash || !confere) {
         await db.query('insert into tentativas_login (email, sucesso) values ($1, false)', [email]);
+        if (chaveEndereco) await db.query('insert into tentativas_login (email, sucesso) values ($1, false)', [chaveEndereco]);
         if (achado) await auditarLogin(db, await usuarioCompleto(db, achado.usuario_id), 'negado', 'senha incorreta');
         return new ErroApi(401, 'nao_autenticado', 'E-mail ou senha incorretos.');
       }
@@ -107,7 +116,7 @@ export function rotasDeAcesso(app: Hono) {
       const segredo = novoSegredoTotp();
       await db.query(
         `insert into fatores_mfa (usuario_id, segredo_cifrado) values ($1, $2)
-         on conflict (usuario_id) do update set segredo_cifrado = excluded.segredo_cifrado`,
+         on conflict (usuario_id) do update set segredo_cifrado = excluded.segredo_cifrado, ultimo_passo = null`,
         [usuario.id, cifrar(segredo)],
       );
       return { etapa: 'cadastrar_segundo_fator', segredo, uri: uriTotp(segredo, email), token };
@@ -129,12 +138,22 @@ export function rotasDeAcesso(app: Hono) {
       const chave = `mfa:${usuario.id}`;
       if (await muitasTentativas(db, chave)) return semPermissao(`Muitas tentativas. Aguarde ${JANELA_MINUTOS} minutos e entre de novo.`);
       const fator = (await db.query<{ segredo_cifrado: string }>('select segredo_cifrado from fatores_mfa where usuario_id = $1', [usuario.id])).rows[0];
-      if (!fator || !totpConfere(decifrar(fator.segredo_cifrado), codigo)) {
+      const passo = fator ? passoTotp(decifrar(fator.segredo_cifrado), codigo) : null;
+      // O passo só avança: um código já aceito, ou mais antigo, não serve de novo. Conferir e gravar é um único UPDATE.
+      const aceito = passo !== null && (await db.query(
+        `update fatores_mfa set ultimo_passo = $2, confirmado_em = coalesce(confirmado_em, now())
+          where usuario_id = $1 and (ultimo_passo is null or ultimo_passo < $2)`,
+        [usuario.id, passo],
+      )).rowCount === 1;
+      if (!aceito) {
         await db.query('insert into tentativas_login (email, sucesso) values ($1, false)', [chave]);
-        await auditarLogin(db, usuario, 'negado', 'código do segundo fator incorreto');
-        return validacao('Código incorreto. Confira o aplicativo e o horário do celular.');
+        if (passo === null) {
+          await auditarLogin(db, usuario, 'negado', 'código do segundo fator incorreto');
+          return validacao('Código incorreto. Confira o aplicativo e o horário do celular.');
+        }
+        await auditarLogin(db, usuario, 'negado', 'código do segundo fator já usado');
+        return validacao('Este código já foi usado. Espere o próximo, que aparece em 30 segundos.');
       }
-      await db.query('update fatores_mfa set confirmado_em = coalesce(confirmado_em, now()) where usuario_id = $1', [usuario.id]);
       await db.query('update sessoes set mfa_pendente = false where token_hash = $1', [hashDoToken(sessao.token)]);
       await auditarLogin(db, usuario, 'permitido', 'com segundo fator');
       const temporaria = (await db.query<{ t: boolean }>(
@@ -147,12 +166,15 @@ export function rotasDeAcesso(app: Hono) {
 
   /** Quem está logado, para a página se recuperar depois de recarregar (ela não lê o cookie). */
   app.get('/sessao', async (c) => {
-    const usuario = await naRede({ redeId: null }, async (db) => {
+    const { usuario, temporaria } = await naRede({ redeId: null }, async (db) => {
       const sessao = await sessaoAtual(db, c);
       if (!sessao || sessao.mfa_pendente) throw naoAutenticado();
-      return usuarioCompleto(db, sessao.usuario_id);
+      const usuario = await usuarioCompleto(db, sessao.usuario_id);
+      const temporaria = (await db.query<{ t: boolean }>('select senha_temporaria as t from usuarios where id = $1', [usuario.id])).rows[0]?.t ?? false;
+      return { usuario, temporaria };
     });
-    return c.json({ usuario });
+    // Com a senha temporária, a tela leva a pessoa à troca antes de qualquer outra coisa.
+    return c.json({ usuario, ...(temporaria ? { trocarSenha: true } : {}) });
   });
 
   /** Troca a própria senha. Exige a senha atual; encerra as outras sessões da pessoa. */
@@ -297,6 +319,7 @@ export function rotasDeAcesso(app: Hono) {
       if (!sessao || sessao.mfa_pendente || sessao.usuario_id !== conta.usuario_id) {
         return semPermissao('Este e-mail já tem conta. Entre com ela e abra o link do convite de novo.');
       }
+      if ((await db.query<{ t: boolean }>('select senha_temporaria as t from usuarios where id = $1', [conta.usuario_id])).rows[0]?.t) throw trocaDeSenha();
       usuarioId = conta.usuario_id;
     } else {
       if ((p.nome ?? '').trim().length < 3) return validacao('Informe seu nome completo.');
@@ -340,7 +363,10 @@ export function rotasDeAcesso(app: Hono) {
     const sessao = await sessaoAtual(db, c);
     if (!sessao || sessao.mfa_pendente) return null;
     await db.query(`select set_config('app.usuario_id', $1, true)`, [sessao.usuario_id]);
-    return (await db.query<{ email: string }>('select lower(email) as email from usuarios where id = $1', [sessao.usuario_id])).rows[0]?.email ?? null;
+    const conta = (await db.query<{ email: string; senha_temporaria: boolean }>(
+      'select lower(email) as email, senha_temporaria from usuarios where id = $1', [sessao.usuario_id])).rows[0];
+    if (conta?.senha_temporaria) throw trocaDeSenha();
+    return conta?.email ?? null;
   }
 
   app.get('/convites', async (c) => {

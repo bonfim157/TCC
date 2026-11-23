@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
+import QRCode from 'qrcode';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { api, ErroDaApi, FalhaDeRede } from '../api/client';
 import { rotas, type RespostaEntrar, type Usuario } from '../api/contract';
@@ -10,7 +11,7 @@ type Etapa =
   | { nome: 'credenciais' }
   | { nome: 'segundo_fator' }
   | { nome: 'cadastrar_segundo_fator'; segredo: string; uri: string }
-  | { nome: 'trocar_senha'; usuario: Usuario };
+  | { nome: 'trocar_senha'; usuario: Usuario; direta?: boolean }; // direta: entrou com a sessão já aberta, sem a senha provisória digitada aqui
 
 const mensagemDoErro = (e: unknown) =>
   e instanceof FalhaDeRede
@@ -28,13 +29,15 @@ export function EntrarComSenha() {
   const navegar = useNavigate();
   // Volta para onde a pessoa estava (uma tela protegida ou o link de um convite).
   const destino = (useLocation().state as { de?: string } | null)?.de ?? '/';
-  const [etapa, setEtapa] = useState<Etapa>({ nome: 'credenciais' });
+  const [etapa, setEtapa] = useState<Etapa>(() =>
+    s.senhaTemporaria && s.sessao ? { nome: 'trocar_senha', usuario: s.sessao.usuario, direta: true } : { nome: 'credenciais' });
+  const [provisoria, setProvisoria] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [codigo, setCodigo] = useState('');
   const [nova, setNova] = useState('');
   const [confirmacao, setConfirmacao] = useState('');
-  const [erros, setErros] = useState<{ email?: string; senha?: string; codigo?: string; nova?: string; confirmacao?: string; envio?: string }>({});
+  const [erros, setErros] = useState<{ email?: string; senha?: string; codigo?: string; atual?: string; nova?: string; confirmacao?: string; envio?: string }>({});
   const [enviando, setEnviando] = useState(false);
   const titulo = useRef<HTMLHeadingElement>(null);
 
@@ -42,6 +45,18 @@ export function EntrarComSenha() {
   useEffect(() => {
     if (etapa.nome !== 'credenciais') titulo.current?.focus();
   }, [etapa.nome]);
+
+  // QR code gerado aqui, no navegador: a chave não sai para outro serviço. A chave digitada continua na tela.
+  const [qr, setQr] = useState('');
+  const uriDoCadastro = etapa.nome === 'cadastrar_segundo_fator' ? etapa.uri : '';
+  useEffect(() => {
+    if (!uriDoCadastro) return;
+    let vivo = true;
+    QRCode.toDataURL(uriDoCadastro, { width: 192, margin: 1 }).then((imagem) => vivo && setQr(imagem)).catch(() => {});
+    return () => {
+      vivo = false;
+    };
+  }, [uriDoCadastro]);
 
   function concluir(r: RespostaEntrar) {
     if (r.etapa === 'pronto' && r.trocarSenha) {
@@ -102,15 +117,17 @@ export function EntrarComSenha() {
   async function enviarNovaSenha(e: FormEvent) {
     e.preventDefault();
     if (etapa.nome !== 'trocar_senha') return;
+    const atual = etapa.direta ? provisoria : senha;
     const novos = {
+      atual: atual ? undefined : 'Informe a senha que você recebeu.',
       nova: nova.length >= 12 ? undefined : 'A senha precisa ter pelo menos 12 caracteres. Uma frase é uma boa senha.',
       confirmacao: nova === confirmacao ? undefined : 'As duas senhas não são iguais.',
     };
     setErros(novos);
-    if (novos.nova || novos.confirmacao) return;
+    if (novos.atual || novos.nova || novos.confirmacao) return;
     setEnviando(true);
     try {
-      await api(rotas.senha, { method: 'POST', body: JSON.stringify({ atual: senha, nova }) });
+      await api(rotas.senha, { method: 'POST', body: JSON.stringify({ atual, nova }) });
       setSenha('');
       setNova('');
       setConfirmacao('');
@@ -131,6 +148,12 @@ export function EntrarComSenha() {
           <p>A senha que você recebeu era provisória. Escolha uma que só você conheça.</p>
         </div>
         {erros.envio && <Aviso tipo="erro" titulo="Não foi possível trocar a senha">{erros.envio}</Aviso>}
+        {etapa.direta && (
+          <CampoTexto
+            rotulo="Senha que você recebeu" type="password" autoComplete="current-password"
+            value={provisoria} onChange={(e) => setProvisoria(e.target.value)} erro={erros.atual}
+          />
+        )}
         <CampoTexto
           rotulo="Nova senha" type="password" autoComplete="new-password"
           ajuda="Pelo menos 12 caracteres. Uma frase fácil de lembrar é melhor que uma senha curta com símbolos."
@@ -195,7 +218,8 @@ export function EntrarComSenha() {
             Instale no celular um aplicativo autenticador, como Google Authenticator ou Microsoft Authenticator.
           </li>
           <li>
-            No aplicativo, adicione uma conta e escolha digitar a chave. Use esta:
+            No aplicativo, adicione uma conta e escolha ler o QR code. Se preferir, escolha digitar a chave:
+            {qr && <img className="qr-mfa" src={qr} width={192} height={192} alt="QR code para cadastrar a conta no aplicativo autenticador" />}
             <output className="segredo-mfa" aria-label="Chave para o aplicativo autenticador">
               {cadastro.segredo.match(/.{1,4}/g)?.join(' ')}
             </output>

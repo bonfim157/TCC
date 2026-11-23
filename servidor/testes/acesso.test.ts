@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
 import type { RespostaEntrar } from '@tcc/compartilhado/contrato';
 import { acessoDemo } from '@tcc/compartilhado/seed';
 import { naRede } from '../src/banco/conexao';
@@ -187,5 +187,69 @@ describe('perfil × rota', () => {
       expect(await post(p, '/exportacoes', { motivo: 'Relatório para a reunião pedagógica do bimestre.', de: '', ate: '', escolaId: '', somenteCategoriaId: '' }), `${p} exporta`)
         .toBe(['direcao', 'diretoria_regional', 'secretaria'].includes(p) ? 201 : 403);
     }
+  });
+});
+
+describe('senha temporária: a troca é obrigatória no servidor, não só na tela', () => {
+  test('com senha temporária, as rotas de dados recusam até a troca', async () => {
+    await amb.dono(`update usuarios set senha_temporaria = true where id = 'u-ana'`);
+    const r = await entrar('ana@demo.tcc');
+    expect(await r.json()).toMatchObject({ etapa: 'pronto', trocarSenha: true });
+    const cookie = cookieDe(r);
+
+    const dados = await amb.pedir('/escolas', { cabecalhos: { cookie, 'x-rede-id': 'rede-sp' } });
+    expect(dados.status).toBe(403);
+    expect(await dados.json()).toEqual({ codigo: 'troca_de_senha', mensagem: 'Troque a senha temporária para continuar.' });
+    expect((await amb.pedir('/convites', { cabecalhos: { cookie } })).status).toBe(403);
+
+    // Sessão e troca continuam abertas
+    expect(await (await amb.pedir('/sessao', { cabecalhos: { cookie } })).json()).toMatchObject({ trocarSenha: true, usuario: { id: 'u-ana' } });
+    const troca = await amb.pedir('/senha', json({ atual: acessoDemo.senha, nova: 'nova-senha-da-ana-2026' }, cookie));
+    expect(troca.status).toBe(200);
+
+    expect((await amb.pedir('/escolas', { cabecalhos: { cookie, 'x-rede-id': 'rede-sp' } })).status).toBe(200);
+    expect(await (await amb.pedir('/sessao', { cabecalhos: { cookie } })).json()).not.toHaveProperty('trocarSenha');
+    // A senha nova vale no próximo acesso
+    expect((await entrar('ana@demo.tcc', 'nova-senha-da-ana-2026')).status).toBe(200);
+  });
+});
+
+describe('código do segundo fator vale uma vez', () => {
+  test('o mesmo código, dentro dos 30 segundos, não entra duas vezes', async () => {
+    // Relógio fixo no meio de um passo, para o teste não depender do momento em que roda.
+    vi.useFakeTimers({ toFake: ['Date'] });
+    try {
+      vi.setSystemTime(new Date('2030-01-01T12:00:10Z'));
+      const codigo = codigoTotp(acessoDemo.segredoTotp);
+      const primeira = cookieDe(await entrar('carlos@demo.tcc'));
+      expect((await amb.pedir('/entrar/segundo-fator', json({ codigo }, primeira))).status).toBe(200);
+
+      const segunda = cookieDe(await entrar('carlos@demo.tcc'));
+      const repetido = await amb.pedir('/entrar/segundo-fator', json({ codigo }, segunda));
+      expect(repetido.status).toBe(422);
+      expect(((await repetido.json()) as { mensagem: string }).mensagem).toMatch(/já foi usado/);
+      expect((await amb.pedir('/sessao', { cabecalhos: { cookie: segunda } })).status).toBe(401);
+      expect(await auditoria(`acao = 'negado' and ator = 'Carlos Mendes' and detalhe = 'código do segundo fator já usado'`)).toBe(1);
+
+      // Passado o intervalo, o código seguinte entra normalmente.
+      vi.setSystemTime(new Date('2030-01-01T12:00:40Z'));
+      expect((await amb.pedir('/entrar/segundo-fator', json({ codigo: codigoTotp(acessoDemo.segredoTotp) }, segunda))).status).toBe(200);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});
+
+describe('limite por endereço', () => {
+  test('muitas senhas erradas de um mesmo endereço bloqueiam o endereço, e outro endereço continua entrando', async () => {
+    const doisIps = { 'x-forwarded-for': '203.0.113.7' };
+    for (let i = 0; i < 20; i++) {
+      await amb.pedir('/entrar', { method: 'POST', body: JSON.stringify({ email: `desconhecida${i}@x.test`, senha: 'senha-errada-123' }), cabecalhos: doisIps });
+    }
+    const bloqueado = await amb.pedir('/entrar', { method: 'POST', body: JSON.stringify({ email: 'ana@demo.tcc', senha: 'nova-senha-da-ana-2026' }), cabecalhos: doisIps });
+    expect(bloqueado.status).toBe(403);
+    expect(((await bloqueado.json()) as { mensagem: string }).mensagem).toMatch(/deste endereço/);
+    const outro = await amb.pedir('/entrar', { method: 'POST', body: JSON.stringify({ email: 'ana@demo.tcc', senha: 'nova-senha-da-ana-2026' }), cabecalhos: { 'x-forwarded-for': '198.51.100.9' } });
+    expect(outro.status).toBe(200);
   });
 });

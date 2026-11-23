@@ -197,3 +197,33 @@ O que foi construído em cada fase e como foi verificado. As verificações fora
 ## Situação da última rodada de verificação
 
 29/09/2026: `npm run build`, `npm run contrast` e `npm run verificar` completo (F1, F2, F3, atualização, F4, regional e acessibilidade) passaram. O front está completo; o que falta é validação com pessoas, decisões da gestão e backend (ver Pendências).
+
+## Pendências, 29/10/2026 (branch `pendencias-planos`)
+
+**Construído**
+
+- Segundo fator de uso único: cada código aceito fica registrado pelo passo de 30 s (migração 010); o mesmo código não entra de novo, e a recusa é auditada
+- Senha temporária exigida no servidor: as rotas de dados respondem 403 `troca_de_senha` até a troca; `/sessao` informa `trocarSenha` (migração 011, que dá à aplicação só a leitura do indicador, nunca do hash)
+- Tela de entrada leva quem tem senha provisória à troca, pedindo a senha recebida antes da nova
+- Rascunhos de registro expiram em 7 dias e são apagados ao sair (pendência 19)
+- QR code no cadastro do segundo fator, gerado no navegador com `qrcode` (MIT); a chave digitada continua na tela (pendência 33)
+- Consulta leve da Central: `/central/mudancas` devolve uma marca da linha do tempo da rede; fila, agenda e caso só recarregam quando ela muda
+- Limite de tentativas por endereço (20 em 15 minutos), na mesma tabela de tentativas, quando o endereço chega em `x-forwarded-for`
+- Cabeçalhos de segurança em todas as respostas (`nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy`)
+
+**Verificado**
+
+- `npm test` do servidor: 132 testes passando, incluindo: código repetido recusado; senha temporária recusa rotas de dados e libera após a troca; limite por endereço bloqueia um IP e não outro; marca da Central muda e só quem conduz a recebe
+- `npm run build` (front e tipos do servidor) sem erros
+- Expiração e apagamento de rascunhos: verificação por script (4 checagens)
+- A biblioteca do QR gera imagem PNG
+
+**Não verificado**
+
+- Roteiros do navegador (`f6-login`, `f3-central`, `f2-registro`) contra o servidor real, e a tela do QR e da troca de senha em navegador
+- Política de conteúdo (CSP): não incluída, porque pode quebrar o MSW e as fontes; depende de teste num preview
+
+**Decisões do usuário registradas nesta rodada**
+
+- 29/10/2026: design system aprovado pela gestão (pendência 3)
+- 29/10/2026: professores testaram a navegação; achados não informados, por isso a pendência 1 segue em andamento até coordenação e uma pessoa com deficiência participarem e os achados serem registrados

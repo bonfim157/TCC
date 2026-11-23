@@ -248,3 +248,16 @@ describe('encerrar', () => {
     expect(agenda.filter((i) => i.ocorrenciaId === novo.id).map((i) => i.tipo)).toEqual(['reavaliacao']);
   });
 });
+
+describe('consulta leve da Central', () => {
+  test('a marca muda quando a rede ganha um evento, e só quem conduz casos a recebe', async () => {
+    const antes = (await (await amb.pedir('/central/mudancas', { cabecalhos: carlos })).json()) as { marca: string };
+    expect(antes.marca).toMatch(/^\d+\|/);
+    expect((await amb.pedir('/central/mudancas', { cabecalhos: ana })).status).toBe(403);
+
+    const r = await agir(carlos, 'oc-sp-484', 'registros', { tipo: 'escuta', texto: 'Escuta registrada para o teste da consulta leve.' });
+    expect(r.status).toBe(201);
+    const depois = (await (await amb.pedir('/central/mudancas', { cabecalhos: carlos })).json()) as { marca: string };
+    expect(depois.marca).not.toBe(antes.marca);
+  });
+});

@@ -448,7 +448,7 @@ export type PrazoProximo = AcaoDoPlano & { ocorrenciaId: string; protocolo: stri
 export type OcorrenciaSemelhante = Pick<OcorrenciaResumo, 'id' | 'protocolo' | 'abertaEm' | 'local' | 'categoriaId'>;
 
 export type ApiErro = {
-  codigo: 'nao_autenticado' | 'sem_permissao' | 'nao_encontrado' | 'rede_divergente' | 'erro_interno' | 'validacao' | 'conflito';
+  codigo: 'nao_autenticado' | 'sem_permissao' | 'nao_encontrado' | 'rede_divergente' | 'troca_de_senha' | 'erro_interno' | 'validacao' | 'conflito';
   mensagem: string;
 };
 
@@ -479,6 +479,8 @@ export const rotas = {
   pessoas: (busca: string) => `/api/pessoas?busca=${encodeURIComponent(busca)}`,
   prazos: '/api/prazos',
   fila: '/api/central/fila',
+  /** Consulta leve: uma marca que muda quando algo mudou; a fila só recarrega então. */
+  mudancas: '/api/central/mudancas',
   agenda: '/api/central/agenda',
   equipe: '/api/equipe',
   modelos: '/api/modelos',

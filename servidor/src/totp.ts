@@ -25,11 +25,19 @@ export function codigoTotp(segredo: string, quando = Date.now()) {
   return String((h.readUInt32BE(pos) & 0x7fffffff) % 1_000_000).padStart(6, '0');
 }
 
-/** Aceita o código do intervalo atual e dos vizinhos (relógio do celular adiantado ou atrasado). */
-export function totpConfere(segredo: string, codigo: string, quando = Date.now()) {
+/**
+ * Passo de 30 s (contado desde a época) do código que confere, ou null. Aceita o
+ * intervalo atual e os vizinhos (relógio do celular adiantado ou atrasado). O
+ * passo é o que impede o mesmo código de servir duas vezes.
+ */
+export function passoTotp(segredo: string, codigo: string, quando = Date.now()): number | null {
   const limpo = codigo.replace(/\s/g, '');
-  if (!/^\d{6}$/.test(limpo)) return false;
-  return [-1, 0, 1].some((d) => timingSafeEqual(Buffer.from(codigoTotp(segredo, quando + d * 30_000)), Buffer.from(limpo)));
+  if (!/^\d{6}$/.test(limpo)) return null;
+  const atual = Math.floor(quando / 30_000);
+  for (const d of [-1, 0, 1]) {
+    if (timingSafeEqual(Buffer.from(codigoTotp(segredo, (atual + d) * 30_000)), Buffer.from(limpo))) return atual + d;
+  }
+  return null;
 }
 
 /** Endereço que o aplicativo autenticador lê (por QR code ou colado). */

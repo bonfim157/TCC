@@ -87,6 +87,15 @@ export function rotasDaCentral(app: Hono) {
     }),
   );
 
+  /** Só a marca da linha do tempo da rede: toda ação da Central gera um evento. A RLS já limita à rede. */
+  app.get('/central/mudancas', (c) =>
+    comContexto(c.req.raw.headers, async (db, ctx) => {
+      if (!conduz(ctx)) throw semPermissao('A Central de Gestão é para quem conduz casos na escola.');
+      const r = await db.query<{ marca: string }>(`select count(*) || '|' || coalesce(max(em)::text, '') as marca from eventos`);
+      return c.json({ marca: r.rows[0].marca });
+    }),
+  );
+
   app.get('/central/agenda', (c) =>
     comContexto(c.req.raw.headers, async (db, ctx) => {
       if (!conduz(ctx)) throw semPermissao('A agenda é para quem conduz casos na escola.');

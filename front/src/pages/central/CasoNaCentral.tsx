@@ -26,7 +26,7 @@ const emDias = (n: number) => {
 };
 
 /** Caso aberto dentro da Central: cabeçalho, ações, abas, providências e os diálogos de cada ação. */
-export function CasoNaCentral({ id, externo = 0, aoMudar }: { id: string; externo?: number; aoMudar: () => void }) {
+export function CasoNaCentral({ id, externo = '', aoMudar }: { id: string; externo?: string; aoMudar: () => void }) {
   const s = useSessao();
   const notificar = useNotificar();
   // Recarrega quando outra pessoa altera o caso, sem fechar diálogos abertos.

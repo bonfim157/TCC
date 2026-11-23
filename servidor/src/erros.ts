@@ -19,6 +19,8 @@ export class ErroApi extends Error {
 export const naoAutenticado = () => new ErroApi(401, 'nao_autenticado', 'Sua sessão expirou. Entre novamente.');
 export const semPermissao = (mensagem: string) => new ErroApi(403, 'sem_permissao', mensagem);
 export const redeDivergente = (mensagem: string) => new ErroApi(403, 'rede_divergente', mensagem);
-export const naoEncontrado = (mensagem: string) => new ErroApi(404, 'nao_encontrado', mensagem);
+/** Senha temporária: só as rotas de troca de senha, saída e sessão respondem até a troca. */
+export const trocaDeSenha = () => new ErroApi(403, 'troca_de_senha', 'Troque a senha temporária para continuar.');
+export const naoEncontrado =(mensagem: string) => new ErroApi(404, 'nao_encontrado', mensagem);
 export const conflito = (mensagem: string) => new ErroApi(409, 'conflito', mensagem);
 export const validacao = (mensagem: string) => new ErroApi(422, 'validacao', mensagem);
