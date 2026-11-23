@@ -42,6 +42,9 @@ export const esquemaNovaOcorrencia = z.object({
 
 export const esquemaNovoAdendo = z.object({ texto: texto(5000) });
 
+export const esquemaNovoPedidoDeEquipamento = z.object({ item: texto(80), local: texto(120), descricao: texto(1000) });
+export const esquemaNovaAnotacaoDePedido = z.object({ texto: texto(1000) });
+
 /* ---------- Central de Gestão ---------- */
 
 const dia = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);

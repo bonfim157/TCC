@@ -442,6 +442,26 @@ export type PedidoNovaPessoa = Pick<Pessoa, 'nome' | 'tipo' | 'turma'>;
 
 export type NovoAdendo = { texto: string };
 
+/*
+ * Pedidos de equipamento e espaço (controle remoto, HDMI, fechadura). Não são registros
+ * de pessoas: não têm envolvidos, protocolo nem prazo. A direção responde com anotações.
+ */
+export type AnotacaoDePedido = { id: string; autorNome: string; em: string; texto: string };
+export type PedidoDeEquipamento = {
+  id: string;
+  redeId: string;
+  escolaId: string;
+  criadoPorId: string;
+  criadoPorNome: string;
+  criadoEm: string;
+  item: string;
+  local: string;
+  descricao: string;
+  anotacoes: AnotacaoDePedido[];
+};
+export type NovoPedidoDeEquipamento = { item: string; local: string; descricao: string };
+export type NovaAnotacaoDePedido = { texto: string };
+
 /** Ação de plano de apoio com prazo, dos casos que a pessoa pode abrir. */
 export type PrazoProximo = AcaoDoPlano & { ocorrenciaId: string; protocolo: string };
 
@@ -474,6 +494,8 @@ export const rotas = {
   ocorrencias: '/api/ocorrencias',
   ocorrencia: (id: string) => `/api/ocorrencias/${id}`,
   adendos: (id: string) => `/api/ocorrencias/${id}/adendos`,
+  equipamentos: '/api/equipamentos',
+  anotarEquipamento: (id: string) => `/api/equipamentos/${id}/anotacoes`,
   semelhantes: (q: { data: string; categoriaId: string }) =>
     `/api/ocorrencias-semelhantes?data=${encodeURIComponent(q.data)}&categoriaId=${encodeURIComponent(q.categoriaId)}`,
   pessoas: (busca: string) => `/api/pessoas?busca=${encodeURIComponent(busca)}`,
