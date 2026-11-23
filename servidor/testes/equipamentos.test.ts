@@ -79,8 +79,8 @@ describe('correção de adendo', () => {
   });
 
   test('adendo sem autor registrado (antigo) não pode ser corrigido por ninguém', async () => {
-    const id = (await (await amb.pedir('/ocorrencias', { cabecalhos: ana })).json())[0].id as string;
-    const antigo = await naRede({ redeId: 'rede-sp' }, (c) => c.query(
+    const id = ((await (await amb.pedir('/ocorrencias', { cabecalhos: ana })).json()) as OcorrenciaResumo[])[0].id;
+    const antigo = await naRede({ redeId: 'rede-sp' }, (c) => c.query<{ id: string }>(
       `insert into eventos (rede_id, ocorrencia_id, tipo, autor_nome, autor_perfil, texto) values ('rede-sp', $1, 'adendo', 'Ana Ribeiro', 'professor', 'Adendo sem autor.') returning id`,
       [id],
     ));
