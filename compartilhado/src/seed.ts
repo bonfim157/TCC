@@ -382,24 +382,5 @@ export const acessoDemo = {
   segredoTotp: 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
 };
 
-/* Pedidos de equipamento e espaço da escola piloto (fictícios). */
-export const pedidosDeEquipamento: import('./contrato').PedidoDeEquipamento[] = [
-  {
-    id: 'eq-1', redeId: 'rede-sp', escolaId: 'esc-imsil', criadoPorId: 'u-ana', criadoPorNome: 'Ana Ribeiro',
-    criadoEm: '2026-11-18T09:40:00-03:00', item: 'Controle remoto da TV', local: 'Sala 12',
-    descricao: 'Sumiu o controle remoto da TV. Sem ele não dá para trocar a entrada.',
-    anotacoes: [{ id: 'eq-1-a1', autorNome: 'Beatriz Nunes', em: '2026-11-18T14:10:00-03:00', texto: 'Foi realizado o pedido de um novo controle remoto.' }],
-  },
-  {
-    id: 'eq-2', redeId: 'rede-sp', escolaId: 'esc-imsil', criadoPorId: 'u-ana', criadoPorNome: 'Ana Ribeiro',
-    criadoEm: '2026-11-20T08:15:00-03:00', item: 'Entrada HDMI da TV', local: 'Sala 12',
-    descricao: 'A entrada HDMI 2 não reconhece o notebook. A HDMI 1 funciona normalmente.',
-    anotacoes: [],
-  },
-  {
-    id: 'eq-3', redeId: 'rede-sp', escolaId: 'esc-imsil', criadoPorId: 'u-ana', criadoPorNome: 'Ana Ribeiro',
-    criadoEm: '2026-11-21T10:05:00-03:00', item: 'Fechadura da porta', local: 'Sala 7',
-    descricao: 'A fechadura não gira até o fim, e a porta fica sem trancar.',
-    anotacoes: [],
-  },
-];
+/* Pedidos de equipamento começam vazios: a demonstração adiciona e aprova ao vivo. */
+export const pedidosDeEquipamento: import('./contrato').PedidoDeEquipamento[] = [];
