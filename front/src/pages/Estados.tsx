@@ -52,7 +52,7 @@ export class LimiteDeErro extends Component<{ children: ReactNode }, { erro: boo
     return { erro: true };
   }
   componentDidCatch(erro: Error, info: ErrorInfo) {
-    console.error('[Cuidar e Registrar]', erro, info.componentStack);
+    console.error('[Ocorre]', erro, info.componentStack);
   }
   render() {
     return this.state.erro ? <ErroGeral aoTentar={() => this.setState({ erro: false })} /> : this.props.children;

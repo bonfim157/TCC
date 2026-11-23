@@ -35,7 +35,7 @@ export function Marca() {
   return (
     <span className="marca">
       <IconeCoracao width={26} height={26} aria-hidden="true" />
-      Cuidar e Registrar
+      Ocorre
     </span>
   );
 }
