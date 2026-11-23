@@ -145,6 +145,8 @@ function FormularioDeRegistro({ dono }: { dono: Dono }) {
       const criada = await api<Ocorrencia>(rotas.ocorrencias, { method: 'POST', body: JSON.stringify(corpo) });
       apagarRascunho(dono, r.id);
       setEnviado(criada);
+      // O rascunho acabou: o endereço volta para /registrar, sem o id do rascunho enviado.
+      navegar('/registrar', { replace: true });
     } catch (e) {
       setErroEnvio(
         e instanceof FalhaDeRede

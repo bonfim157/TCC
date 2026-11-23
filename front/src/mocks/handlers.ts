@@ -161,7 +161,9 @@ export const handlers = [
     await delay(250);
     const ctx = contexto(request);
     if (ctx instanceof Response) return ctx;
-    const item = ocorrencias.find((o) => o.id === params.id);
+    // Aceita o id interno ou o número de protocolo; o protocolo só vale dentro da rede da pessoa.
+    const item = ocorrencias.find((o) => o.id === params.id)
+      ?? ocorrencias.find((o) => o.protocolo === params.id && o.redeId === ctx.vinculo.redeId);
     if (!item) return erro(404, 'nao_encontrado', 'Não encontramos este registro.');
     // Mesmo que o id exista, um registro de outra rede nunca é entregue.
     if (item.redeId !== ctx.vinculo.redeId) {
