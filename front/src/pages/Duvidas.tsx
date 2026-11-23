@@ -9,8 +9,8 @@ const duvida = (pergunta: string, texto: string, resposta?: ReactNode): Duvida =
 
 const duvidas: Duvida[] = [
   duvida(
-    'Alguém corre risco agora. Registro primeiro ou ligo primeiro?',
-    'Ligue primeiro. Acolha o estudante, chame a direção e acione o 190 (Polícia Militar) ou o 192 (SAMU). O registro vem depois, e nele você informa o que já foi feito no momento.',
+    'Meu registro é urgente. Registro primeiro ou chamo a direção primeiro?',
+    'Resolva na hora o que for preciso: separe as pessoas, acolha e chame a direção pessoalmente. Se houver risco à vida, ligue antes para o 190 (Polícia Militar) ou o 192 (SAMU). Depois, registre e marque como urgente, para o caso aparecer primeiro na fila da direção.',
   ),
   duvida(
     'Quem vai ver o que eu escrever?',

@@ -225,8 +225,8 @@ function Componentes() {
 
       <Exemplo nome="Sim ou não" nota="Substitui o interruptor do protótipo: duas escolhas nomeadas, fáceis de acertar.">
         <GrupoOpcoes
-          rotulo="Alguém corre risco agora?"
-          ajuda="Se marcar sim, a direção é avisada imediatamente."
+          rotulo="Seu registro é urgente?"
+          ajuda="Se marcar sim, o registro aparece primeiro na fila da direção."
           estilo="sim-nao"
           opcoes={[{ valor: 'sim', rotulo: 'Sim' }, { valor: 'nao', rotulo: 'Não' }]}
           valor={urgente}
