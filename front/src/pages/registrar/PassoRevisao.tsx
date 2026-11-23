@@ -56,7 +56,7 @@ export function PassoRevisao({ r, categorias, irPara, confirmado, setConfirmado,
             <div><dt>Onde</dt><dd>{f.local || 'Não informado'}</dd></div>
             <div><dt>Relato</dt><dd className="texto-relato">{f.relato || 'Não informado'}</dd></div>
             {f.providenciaImediata && <div><dt>O que já foi feito</dt><dd className="texto-relato">{f.providenciaImediata}</dd></div>}
-            <div><dt>Risco agora</dt><dd>{r.risco === 'sim' ? <strong>Sim, a direção será avisada ao enviar</strong> : 'Não'}</dd></div>
+            <div><dt>Urgente</dt><dd>{r.risco === 'sim' ? <strong>Sim, aparece primeiro na fila da direção</strong> : 'Não'}</dd></div>
           </dl>
         </Bloco>
 

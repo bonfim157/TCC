@@ -103,7 +103,7 @@ export function Caso() {
                       <div><dt>Onde</dt><dd>{f.local}</dd></div>
                       <div><dt>Relato</dt><dd className="texto-relato">{f.relato}</dd></div>
                       {f.providenciaImediata && <div><dt>O que foi feito no momento</dt><dd className="texto-relato">{f.providenciaImediata}</dd></div>}
-                      <div><dt>Risco no momento do registro</dt><dd>{f.riscoImediato ? 'Sim' : 'Não'}</dd></div>
+                      <div><dt>Urgente no momento do registro</dt><dd>{f.riscoImediato ? 'Sim' : 'Não'}</dd></div>
                     </dl>
                   </Painel>
 

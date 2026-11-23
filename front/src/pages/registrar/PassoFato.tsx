@@ -15,7 +15,7 @@ export function validarFato(r: RascunhoRegistro): Erros {
   const f = r.fato;
   const e: Erros = {};
   // A pergunta de risco vem primeiro na tela, então o erro dela também.
-  if (!r.risco) e.risco = 'Responda se alguém corre risco agora.';
+  if (!r.risco) e.risco = 'Responda se o registro é urgente.';
   if (!f.categoriaId) e.categoria = 'Escolha o tipo de ocorrência.';
   if (!f.data) e.data = 'Informe a data em que aconteceu.';
   else if (f.data > hojeISO()) e.data = 'A data não pode estar no futuro.';
@@ -56,8 +56,8 @@ export function PassoFato({ r, categorias, erros, atualizar }: {
       <div className="bloco-risco">
         <GrupoOpcoes
           id="campo-risco"
-          rotulo="Alguém corre risco agora?"
-          ajuda="Por exemplo: ferimento, ameaça, estudante que não pode voltar para casa."
+          rotulo="Seu registro é urgente?"
+          ajuda="Sim, quando precisa de providência da direção hoje, por exemplo: briga com agressão física que pode levar à suspensão do estudante. O registro aparece primeiro na fila da direção."
           estilo="sim-nao"
           opcoes={[{ valor: 'sim', rotulo: 'Sim' }, { valor: 'nao', rotulo: 'Não' }]}
           valor={r.risco}
