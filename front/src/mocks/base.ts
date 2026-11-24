@@ -23,6 +23,8 @@ export const auditoria: RegistroDeAuditoria[] = [];
  */
 export const CHAVE_BANCO = 'demo.banco.v7';
 const colecoes: Record<string, unknown[]> = { ocorrencias, auditoria, regras, modelos, categorias, contatos, pessoas, pedidosDeEquipamento };
+// Cópia da semente, para voltar a ela quando outra aba apaga os dados.
+const semente: Record<string, unknown[]> = JSON.parse(JSON.stringify(colecoes));
 let ultimoSalvo: string | null = null;
 
 /** Traz para a memória o que outra aba gravou. Chamado a cada requisição. */
@@ -33,7 +35,16 @@ export function recarregar() {
   } catch {
     return;
   }
-  if (!bruto || bruto === ultimoSalvo) return;
+  if (!bruto) {
+    // Outra aba apagou os dados (Restaurar): esta volta à semente. Sem isso, a memória antiga
+    // seria gravada de novo na próxima auditoria e os dados apagados reapareceriam.
+    if (ultimoSalvo !== null) {
+      for (const [nome, lista] of Object.entries(colecoes)) lista.splice(0, lista.length, ...(JSON.parse(JSON.stringify(semente[nome])) as unknown[]));
+      ultimoSalvo = null;
+    }
+    return;
+  }
+  if (bruto === ultimoSalvo) return;
   try {
     const dados = JSON.parse(bruto) as Record<string, unknown[]>;
     for (const [nome, lista] of Object.entries(colecoes)) {
