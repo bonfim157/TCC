@@ -33,11 +33,19 @@ let donoLocal: string | null = null;
 
 const PAPEL_DA_APLICACAO = 'app_tcc';
 
+/*
+ * Sem este listener, uma conexão ociosa encerrada pelo Neon (que suspende a
+ * computação sem uso) derruba a função inteira com um evento "error" não tratado.
+ */
+const aoCairConexaoOciosa = (e: Error) => console.error('[banco] conexão ociosa encerrada:', e.message);
+
 export function configurarBanco(url: string, opcoes: { max?: number; urlDono?: string; donoLocal?: string } = {}) {
   pool = new pg.Pool({ connectionString: url, max: opcoes.max ?? 5 });
+  pool.on('error', aoCairConexaoOciosa);
   donoLocal = opcoes.donoLocal ?? null;
   if (donoLocal) pool.on('connect', (c) => { c.query(`set role ${PAPEL_DA_APLICACAO}`).catch(() => {}); });
   poolDono = opcoes.urlDono ? new pg.Pool({ connectionString: opcoes.urlDono, max: 1 }) : null;
+  poolDono?.on('error', aoCairConexaoOciosa);
   return pool;
 }
 

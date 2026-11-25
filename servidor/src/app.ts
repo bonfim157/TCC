@@ -21,21 +21,47 @@ const HORAS_DE_SESSAO = 8;
 const redeDeExemplo = (redeId: string) => redesDeExemplo.some((r) => r.id === redeId);
 
 
+/**
+ * Guarda o erro inesperado na tabela própria. Sem mensagem nem valores da rota:
+ * a mensagem de um erro do banco pode trazer e-mails ou nomes. Se a própria
+ * gravação falhar (banco fora), só registra no log e a resposta sai do mesmo jeito.
+ */
+export async function registrarErroTecnico(metodo: string, rota: string, e: unknown) {
+  const tipo = e instanceof Error ? e.name : 'desconhecido';
+  const codigo = (e as { code?: unknown }).code;
+  try {
+    await naRede({ redeId: null }, (db) =>
+      db.query('insert into erros_tecnicos (metodo, rota, tipo, codigo) values ($1, $2, $3, $4)', [
+        metodo, rota, tipo, typeof codigo === 'string' ? codigo : null,
+      ]),
+    );
+  } catch (falha) {
+    console.error('[servidor] erro técnico não gravado:', (falha as Error).message);
+  }
+}
+
 export function criarApp() {
   const app = new Hono().basePath('/api');
 
-  app.onError((e, c) => {
+  app.onError(async (e, c) => {
     if (e instanceof ErroApi) return c.json(e.corpo(), e.status);
     console.error('[servidor]', e);
+    await registrarErroTecnico(c.req.method, c.req.routePath, e);
     return c.json({ codigo: 'erro_interno', mensagem: 'O servidor não conseguiu concluir o pedido.' }, 500);
   });
 
   app.notFound((c) => c.json(naoEncontrado('Esta função ainda não está disponível no servidor.').corpo(), 404));
 
   /* ---------- Saúde ---------- */
+  // Diz se o banco respondeu e se a variável DATABASE_URL existe (sem mostrar o valor), para diagnosticar a configuração da Vercel.
   app.get('/saude', async (c) => {
-    await banco().query('select 1');
-    return c.json({ ok: true });
+    try {
+      await banco().query('select 1');
+      return c.json({ ok: true });
+    } catch (e) {
+      console.error('[servidor] saúde: banco indisponível', (e as Error).message);
+      return c.json({ ok: false, banco: 'indisponivel', urlConfigurada: Boolean(process.env.DATABASE_URL) }, 503);
+    }
   });
 
   /* ---------- Redes e sessão ---------- */

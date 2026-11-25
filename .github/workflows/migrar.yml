@@ -1,0 +1,33 @@
+# Migrações do banco de produção. Nunca roda sozinha: só quando alguém dispara
+# pelo botão "Run workflow" e digita MIGRAR para confirmar.
+name: Migrar banco
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmar:
+        description: 'Digite MIGRAR para aplicar as migrações pendentes no banco de produção'
+        required: true
+
+jobs:
+  migrar:
+    if: github.event.inputs.confirmar == 'MIGRAR'
+    runs-on: ubuntu-latest
+    environment: producao
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Aplicar migrações pendentes
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL_DONO: ${{ secrets.DATABASE_URL_DONO }}
+        run: npm run cli -w servidor -- migrar
